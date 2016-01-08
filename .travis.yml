@@ -9,6 +9,6 @@ python:
 install:
   - pip install pep8
 before_script:
-  - "pep8 --exclude=migration"
+  - "pep8 bluezero"
 script:
   - python -m unittest tests.test_all
