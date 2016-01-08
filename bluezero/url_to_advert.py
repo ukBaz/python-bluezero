@@ -10,8 +10,13 @@ def url_to_advert(url):
     # out = 4
     prefix = ['http://www.', 'https://www.', 'http://', 'https://']
 
-    suffix = [ '.com/', '.org/', '.edu/', '.net/', '.info/', '.biz/', '.gov/',
-               '.com', '.org', '.edu', '.net', '.info', '.biz', '.gov',
-               ]
-    
+    suffix = ['.com/', '.org/', '.edu/', '.net/', '.info/', '.biz/', '.gov/',
+              '.com', '.org', '.edu', '.net', '.info', '.biz', '.gov',
+              ]
+    for x in prefix:
+        print x
+        if x in url:
+            print 'match'
+    for y in suffix:
+        print y
     return out
