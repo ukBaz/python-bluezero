@@ -1,0 +1,14 @@
+language: python
+python:
+  - 2.6
+  - 2.7
+  - 3.2
+  - 3.3
+  - 3.4
+  - pypy
+install:
+  - pip ipip install pep8
+before_script:
+  - "pep8 --exclude=migration"
+script:
+  - python -m unittest tests.test_all
