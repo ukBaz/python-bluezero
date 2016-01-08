@@ -1,7 +1,8 @@
 
 def url_to_advert(url):
     """
-    Encode as specified https://github.com/google/eddystone/blob/master/eddystone-url/README.md
+    Encode as specified
+    https://github.com/google/eddystone/blob/master/eddystone-url/README.md
     :param url:
     :return:
     """
