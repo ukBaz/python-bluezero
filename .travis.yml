@@ -7,7 +7,7 @@ python:
   - 3.4
   - pypy
 install:
-  - pip ipip install pep8
+  - pip install pep8
 before_script:
   - "pep8 --exclude=migration"
 script:
