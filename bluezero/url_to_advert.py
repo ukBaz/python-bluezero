@@ -16,9 +16,9 @@ def url_to_advert(url):
               '.com', '.org', '.edu', '.net', '.info', '.biz', '.gov',
               ]
     for x in prefix:
-        print x
+        print(x)
         if x in url:
-            print 'match'
+            print('match')
     for y in suffix:
-        print y
+        print(y)
     return out
