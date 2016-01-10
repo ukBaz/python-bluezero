@@ -10,4 +10,4 @@ install:
 before_script:
   - "pep8 bluezero"
 script:
-  - python -m unittest tests.test_all
+  - python -m unittest discover
