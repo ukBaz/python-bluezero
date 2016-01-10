@@ -7,6 +7,8 @@ python:
   - pypy
 install:
   - pip install pep8
+  - pip install python-dbus
+  - pip install python-dbusmock
 before_script:
   - "pep8 bluezero"
 script:
