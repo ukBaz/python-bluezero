@@ -1,12 +1,12 @@
-__author__ = 'barry'
-import unittest
 import sys
 import subprocess
+import unittest
 import dbus
 import dbus.mainloop.glib
 import dbusmock
 from gi.repository import GLib
 from bluezero.adapter import Adapter
+
 
 class TestBluezero(dbusmock.DBusTestCase):
 
@@ -29,7 +29,6 @@ class TestBluezero(dbusmock.DBusTestCase):
         ml = GLib.MainLoop()
 
         self.dbusmock_bluez.AddAdapter(adapter_name, 'my-computer')
-
 
     def tearDown(self):
         self.p_mock.terminate()

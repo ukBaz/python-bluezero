@@ -2,8 +2,8 @@ __author__ = 'barry'
 import os
 from setuptools import setup
 
-install_requires = []
-tests_require = []
+install_requires = [dbus]
+tests_require = [dbus, dbusmock]
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
