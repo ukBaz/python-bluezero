@@ -21,5 +21,7 @@ install:
   - pip install python-dbusmock
 before_script:
   - "pep8 bluezero"
+  - "pep8 examples"
+  - "pep8 tests"
 script:
   - python -m unittest discover
