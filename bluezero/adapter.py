@@ -86,7 +86,7 @@ class Adapter:
                 else:
                     print('    %s = %s' % (key, value))
                     adapters[key] = '%s' % value
-            print('Returning')
+            #print('Returning')
             return adapters
 
     def powered(self, new_state=None):

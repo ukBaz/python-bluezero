@@ -1,0 +1,25 @@
+from bluezero.adapter import Adapter
+
+
+dongle = Adapter()
+
+print('address: ')
+print(dongle.address())
+print('name: ')
+print(dongle.name())
+print('alias: ')
+print(dongle.alias())
+print('list: ')
+print(dongle.list())
+print('powered: ')
+print(dongle.powered())
+print('pairable: ')
+print(dongle.pairable())
+print('pairable timeout: ')
+print(dongle.pairabletimeout())
+print('discoverable: ')
+print(dongle.discoverable())
+print('discoverable timeout: ')
+print(dongle.discoverabletimeout())
+print('discovering: ')
+print(dongle.discovering())
