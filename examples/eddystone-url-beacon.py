@@ -102,17 +102,17 @@ class Advertisement(dbus.service.Object):
                          in_signature='s',
                          out_signature='a{sv}')
     def GetAll(self, interface):
-        print 'GetAll'
+        print('GetAll')
         if interface != LE_ADVERTISEMENT_IFACE:
             raise InvalidArgsException()
-        print 'returning props'
+        print('returning props')
         return self.get_properties()[LE_ADVERTISEMENT_IFACE]
 
     @dbus.service.method(LE_ADVERTISEMENT_IFACE,
                          in_signature='',
                          out_signature='')
     def Release(self):
-        print '%s: Released!' % self.path
+        print('%s: Released!' % self.path)
 
 
 class TestAdvertisement(Advertisement):
@@ -203,11 +203,11 @@ class TestAdvertisement(Advertisement):
 
 
 def register_ad_cb():
-    print 'Advertisement registered'
+    print('Advertisement registered')
 
 
 def register_ad_error_cb(error):
-    print 'Failed to register advertisement: ' + str(error)
+    print('Failed to register advertisement: ' + str(error))
     mainloop.quit()
 
 
@@ -232,7 +232,7 @@ def main(url):
 
     adapter = find_adapter(bus)
     if not adapter:
-        print 'LEAdvertisingManager1 interface not found'
+        print('LEAdvertisingManager1 interface not found')
         return
 
     adapter_props = dbus.Interface(bus.get_object(BLUEZ_SERVICE_NAME, adapter),
