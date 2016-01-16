@@ -20,7 +20,7 @@ def list_adapters():
     manager = dbus.Interface(bus.get_object('org.bluez', '/'),
                              'org.freedesktop.DBus.ObjectManager')
     manager_obj = manager.GetManagedObjects()
-    for path, ifaces in manager_obj.iteritems():
+    for path, ifaces in manager_obj.items():
         adapter = ifaces.get(ADAPTER_INTERFACE)
         if adapter is None:
             continue
@@ -71,7 +71,7 @@ class Adapter:
         om = dbus.Interface(self.bus.get_object('org.bluez', '/'),
                             'org.freedesktop.DBus.ObjectManager')
         objects = om.GetManagedObjects()
-        for path, interfaces in objects.iteritems():
+        for path, interfaces in objects.items():
             if 'org.bluez.Adapter1' not in interfaces:
                 continue
 
@@ -86,7 +86,7 @@ class Adapter:
                 else:
                     print('    %s = %s' % (key, value))
                     adapters[key] = '%s' % value
-            # print('Returning')
+            #print('Returning')
             return adapters
 
     def powered(self, new_state=None):
