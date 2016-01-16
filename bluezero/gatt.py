@@ -1,12 +1,13 @@
 import sys
+
 import dbus
 import dbus.service
 import dbus.mainloop.glib
-try:
-  from gi.repository import GObject
-except ImportError:
-  import gobject as GObject
 
+try:
+    from gi.repository import GObject
+except ImportError:
+    import gobject as GObject
 
 from dbus.mainloop.glib import DBusGMainLoop
 
@@ -14,11 +15,11 @@ bus = None
 mainloop = None
 
 BLUEZ_SERVICE_NAME = 'org.bluez'
-DBUS_OM_IFACE =      'org.freedesktop.DBus.ObjectManager'
-DBUS_PROP_IFACE =    'org.freedesktop.DBus.Properties'
+DBUS_OM_IFACE = 'org.freedesktop.DBus.ObjectManager'
+DBUS_PROP_IFACE = 'org.freedesktop.DBus.Properties'
 
 GATT_SERVICE_IFACE = 'org.bluez.GattService1'
-GATT_CHRC_IFACE =    'org.bluez.GattCharacteristic1'
+GATT_CHRC_IFACE = 'org.bluez.GattCharacteristic1'
 
 KEYS_SVC_UUID = '0000180f-0000-1000-8000-00805f9b34fb'
 KEYS_CHR_UUID = '00002a19-0000-1000-8000-00805f9b34fb'
@@ -41,11 +42,11 @@ class Client:
 
         self.bat_level = None
 
-        self.om = dbus.Interface(bus.get_object(BLUEZ_SERVICE_NAME, '/'), DBUS_OM_IFACE)
-        self.om.connect_to_signal('InterfacesRemoved', self.interfaces_removed_cb)
+        self.om = dbus.Interface(bus.get_object(BLUEZ_SERVICE_NAME, '/'),
+                                 DBUS_OM_IFACE)
+        self.om.connect_to_signal('InterfacesRemoved',
+                                  self.interfaces_removed_cb)
 
-
-        # service_path = '/org/bluez/hci0/dev_5E_32_AA_46_D8_9B/service0028'
         service_path = dev_path + '/service0028'
         print('Service Path: {}'.format(service_path))
 
@@ -65,17 +66,13 @@ class Client:
         except (KeyboardInterrupt, SystemExit):
             mainloop.quit()
 
-
-
     @classmethod
     def generic_error_cb(error):
         print('D-Bus call failed: ' + str(error))
         mainloop.quit()
 
-
     def keys_msrmt_start_notify_cb(self):
         print('Keys notifications enabled')
-
 
     def keys_msrmt_changed_cb(self, iface, changed_props, invalidated_props):
         if iface != GATT_CHRC_IFACE:
@@ -95,19 +92,19 @@ class Client:
         print('\tCharge: ' + str(int(flags)))
         self.bat_level = str(int(flags))
 
-
     def start_client(self):
         # Listen to PropertiesChanged signals from the Keys
         # Characteristic.
-        keys_msrmt_prop_iface = dbus.Interface(keys_msrmt_chrc[0], DBUS_PROP_IFACE)
+        keys_msrmt_prop_iface = dbus.Interface(keys_msrmt_chrc[0],
+                                               DBUS_PROP_IFACE)
         keys_msrmt_prop_iface.connect_to_signal("PropertiesChanged",
-                                              self.keys_msrmt_changed_cb)
+                                                self.keys_msrmt_changed_cb)
 
         # Subscribe to Heart Rate Measurement notifications.
-        keys_msrmt_chrc[0].StartNotify(reply_handler=self.keys_msrmt_start_notify_cb,
-                                     error_handler=Client.generic_error_cb,
-                                     dbus_interface=GATT_CHRC_IFACE)
-
+        keys_msrmt_chrc[0].StartNotify(
+            reply_handler=self.keys_msrmt_start_notify_cb,
+            error_handler=Client.generic_error_cb,
+            dbus_interface=GATT_CHRC_IFACE)
 
     def process_chrc(self, chrc_path):
         chrc = bus.get_object(BLUEZ_SERVICE_NAME, chrc_path)
@@ -124,7 +121,6 @@ class Client:
             print('Unrecognized characteristic: ' + uuid)
 
         return True
-
 
     def process_keys_service(self, service_path):
         service = bus.get_object(BLUEZ_SERVICE_NAME, service_path)
@@ -149,7 +145,6 @@ class Client:
 
         return True
 
-
     def interfaces_removed_cb(self, object_path, interfaces):
         if not keys_service:
             return
@@ -157,6 +152,7 @@ class Client:
         if object_path == keys_service[2]:
             print('Service was removed')
             mainloop.quit()
+
 
 if __name__ == '__main__':
     Client('/org/bluez/hci0/dev_7F_0D_31_10_90_32')
