@@ -33,32 +33,32 @@ class Device:
         self.services = None
 
     def list(self):
-        om = dbus.Interface(self.bus.get_object("org.bluez", "/"),
-                            "org.freedesktop.DBus.ObjectManager")
+        om = dbus.Interface(self.bus.get_object('org.bluez', '/'),
+                            'org.freedesktop.DBus.ObjectManager')
         objects = om.GetManagedObjects()
 
         for path, interfaces in objects.iteritems():
-            if "org.bluez.Device1" not in interfaces:
+            if 'org.bluez.Device1' not in interfaces:
                 continue
-            properties = interfaces["org.bluez.Device1"]
-            if properties["Adapter"] != self.adapter_path:
+            properties = interfaces['org.bluez.Device1']
+            if properties['Adapter'] != self.adapter_path:
                 continue
-            print("%s %s" % (properties["Address"], properties["Alias"]))
-            self.devices[properties["Address"]] = properties["Alias"]
+            print('%s %s' % (properties['Address'], properties['Alias']))
+            self.devices[properties['Address']] = properties['Alias']
 
     def create_device_reply(self, device):
-        print("New device (%s)" % device)
+        print('New device (%s)' % device)
         self.mainloop.quit()
         sys.exit(0)
 
     def create_device_error(self, error):
-        print("Creating device failed: %s" % error)
+        print('Creating device failed: %s' % error)
         self.mainloop.quit()
         sys.exit(1)
 
     def create(self, address=None):
         if address is None:
-            print("Need address parameter")
+            print('Need address parameter')
         else:
             self.adapter.CreateDevice(address,
                                       reply_handler=self.create_device_reply,
@@ -67,7 +67,7 @@ class Device:
 
     def remove(self, address):
         if address is None:
-            print("Need address or object path parameter")
+            print('Need address or object path parameter')
         else:
             managed_objects = bluezutils.get_managed_objects()
             try:
@@ -81,7 +81,7 @@ class Device:
 
     def connect(self, address=None, profile=None):
         if address is None:
-            print("Need address parameter")
+            print('Need address parameter')
         else:
             self.device = bluezutils.find_device(address, self.adapter_path)
             # print('Device: {0}'.format(device))
@@ -95,105 +95,108 @@ class Device:
 
     def uuid(self, address=None):
         if address is None:
-            print("Need address parameter")
+            print('Need address parameter')
         else:
             device = bluezutils.find_device(address, self.dev_id)
             path = device.object_path
             print('Path to object: {}'.format(path))
-            props = dbus.Interface(self.bus.get_object("org.bluez", path),
-                                   "org.freedesktop.DBus.Properties")
-            cls = props.Get("org.bluez.Device1", "Class")
-            print("0x{0}".format(cls))
+            props = dbus.Interface(self.bus.get_object('org.bluez', path),
+                                   'org.freedesktop.DBus.Properties')
+            cls = props.Get('org.bluez.Device1', 'Class')
+            print('0x{0}'.format(cls))
 
     def name(self, address):
         if address is None:
-            print("Need address parameter")
+            print('Need address parameter')
         else:
             device = bluezutils.find_device(address, self.dev_id)
             path = device.object_path
-            props = dbus.Interface(self.bus.get_object("org.bluez", path),
-                                   "org.freedesktop.DBus.Properties")
-            name = props.Get("org.bluez.Device1", "Name")
+            props = dbus.Interface(self.bus.get_object('org.bluez', path),
+                                   'org.freedesktop.DBus.Properties')
+            name = props.Get('org.bluez.Device1', 'Name')
             return name
 
     def alias(self, address=None, alias_name=None):
         if address is None:
-            print("Need address parameter")
+            print('Need address parameter')
         else:
             device = bluezutils.find_device(address, self.dev_id)
             path = device.object_path
-            props = dbus.Interface(self.bus.get_object("org.bluez", path),
-                                   "org.freedesktop.DBus.Properties")
+            props = dbus.Interface(self.bus.get_object('org.bluez', path),
+                                   'org.freedesktop.DBus.Properties')
             if alias_name is None:
-                alias = props.Get("org.bluez.Device1", "Alias")
+                alias = props.Get('org.bluez.Device1', 'Alias')
                 return alias
             else:
-                props.Set("org.bluez.Device1", "Alias", alias_name)
+                props.Set('org.bluez.Device1', 'Alias', alias_name)
 
     def trusted(self, address=None, state=None):
         if address is None:
-            print("Need address parameter")
+            print('Need address parameter')
         else:
             device = bluezutils.find_device(address, self.dev_id)
             path = device.object_path
-            props = dbus.Interface(self.bus.get_object("org.bluez", path),
-                                   "org.freedesktop.DBus.Properties")
+            props = dbus.Interface(self.bus.get_object('org.bluez', path),
+                                   'org.freedesktop.DBus.Properties')
             if state is None:
-                trusted = props.Get("org.bluez.Device1", "Trusted")
+                trusted = props.Get('org.bluez.Device1', 'Trusted')
                 return trusted
             else:
-                if state == "yes":
+                if state == 'yes':
                     value = dbus.Boolean(1)
-                elif state == "no":
+                elif state == 'no':
                     value = dbus.Boolean(0)
                 else:
                     value = dbus.Boolean(state)
-                props.Set("org.bluez.Device1", "Trusted", value)
+                props.Set('org.bluez.Device1', 'Trusted', value)
 
     def blocked(self, address=None, state=None):
         if address is None:
-            print("Need address parameter")
+            print('Need address parameter')
         else:
             path = self.device.object_path
-            props = dbus.Interface(self.bus.get_object("org.bluez", path),
-                                   "org.freedesktop.DBus.Properties")
+            props = dbus.Interface(self.bus.get_object('org.bluez', path),
+                                   'org.freedesktop.DBus.Properties')
             if state is None:
-                blocked = props.Get("org.bluez.Device1", "Blocked")
+                blocked = props.Get('org.bluez.Device1', 'Blocked')
                 return blocked
             else:
-                if state == "yes":
+                if state == 'yes':
                     value = dbus.Boolean(1)
-                elif state == "no":
+                elif state == 'no':
                     value = dbus.Boolean(0)
                 else:
                     value = dbus.Boolean(state)
-                props.Set("org.bluez.Device1", "Blocked", value)
+                props.Set('org.bluez.Device1', 'Blocked', value)
 
     def connected(self):
         if self.device is None:
             conn_state = False
         else:
             path = self.device.object_path
-            props = dbus.Interface(self.bus.get_object("org.bluez", path),
-                                   "org.freedesktop.DBus.Properties")
-            conn_state = props.Get("org.bluez.Device1", "Connected")
+            props = dbus.Interface(self.bus.get_object('org.bluez', path),
+                                   'org.freedesktop.DBus.Properties')
+            conn_state = props.Get('org.bluez.Device1', 'Connected')
 
         return conn_state
 
     def request_device(self, name=None, alias=None, service=None):
-        self.bus.add_signal_receiver(self.interfaces_added,
-                                     dbus_interface = "org.freedesktop.DBus.ObjectManager",
-                                     signal_name = "InterfacesAdded")
+        self.bus.add_signal_receiver(
+            self.interfaces_added,
+            dbus_interface='org.freedesktop.DBus.ObjectManager',
+            signal_name='InterfacesAdded')
 
-        self.bus.add_signal_receiver(self.properties_changed,
-                                     dbus_interface = "org.freedesktop.DBus.Properties",
-                                     signal_name = "PropertiesChanged",
-                                     arg0 = "org.bluez.Device1",
-                                     path_keyword = "path")
+        self.bus.add_signal_receiver(
+            self.properties_changed,
+            dbus_interface='org.freedesktop.DBus.Properties',
+            signal_name='PropertiesChanged',
+            arg0='org.bluez.Device1',
+            path_keyword='path')
 
-        self.bus.add_signal_receiver(self.property_changed,
-                                     dbus_interface = "org.bluez.Adapter1",
-                                     signal_name = "PropertyChanged")
+        self.bus.add_signal_receiver(
+            self.property_changed,
+            dbus_interface='org.bluez.Adapter1',
+            signal_name='PropertyChanged')
 
         # self.list()
 
@@ -202,7 +205,9 @@ class Device:
         try:
             run_event = threading.Event()
             run_event.set()
-            thread_obj = threading.Thread(target=self.request_device_cb, args=(run_event,name, service,))
+            thread_obj = threading.Thread(target=self.request_device_cb,
+                                          args=(run_event, name, service, )
+                                          )
             thread_obj.start()
             self.mainloop.run()
             thread_obj.join()
@@ -223,10 +228,13 @@ class Device:
                             if service in str(UUID):
                                 print('  ****  We have a match!!!  ***')
                                 print()
-                                print('Device Address: {}'.format(self.devices[device]['Address']))
-                                self.dev_addr = str(self.devices[device]['Address'])
+                                print('Device Address: {}'.format(
+                                    self.devices[device]['Address']))
+                                self.dev_addr = str(
+                                    self.devices[device]['Address'])
                                 self.dev_path = str(device)
-                                print('Device Name: {}'.format(self.devices[device]['Name']))
+                                print('Device Name: {}'.format(
+                                    self.devices[device]['Name']))
                                 print('Device UUIDs: {}'.format(UUID))
                                 run_event.clear()
                                 self.mainloop.quit()
@@ -235,61 +243,59 @@ class Device:
         print('Thread: exit')
         return
 
-
-
     def print_compact(self, address, properties):
         # print('DEBUG: print_compact')
-        name = ""
-        address = "<unknown>"
+        name = ''
+        address = '<unknown>'
 
         for key, value in properties.iteritems():
             if type(value) is dbus.String:
                 value = unicode(value).encode('ascii', 'replace')
-            if (key == "Name"):
+            if (key == 'Name'):
                 name = value
-            elif (key == "Address"):
+            elif (key == 'Address'):
                 address = value
 
-        if "Logged" in properties:
-            flag = "*"
+        if 'Logged' in properties:
+            flag = '*'
         else:
-            flag = " "
+            flag = ' '
 
-        # print("%s%s %s" % (flag, address, name))
+        # print('%s%s %s' % (flag, address, name))
 
-        properties["Logged"] = True
+        properties['Logged'] = True
 
     def print_normal(self, address, properties):
         # print('DEBUG: print_normal')
-        # print("[ " + address + " ]")
+        # print('[ ' + address + ' ]')
 
         for key in properties.keys():
             value = properties[key]
             if type(value) is dbus.String:
                 value = unicode(value).encode('ascii', 'replace')
-            """
-            if (key == "Class"):
-                print("    %s = 0x%06x" % (key, value))
+            '''
+            if (key == 'Class'):
+                print('    %s = 0x%06x' % (key, value))
             else:
-                print("    %s = %s" % (key, value))
-            """
+                print('    %s = %s' % (key, value))
+            '''
 
         # print()
 
-        properties["Logged"] = True
+        properties['Logged'] = True
 
     def skip_dev(self, old_dev, new_dev):
-        if "Logged" not in old_dev:
+        if 'Logged' not in old_dev:
             return False
-        if "Name" in old_dev:
+        if 'Name' in old_dev:
             return True
-        if "Name" not in new_dev:
+        if 'Name' not in new_dev:
             return True
         return False
 
     def interfaces_added(self, path, interfaces):
         # print('DEBUG: interfaces_added')
-        properties = interfaces["org.bluez.Device1"]
+        properties = interfaces['org.bluez.Device1']
         if not properties:
             return
 
@@ -298,14 +304,15 @@ class Device:
 
             if self.compact and self.skip_dev(dev, properties):
                 return
-            self.devices[path] = dict(self.devices[path].items() + properties.items())
+            self.devices[path] = dict(self.devices[path].items() +
+                                      properties.items())
         else:
             self.devices[path] = properties
 
-        if "Address" in self.devices[path]:
-            address = properties["Address"]
+        if 'Address' in self.devices[path]:
+            address = properties['Address']
         else:
-            address = "<unknown>"
+            address = '<unknown>'
 
         if self.compact:
             self.print_compact(address, self.devices[path])
@@ -314,7 +321,7 @@ class Device:
 
     def properties_changed(self, interface, changed, invalidated, path):
         # print('DEBUG: properties_changed')
-        if interface != "org.bluez.Device1":
+        if interface != 'org.bluez.Device1':
             return
 
         if path in self.devices:
@@ -322,14 +329,15 @@ class Device:
 
             if self.compact and self.skip_dev(dev, changed):
                 return
-            self.devices[path] = dict(self.devices[path].items() + changed.items())
+            self.devices[path] = dict(self.devices[path].items() +
+                                      changed.items())
         else:
             self.devices[path] = changed
 
-        if "Address" in self.devices[path]:
-            address = self.devices[path]["Address"]
+        if 'Address' in self.devices[path]:
+            address = self.devices[path]['Address']
         else:
-            address = "<unknown>"
+            address = '<unknown>'
 
         if self.compact:
             self.print_compact(address, self.devices[path])
@@ -338,7 +346,7 @@ class Device:
 
     def property_changed(self, name, value):
         # print('DEBUG: property_changed')
-        if (name == "Discovering" and not value):
+        if (name == 'Discovering' and not value):
             self.mainloop.quit()
 
     def list_services(self):
