@@ -120,7 +120,7 @@ class TestAdvertisement(Advertisement):
     def __init__(self, bus, index, url):
         Advertisement.__init__(self, bus, index, 'broadcast')
         self.add_service_uuid('FEAA')
-        self.add_manufacturer_data(0xFEAA, [0x01, 0x06])
+        # self.add_manufacturer_data(0xFEAA, [0x01, 0x06])
         """
         # Adafruit
         # self.add_service_data('FEAA',
