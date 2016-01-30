@@ -9,16 +9,19 @@ python:
   # - pypy
 # virtualenv:
   # system_site_packages: true
-addons:
-  apt:
-    packages:
-      - python-dbus
-      - python3-dbus
-      - python-gi
-      - python3-gi
-# before_install:
-  # - sudo apt-get update -qq
-  # - sudo apt-get install -qq python-gi python3-gi
+# addons:
+#   apt:
+#     packages:
+#      - python-dbus
+#      - python3-dbus
+#      - python-gi
+#      - python3-gi
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y python-gi 
+  - sudo apt-get install -y python3-gi
+  - sudo apt-get install -y python-dbus 
+  - sudo apt-get install -y python3-dbus
 install:
   - pip install --upgrade pip
   - pip install pep8
