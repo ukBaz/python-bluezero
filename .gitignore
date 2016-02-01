@@ -64,3 +64,6 @@ target/
 
 # local experiments
 experiments/
+
+# web bluetooth for testing
+web_bluetooth/
