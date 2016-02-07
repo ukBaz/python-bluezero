@@ -5,7 +5,7 @@ python:
   - "2.7_with_system_site_packages"
   # - 3.2
   # - "3.2_with_system_site_packages"
-  # - 3.3
+  - 3.3
   # - 3.4
   # - pypy
 # virtualenv:
@@ -16,7 +16,7 @@ addons:
       - python-dbus
       - python3-dbus
       - python-gi
-      #- python3-gi
+      - python3-gi
 # before_install:
 #   - sudo apt-get update -qq
 #   - sudo apt-get install -qq python-gi
