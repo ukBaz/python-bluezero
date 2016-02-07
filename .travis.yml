@@ -1,21 +1,22 @@
+sudo: false
 language: python
 python:
-  - 2.7
-  # - "2.7_with_system_site_packages"
+  # - 2.7
+  - "2.7_with_system_site_packages"
   # - 3.2
   # - "3.2_with_system_site_packages"
-  - 3.3
+  # - 3.3
   # - 3.4
   # - pypy
 # virtualenv:
   # system_site_packages: true
-# addons:
-  # apt:
-    # packages:
-      # - python-dbus
-      # - python3-dbus
-      # - python-gi
-      # - python3-gi
+addons:
+  apt:
+    packages:
+      - python-dbus
+      - python3-dbus
+      - python-gi
+      #- python3-gi
 # before_install:
 #   - sudo apt-get update -qq
 #   - sudo apt-get install -qq python-gi
@@ -27,11 +28,6 @@ install:
   - pip install pep8
   - pip install python-dbusmock
 before_script:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq python-gi
-  - sudo apt-get install -qq python3-gi
-  - sudo apt-get install -qq python-dbus
-  - sudo apt-get install -qq python3-dbus
   - "pep8 bluezero"
   - "pep8 examples"
   - "pep8 tests"
