@@ -10,23 +10,28 @@ python:
 # virtualenv:
   # system_site_packages: true
 # addons:
-#   apt:
-#     packages:
-#      - python-dbus
-#      - python3-dbus
-#      - python-gi
-#      - python3-gi
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq python-gi
-  - sudo apt-get install -qq python3-gi
-  - sudo apt-get install -qq python-dbus
-  - sudo apt-get install -qq python3-dbus
+  # apt:
+    # packages:
+      # - python-dbus
+      # - python3-dbus
+      # - python-gi
+      # - python3-gi
+# before_install:
+#   - sudo apt-get update -qq
+#   - sudo apt-get install -qq python-gi
+#   - sudo apt-get install -qq python3-gi
+#   - sudo apt-get install -qq python-dbus
+#   - sudo apt-get install -qq python3-dbus
 install:
   - pip install --upgrade pip
   - pip install pep8
   - pip install python-dbusmock
 before_script:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq python-gi
+  - sudo apt-get install -qq python3-gi
+  - sudo apt-get install -qq python-dbus
+  - sudo apt-get install -qq python3-dbus
   - "pep8 bluezero"
   - "pep8 examples"
   - "pep8 tests"
