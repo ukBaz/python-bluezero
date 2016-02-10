@@ -13,3 +13,17 @@ explain the Bluez API or write an event loop.
 In addition to the API it will contain examples of how to connect to common Bluetooth Smart (BLE) object 
 around them (or at least easily accessible to them easily).
 This will need to be done without the need to sign (or break) non-disclosure agreements.
+
+## Examples
+### Beacon
+eddystone-url-beacon.py
+
+### Scanner
+No example currently. see issue #?
+
+### GATT Server
+battery_service.py
+
+### GATT Client
+read_battery.py
+read_sensortag_CC2650.py
