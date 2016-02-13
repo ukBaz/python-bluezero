@@ -1,5 +1,5 @@
-# sudo: false
 language: python
+sudo: false
 python:
   - 2.7
   # - "2.7_with_system_site_packages"
@@ -11,13 +11,13 @@ python:
   # - pypy
 # virtualenv:
   # system_site_packages: true
-# addons:
-  # apt:
-    # packages:
-      # - python-dbus
-      # - python3-dbus
-      # - python-gi
-      # - python3-gi
+addons:
+  apt:
+    packages:
+      - python-dbus
+      - python3-dbus
+      - python-gi
+      - python3-gi
 # before_install:
 #   - sudo apt-get update -qq
 #   - sudo apt-get install -qq python-gi
