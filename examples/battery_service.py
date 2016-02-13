@@ -2,7 +2,6 @@ import dbus
 import dbus.exceptions
 import dbus.mainloop.glib
 import dbus.service
-import argparse
 
 import array
 try:
@@ -476,7 +475,7 @@ class CharacteristicUserDescriptionDescriptor(Descriptor):
 
     def __init__(self, bus, index, characteristic):
         self.writable = 'writable-auxiliaries' in characteristic.flags
-        self.value = array.array('B', 'This is a characteristic for testing')
+        self.value = array.array('B', b'This is a characteristic for testing')
         self.value = self.value.tolist()
         Descriptor.__init__(
             self, bus, index,
@@ -567,7 +566,7 @@ def find_gatt_adapter(bus):
                                DBUS_OM_IFACE)
     objects = remote_om.GetManagedObjects()
 
-    for o, props in objects.iteritems():
+    for o, props in objects.items():
         if GATT_MANAGER_IFACE in props:
             return o
 
@@ -700,7 +699,7 @@ def find_ad_adapter(bus):
                                DBUS_OM_IFACE)
     objects = remote_om.GetManagedObjects()
 
-    for o, props in objects.iteritems():
+    for o, props in objects.items():
         if LE_ADVERTISING_MANAGER_IFACE in props:
             return o
 
