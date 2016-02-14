@@ -1,16 +1,22 @@
 language: python
 sudo: false
-python:
-  - 2.7
+# python:
+  # - 2.7
   # - "2.7_with_system_site_packages"
   # - 3.2
   # - "3.2_with_system_site_packages"
   # - 3.3
   # - "3.3_with_system_site_packages"
-  - 3.4
+  # - 3.4
   # - pypy
 # virtualenv:
   # system_site_packages: true
+matrix:
+  include:
+    - python: 2.7
+      env: PYTHONPATH=/usr/lib/python2.7/dist-packages
+    - python: 3.3
+      env: PYTHONPATH=/usr/lib/python3/dist-packages
 addons:
   apt:
     packages:
