@@ -14,9 +14,9 @@ sudo: false
 matrix:
   include:
     - python: 2.7
-      env: PYTHONPATH=/usr/lib/python2.7/dist-packages
+      env: PYTHONPATH="$PYTHONPATH:/usr/lib/python2.7/dist-packages"
     - python: 3.3
-      env: PYTHONPATH=/usr/lib/python3/dist-packages
+      env: PYTHONPATH="$PYTHONPATH:/usr/lib/python3/dist-packages
 addons:
   apt:
     packages:
@@ -38,6 +38,7 @@ install:
 before_script:
   - echo "Travis Python Version ***********"
   - echo $TRAVIS_PYTHON_VERSION
+  - echo $PYTHONPATH
   - "pep8 bluezero"
   - "pep8 examples"
   - "pep8 tests"
