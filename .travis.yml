@@ -18,8 +18,8 @@ addons:
       - python3-dbus
       - python-gi
       - python3-gi
-before_install:
-    - "echo $TRAVIS_PYTHON_VERSION"
+# before_install:
+
 #   - sudo apt-get update -qq
 #   - sudo apt-get install -qq python-gi
 #   - sudo apt-get install -qq python3-gi
@@ -30,6 +30,8 @@ install:
   - pip install pep8
   - pip install python-dbusmock
 before_script:
+  - echo "Travis Python Version ***********"
+  - echo $TRAVIS_PYTHON_VERSION
   - "pep8 bluezero"
   - "pep8 examples"
   - "pep8 tests"
