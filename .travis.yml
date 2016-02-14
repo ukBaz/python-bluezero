@@ -14,12 +14,12 @@ python:
 addons:
   apt:
     packages:
-      - echo $TRAVIS_PYTHON_VERSION
       - python-dbus
       - python3-dbus
       - python-gi
       - python3-gi
-# before_install:
+before_install:
+    - "echo $TRAVIS_PYTHON_VERSION"
 #   - sudo apt-get update -qq
 #   - sudo apt-get install -qq python-gi
 #   - sudo apt-get install -qq python3-gi
@@ -30,7 +30,6 @@ install:
   - pip install pep8
   - pip install python-dbusmock
 before_script:
-  - "python -c 'import site; print(site.getsitepackages())'"
   - "pep8 bluezero"
   - "pep8 examples"
   - "pep8 tests"
