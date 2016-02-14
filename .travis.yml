@@ -14,6 +14,7 @@ python:
 addons:
   apt:
     packages:
+      - echo $TRAVIS_PYTHON_VERSION
       - python-dbus
       - python3-dbus
       - python-gi
