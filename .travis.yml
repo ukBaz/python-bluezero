@@ -29,6 +29,7 @@ install:
   - pip install pep8
   - pip install python-dbusmock
 before_script:
+  - "python -c 'import site; print(site.getsitepackages())'"
   - "pep8 bluezero"
   - "pep8 examples"
   - "pep8 tests"
