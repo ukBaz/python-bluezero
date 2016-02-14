@@ -36,6 +36,7 @@ install:
   - pip install pep8
   - pip install python-dbusmock
 before_script:
+  - .travis/setup.sh
   - echo "Travis Python Version ***********"
   - echo $TRAVIS_PYTHON_VERSION
   - echo $PYTHONPATH
