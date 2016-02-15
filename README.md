@@ -19,7 +19,7 @@ This will need to be done without the need to sign (or break) non-disclosure agr
 eddystone-url-beacon.py
 
 ### Scanner
-No example currently. see issue #11
+No example currently. see issue [#11] (https://github.com/ukBaz/python-bluezero/issues/11)
 
 ### GATT Server (Peripheral role)
 battery_service.py
