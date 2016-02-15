@@ -4,11 +4,11 @@ sudo: false
 # look at https://github.com/pypa/pip for examples?
 # https://docs.travis-ci.com/user/multi-os/
 python:
-  - 2.7
-  # - "2.7_with_system_site_packages"
+  # - 2.7
+  - "2.7_with_system_site_packages"
   # - 3.2
-  # - "3.2_with_system_site_packages"
-  - 3.3
+  - "3.2_with_system_site_packages"
+  # - 3.3
   # - "3.3_with_system_site_packages"
   # - 3.4
   # - pypy
@@ -19,10 +19,10 @@ python:
     # - python: 2.7
     #   env: PYTHONPATH="$PYTHONPATH:/usr/lib/python2.7/dist-packages"
     # - python: 3.3
-    #   env: PYTHONPATH="$PYTHONPATH:/usr/lib/python3/dist-packages
+    #   env: PYTHONPATH="$PYTHONPATH:/usr/lib/python3/dist-packages"
 addons:
   apt:
-    sources:
+    packages:
       - python-dbus
       - python3-dbus
       - python-gi
@@ -39,9 +39,9 @@ install:
   - pip install python-dbusmock
 before_script:
   # - .travis/setup.sh
-  - echo "Travis Python Version ***********"
-  - echo $TRAVIS_PYTHON_VERSION
-  - echo $PYTHONPATH
+  # - echo "Travis Python Version ***********"
+  # - echo $TRAVIS_PYTHON_VERSION
+  # - echo $PYTHONPATH
   - "pep8 bluezero"
   - "pep8 examples"
   - "pep8 tests"
