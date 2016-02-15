@@ -19,11 +19,11 @@ This will need to be done without the need to sign (or break) non-disclosure agr
 eddystone-url-beacon.py
 
 ### Scanner
-No example currently. see issue #?
+No example currently. see issue #11
 
-### GATT Server
+### GATT Server (Peripheral role)
 battery_service.py
 
-### GATT Client
+### GATT Client (Central role)
 read_battery.py
 read_sensortag_CC2650.py
