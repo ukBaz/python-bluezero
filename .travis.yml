@@ -1,5 +1,5 @@
 language: python
-sudo: false
+sudo: required
 
 # look at https://github.com/pypa/pip for examples?
 # https://docs.travis-ci.com/user/multi-os/
