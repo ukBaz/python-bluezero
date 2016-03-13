@@ -55,28 +55,32 @@ def find_device_in_objects(objects, device_address, adapter_pattern=None):
 
     raise Exception('Bluetooth device not found')
 
+
 def get_gatt_manager_interface():
     return dbus.Interface(
         dbus.SystemBus().get_object('org.bluez', '/org/bluez/hci0'),
         'org.bluez.GattManager1')
+
 
 def get_gatt_service_interface():
     return dbus.Interface(
         dbus.SystemBus().get_object('org.bluez', '/org/bluez/hci0'),
         'org.bluez.GattService1')
 
+
 def get_gatt_characteristic_interface():
     return dbus.Interface(
         dbus.SystemBus().get_object('org.bluez', '/org/bluez/hci0'),
         'org.bluez.GattCharacteristic1')
+
 
 def get_gatt_descriptor_interface():
     return dbus.Interface(
         dbus.SystemBus().get_object('org.bluez', '/org/bluez/hci0'),
         'org.bluez.GattDescriptor1')
 
+
 def get_advert_manager_interface():
     return dbus.Interface(
         dbus.SystemBus().get_object('org.bluez', '/org/bluez/hci0'),
         'org.bluez.LEAdvertisingManager1')
-

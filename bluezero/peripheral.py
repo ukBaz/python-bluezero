@@ -12,9 +12,6 @@ try:
 except ImportError:
     import gobject as GObject
 
-from random import randint
-from collections import OrderedDict
-
 
 """
 ##  GATT Server
@@ -63,7 +60,6 @@ class Service(dbus.service.Object):
         self.uuid = uuid
         self.primary = primary
         self.characteristics = []
-
 
     def get_properties(self):
         return {
@@ -130,7 +126,6 @@ class Service(dbus.service.Object):
         service_ad = Advertisement(self, 'peripheral')
         service_ad.add_service_uuid(self.uuid)
 
-
         print('Register Adver', service_ad.get_path())
         ad_manager.RegisterAdvertisement(service_ad.get_path(), {},
                                          reply_handler=register_ad_cb,
@@ -138,9 +133,10 @@ class Service(dbus.service.Object):
 
         # print('Register Application', app.get_path())
         print('Register service ', self.get_path())
-        service_manager.RegisterService(self.get_path(), {},
-                                        reply_handler=register_service_cb,
-                                        error_handler=register_service_error_cb)
+        service_manager.RegisterService(
+            self.get_path(), {},
+            reply_handler=register_service_cb,
+            error_handler=register_service_error_cb)
         try:
             self.mainloop.run()
         except KeyboardInterrupt:
