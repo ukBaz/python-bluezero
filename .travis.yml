@@ -34,7 +34,7 @@ before_script:
   # - echo $TRAVIS_PYTHON_VERSION
   # - echo $PYTHONPATH
   - "pep8 bluezero"
-  - "pep8 examples"
+  - "pep8 --ignore=E402 examples"
   - "pep8 tests"
 script:
   - python -m unittest discover

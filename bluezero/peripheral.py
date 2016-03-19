@@ -228,12 +228,16 @@ class Characteristic(dbus.service.Object):
 
         return self.get_properties()
 
-    @dbus.service.method(GATT_CHRC_IFACE, out_signature='ay')
+    @dbus.service.method(GATT_CHRC_IFACE, out_signature='b')
     def ReadValue(self):
-        return [self.value]
+        print('Reading Characteristic')
+        if self.value is None:
+            self.value = 0
+        return [dbus.Byte(self.value)]
 
-    @dbus.service.method(GATT_CHRC_IFACE, in_signature='ay')
+    @dbus.service.method(GATT_CHRC_IFACE, in_signature='b')
     def WriteValue(self, value):
+        print('Writing Characteristic')
         # if not self.writable:
         #     raise NotPermittedException()
         self.value = value
@@ -267,6 +271,15 @@ class Characteristic(dbus.service.Object):
 
     def add_notify_event(self, object_id):
         self.notify_cb = object_id
+
+    @dbus.service.method(DBUS_PROP_IFACE, signature='a{b}')
+    def send_notify_event(self, value):
+        print('send', self, value)
+        if not self.notifying:
+            return
+        self.PropertiesChanged(
+            bluezutils.get_gatt_characteristic_interface(),
+            {'Value': self.value}, [])
 
 
 class Descriptor(dbus.service.Object):
