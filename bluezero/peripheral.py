@@ -99,7 +99,7 @@ class Service(dbus.service.Object):
     @dbus.service.method(DBUS_OM_IFACE, out_signature='a{oa{sa{sv}}}')
     def GetManagedObjects(self):
         response = {}
-        print('GetManagedObjects')
+        # print('GetManagedObjects')
 
         response[self.get_path()] = self.get_properties()
         chrcs = self.get_characteristics()
@@ -231,19 +231,19 @@ class Characteristic(dbus.service.Object):
 
     @dbus.service.method(GATT_CHRC_IFACE, out_signature='ay')
     def ReadValue(self):
-        print('Reading Characteristic', self.value)
+        # print('Reading Characteristic', self.value)
         if self.value is None:
             self.value = 0
         return [dbus.Byte(self.value)]
 
     @dbus.service.method(GATT_CHRC_IFACE, in_signature='ay')
     def WriteValue(self, value):
-        print('Writing Characteristic', value)
+        # print('Writing Characteristic', value)
         # if not self.writable:
         #     raise NotPermittedException()
         self.value = value
         if self.write_cb is not None:
-            print('Write callback')
+            # print('Write callback')
             self.write_cb()
 
     def add_write_event(self, object_id):
@@ -280,12 +280,12 @@ class Characteristic(dbus.service.Object):
         self.notify_cb = object_id
 
     def send_notify_event(self, value):
-        print('send', self, value)
+        # print('send', self, value)
         self.value = value
         if not self.notifying:
             print('Not notifying')
             return
-        print('Update prop')
+        # print('Update prop')
         self.PropertiesChanged(
             GATT_CHRC_IFACE,
             {'Value': [dbus.Byte(self.value)]}, [])
@@ -351,11 +351,11 @@ class UserDescriptor(Descriptor):
             characteristic)
 
     def ReadValue(self):
-        print('Read Value: ', self.value)
+        # print('Read Value: ', self.value)
         return self.value
 
     def WriteValue(self, value):
-        print('Write Value: ', value)
+        # print('Write Value: ', value)
         if not self.writable:
             raise NotPermittedException()
         self.value = value
@@ -391,13 +391,13 @@ class Advertisement(dbus.service.Object):
     PATH_BASE = '/ukBaz/bluezero/advertisement'
 
     def __init__(self, service, advertising_type):
-        print('**Service', service)
+        # print('**Service', service)
         self.index = id(self)
         self.path = self.PATH_BASE + str(self.index)
         self.ad_type = advertising_type
-        print('Service uuid', service.uuid)
-        print('Advert path', self.path)
-        print('Service bus', service.bus)
+        # print('Service uuid', service.uuid)
+        # print('Advert path', self.path)
+        # print('Service bus', service.bus)
         self.service_uuids = None
         self.manufacturer_data = None
         self.solicit_uuids = None
@@ -451,10 +451,10 @@ class Advertisement(dbus.service.Object):
                          in_signature='s',
                          out_signature='a{sv}')
     def GetAll(self, interface):
-        print('GetAll')
+        # print('GetAll')
         if interface != LE_ADVERTISEMENT_IFACE:
             raise InvalidArgsException()
-        print('returning props')
+        # print('returning props')
         return self.get_properties()[LE_ADVERTISEMENT_IFACE]
 
     @dbus.service.method(LE_ADVERTISEMENT_IFACE,

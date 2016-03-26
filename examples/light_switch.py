@@ -71,22 +71,6 @@ state_descriptor = peripheral.UserDescriptor('State', state_characteristic)
 state_characteristic.add_descriptor(state_descriptor)
 light_service.add_characteristic(state_characteristic)
 
-"""
-# Debug code
-light_service.get_properties()
-light_service.get_path()
-light_service.get_characteristic_paths()
-light_service.get_characteristics()
-print('\nlight_service GetAll:\n',
-      light_service.GetAll('org.bluez.GattService1'))
-print('\nGet Managed Objects:\n',
-      light_service.GetManagedObjects())
-print('\nGet Properties:\n',
-      light_service.get_characteristics()[0].get_properties())
-
-state_characteristic.get_properties()
-"""
-
 # Start service and advertise
 try:
     light_service.start()
