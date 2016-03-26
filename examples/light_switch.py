@@ -14,37 +14,38 @@ sys.path.insert(0,
                 os.path.split(os.path.dirname(os.path.realpath(__file__)))[0])
 from bluezero import peripheral
 
+import array
+
 # Hardware
 led = LED(24)
 button = Button(25)
 LED_on = False
 
 
-def ble_switch_callback():
-    print('Call-back', led.is_lit, switch_characteristic.ReadValue())
-    if switch_characteristic.ReadValue() is None:
+def ble_state_callback():
+    print('Call-back', led.is_lit, switch_characteristic.value)
+    if state_characteristic.value is None:
         print('Switch Characteristic is None')
-        switch_characteristic.WriteValue(0)
-    elif led.is_lit is True and switch_characteristic.ReadValue() == 0:
-        print('BLE send: off')
-        state_characteristic.WriteValue(0)
         led.off()
-    elif led.is_lit is False and switch_characteristic.ReadValue() == 1:
+    elif led.is_lit is True:
+        print('BLE send: off')
+        state_characteristic.send_notify_event(0)
+        led.off()
+    elif led.is_lit is False:
         print('BLE send: on')
-        state_characteristic.WriteValue(1)
+        state_characteristic.send_notify_event(1)
         led.on()
 
 
 def button_callback():
+    print('Button Callback')
     if led.is_lit:
-        switch_characteristic.WriteValue(0)
-        state_characteristic.WriteValue(0)
-        switch_characteristic.send_notify_event(0)
+        print('Turning LED off')
+        state_characteristic.send_notify_event(0)
         led.off()
     else:
-        switch_characteristic.WriteValue(1)
-        state_characteristic.WriteValue(1)
-        switch_characteristic.send_notify_event(1)
+        print('Turning LED on')
+        state_characteristic.send_notify_event(1)
         led.on()
 
 
@@ -59,27 +60,17 @@ light_service = peripheral.Service(
 
 print('**light service', light_service)
 
-# switch
-switch_characteristic = peripheral.Characteristic(
-    '12341001-1234-1234-1234-123456789abc',
-    ['read', 'write'],
-    light_service)
-switch_characteristic.add_notify_event(ble_switch_callback)
-switch_characteristic.StartNotify()
-switch_descriptor = peripheral.UserDescriptor('Switch', switch_characteristic)
-switch_characteristic.add_descriptor(switch_descriptor)
-light_service.add_characteristic(switch_characteristic)
-print('**Path: ', light_service.get_characteristics())
-
 # state
 state_characteristic = peripheral.Characteristic(
     '12341002-1234-1234-1234-123456789abc',
-    ['notify'],
+    ['read', 'notify'],
     light_service)
+state_characteristic.add_notify_event(ble_state_callback)
 state_descriptor = peripheral.UserDescriptor('State', state_characteristic)
-state_characteristic.add_descriptor(switch_descriptor)
+state_characteristic.add_descriptor(state_descriptor)
 light_service.add_characteristic(state_characteristic)
 
+"""
 # Debug code
 light_service.get_properties()
 light_service.get_path()
@@ -92,7 +83,9 @@ print('\nGet Managed Objects:\n',
 print('\nGet Properties:\n',
       light_service.get_characteristics()[0].get_properties())
 
-switch_characteristic.get_properties()
+state_characteristic.get_properties()
+"""
+
 # Start service and advertise
 try:
     light_service.start()

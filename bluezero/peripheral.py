@@ -48,7 +48,7 @@ class FailedException(dbus.exceptions.DBusException):
 
 class Service(dbus.service.Object):
 
-    PATH_BASE = '/ukBaz/bluezero/service'
+    PATH_BASE = '/ukBaz/bluezero/service1'
 
     def __init__(self, uuid, primary):
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -178,7 +178,7 @@ def register_service_error_cb(error):
 
 
 class Characteristic(dbus.service.Object):
-    def __init__(self, uuid, flags, service):
+    def __init__(self, uuid, flags, service, value=None):
         self.index = id(self)
         self.path = service.path + '/char' + str(self.index)
         self.bus = service.bus
@@ -188,7 +188,7 @@ class Characteristic(dbus.service.Object):
         self.flags = flags
         self.notifying = False
         self.descriptors = []
-        self.value = None
+        self.value = value
         self.notify_cb = None
         dbus.service.Object.__init__(self, self.bus, self.path)
 
@@ -274,11 +274,14 @@ class Characteristic(dbus.service.Object):
 
     def send_notify_event(self, value):
         print('send', self, value)
+        self.value = value
         if not self.notifying:
+            print('Not notifying')
             return
+        print('Update prop')
         self.PropertiesChanged(
             GATT_CHRC_IFACE,
-            {'Value': self.value}, [])
+            {'Value': [dbus.Byte(self.value)]}, [])
 
 
 class Descriptor(dbus.service.Object):
