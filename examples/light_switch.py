@@ -23,7 +23,7 @@ LED_on = False
 
 
 def ble_state_callback():
-    print('Call-back', led.is_lit, switch_characteristic.value)
+    print('State Callback', led.is_lit, switch_characteristic.value)
     if state_characteristic.value is None:
         print('Switch Characteristic is None')
         led.off()
@@ -63,9 +63,10 @@ print('**light service', light_service)
 # state
 state_characteristic = peripheral.Characteristic(
     '12341002-1234-1234-1234-123456789abc',
-    ['read', 'notify'],
+    ['read', 'write', 'notify'],
     light_service)
 state_characteristic.add_notify_event(ble_state_callback)
+state_characteristic.add_write_event(button_callback)
 state_descriptor = peripheral.UserDescriptor('State', state_characteristic)
 state_characteristic.add_descriptor(state_descriptor)
 light_service.add_characteristic(state_characteristic)

@@ -190,6 +190,7 @@ class Characteristic(dbus.service.Object):
         self.descriptors = []
         self.value = value
         self.notify_cb = None
+        self.write_cb = None
         dbus.service.Object.__init__(self, self.bus, self.path)
 
     def get_properties(self):
@@ -241,6 +242,12 @@ class Characteristic(dbus.service.Object):
         # if not self.writable:
         #     raise NotPermittedException()
         self.value = value
+        if self.write_cb is not None:
+            print('Write callback')
+            self.write_cb()
+
+    def add_write_event(self, object_id):
+        self.write_cb = object_id
 
     @dbus.service.method(GATT_CHRC_IFACE)
     def StartNotify(self):
