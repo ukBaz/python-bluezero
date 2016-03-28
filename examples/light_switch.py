@@ -71,9 +71,13 @@ state_descriptor = peripheral.UserDescriptor('State', state_characteristic)
 state_characteristic.add_descriptor(state_descriptor)
 light_service.add_characteristic(state_characteristic)
 
+# Add application [new in 5.38]
+app = peripheral.Application()
+app.add_service(light_service)
+
 # Start service and advertise
 try:
-    light_service.start()
+    app.start()
 except KeyboardInterrupt:
     button.when_pressed = None
     print('KeyboardInterrupt')

@@ -46,13 +46,82 @@ class FailedException(dbus.exceptions.DBusException):
     _dbus_error_name = 'org.bluez.Error.Failed'
 
 
+class Application(dbus.service.Object):
+    def __init__(self):
+        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+        self.mainloop = GObject.MainLoop()
+        self.bus = dbus.SystemBus()
+        self.path = '/'
+        self.services = []
+        dbus.service.Object.__init__(self, self.bus, self.path)
+
+    def get_path(self):
+        return dbus.ObjectPath(self.path)
+
+    def add_service(self, service):
+        self.services.append(service)
+
+    def get_primary_service(self):
+        services = self.GetManagedObjects()
+        for service in services:
+            print(services[service])
+
+    @dbus.service.method(DBUS_OM_IFACE, out_signature='a{oa{sa{sv}}}')
+    def GetManagedObjects(self):
+        response = {}
+        print('GetManagedObjects')
+
+        for service in self.services:
+            response[service.get_path()] = service.get_properties()
+            chrcs = service.get_characteristics()
+            for chrc in chrcs:
+                response[chrc.get_path()] = chrc.get_properties()
+                descs = chrc.get_descriptors()
+                for desc in descs:
+                    response[desc.get_path()] = desc.get_properties()
+
+        return response
+
+    def start(self):
+
+        dongle = adapter.Adapter()
+        dongle.powered('on')
+
+        print('setup ad_manager')
+        ad_manager = bluezutils.get_advert_manager_interface()
+
+        print('setup service_manager')
+        service_manager = bluezutils.get_gatt_manager_interface()
+
+        print('Advertise service')
+        service_ad = Advertisement(self, 'peripheral')
+        # self.get_primary_service()
+        # service_ad.add_service_uuid(self.uuid)
+        service_ad.add_service_uuid('12341000-1234-1234-1234-123456789abc')
+
+        print('Register Adver', service_ad.get_path())
+        ad_manager.RegisterAdvertisement(service_ad.get_path(), {},
+                                         reply_handler=register_ad_cb,
+                                         error_handler=register_ad_error_cb)
+
+        # print('Register Application', app.get_path())
+        print('Register Application ', self.get_path())
+        service_manager.RegisterApplication(
+            self.get_path(), {},
+            reply_handler=register_service_cb,
+            error_handler=register_service_error_cb)
+        try:
+            self.mainloop.run()
+        except KeyboardInterrupt:
+            print('Closing Mainloop')
+            self.mainloop.quit()
+
+
 class Service(dbus.service.Object):
 
     PATH_BASE = '/ukBaz/bluezero/service1'
 
     def __init__(self, uuid, primary):
-        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-        self.mainloop = GObject.MainLoop()
         self.index = id(self)
         self.path = self.PATH_BASE + str(self.index)
         self.bus = dbus.SystemBus()
@@ -110,38 +179,6 @@ class Service(dbus.service.Object):
                 response[desc.get_path()] = desc.get_properties()
 
         return response
-
-    def start(self):
-
-        dongle = adapter.Adapter()
-        dongle.powered('on')
-
-        print('setup ad_manager')
-        ad_manager = bluezutils.get_advert_manager_interface()
-
-        print('setup service_manager')
-        service_manager = bluezutils.get_gatt_manager_interface()
-
-        print('Advertise service')
-        service_ad = Advertisement(self, 'peripheral')
-        service_ad.add_service_uuid(self.uuid)
-
-        print('Register Adver', service_ad.get_path())
-        ad_manager.RegisterAdvertisement(service_ad.get_path(), {},
-                                         reply_handler=register_ad_cb,
-                                         error_handler=register_ad_error_cb)
-
-        # print('Register Application', app.get_path())
-        print('Register service ', self.get_path())
-        service_manager.RegisterService(
-            self.get_path(), {},
-            reply_handler=register_service_cb,
-            error_handler=register_service_error_cb)
-        try:
-            self.mainloop.run()
-        except KeyboardInterrupt:
-            print('Closing Mainloop')
-            self.mainloop.quit()
 
 
 def find_ad_adapter(bus):
