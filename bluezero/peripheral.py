@@ -51,7 +51,7 @@ class Application(dbus.service.Object):
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         self.mainloop = GObject.MainLoop()
         self.bus = dbus.SystemBus()
-        self.path = '/'
+        self.path = '/ukBaz/bluezero/application'
         self.services = []
         dbus.service.Object.__init__(self, self.bus, self.path)
 
