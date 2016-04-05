@@ -17,9 +17,11 @@ from bluezero import peripheral
 import array
 
 # Hardware
+# Ryanteck Traffic Hat
 led = LED(24)
 button = Button(25)
-LED_on = False
+# pimoroni/explorer-hat
+led = LED(4)
 
 
 def ble_state_callback():
@@ -67,9 +69,16 @@ state_characteristic = peripheral.Characteristic(
     light_service)
 state_characteristic.add_notify_event(ble_state_callback)
 state_characteristic.add_write_event(button_callback)
+
+# Descriptor
 state_descriptor = peripheral.UserDescriptor('State', state_characteristic)
 state_characteristic.add_descriptor(state_descriptor)
+
+# Add characteristic
 light_service.add_characteristic(state_characteristic)
+
+for mngd_objcs in light_service.GetManagedObjects():
+    print('Managed Objects: ', mngd_objcs)
 
 # Add application [new in 5.38]
 app = peripheral.Application()

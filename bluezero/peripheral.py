@@ -51,7 +51,7 @@ class Application(dbus.service.Object):
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         self.mainloop = GObject.MainLoop()
         self.bus = dbus.SystemBus()
-        self.path = '/'
+        self.path = '/ukBaz/bluezero/application'
         self.services = []
         dbus.service.Object.__init__(self, self.bus, self.path)
 
@@ -62,9 +62,13 @@ class Application(dbus.service.Object):
         self.services.append(service)
 
     def get_primary_service(self):
-        services = self.GetManagedObjects()
-        for service in services:
-            print(services[service])
+        # services = self.GetManagedObjects()
+        primary_uuid = None
+        for service in self.services:
+            if service.primary:
+                print(service.uuid)
+                primary_uuid = service.uuid
+        return primary_uuid
 
     @dbus.service.method(DBUS_OM_IFACE, out_signature='a{oa{sa{sv}}}')
     def GetManagedObjects(self):
@@ -95,9 +99,8 @@ class Application(dbus.service.Object):
 
         print('Advertise service')
         service_ad = Advertisement(self, 'peripheral')
-        # self.get_primary_service()
-        # service_ad.add_service_uuid(self.uuid)
-        service_ad.add_service_uuid('12341000-1234-1234-1234-123456789abc')
+        primary_uuid = self.get_primary_service()
+        service_ad.add_service_uuid(primary_uuid)
 
         print('Register Adver', service_ad.get_path())
         ad_manager.RegisterAdvertisement(service_ad.get_path(), {},
