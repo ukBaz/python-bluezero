@@ -14,16 +14,27 @@ In addition to the API it will contain examples of how to connect to common Blue
 around them (or at least easily accessible to them easily).
 This will need to be done without the need to sign (or break) non-disclosure agreements.
 
+## Status
+This is an early-stage experiment that we are developing in the open. 
+This should only be of interest to developers looking to provide feedback and to contribute.
+
 ## Examples
+If you are coming here for the first time then looking at the examples is probably the place to start
+
+### GATT Server (Peripheral role)
+light_switch.py - Experiment to split user code from library code
+
+
+The rest of the experiments are just big code blobs that were just to prove we can do the required things.
+Not guaranteed to work beyond the specific hardware of the developers
 ### Beacon
-eddystone-url-beacon.py
+eddystone-url-beacon.py - Simple Eddystone URL beacon. Enter URL get beacon out
 
 ### Scanner
 No example currently. see issue [#11] (https://github.com/ukBaz/python-bluezero/issues/11)
 
 ### GATT Server (Peripheral role)
-battery_service.py
+battery_service.py - Based heavily on the Bluez examples and reports fake heart rate and battery levels
 
 ### GATT Client (Central role)
-read_battery.py
-read_sensortag_CC2650.py
+read_sensortag_CC2650.py - This is a simple example of how to read the Ti Sensortag CC2650
