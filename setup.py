@@ -2,8 +2,8 @@ __author__ = 'barry'
 import os
 from setuptools import setup
 
-install_requires = [dbus, gi]
-tests_require = [dbus, dbusmock, gi]
+install_requires = ['dbus-python', 'gi']
+tests_require = ['dbus-python', 'dbusmock', 'gi']
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -14,7 +14,7 @@ setup(
     version=version,
     description="A library that makes using Bluez DBus API easier and more convenient",
     long_description="\n\n".join([
-        open(os.path.join(base_dir, "README.rst"), "r").read(),
+        open(os.path.join(base_dir, "README.md"), "r").read(),
     ]),
     url='http://github.com/ukBaz/python-bluezero',
     author='Barry Byford',
