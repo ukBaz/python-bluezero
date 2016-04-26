@@ -49,6 +49,8 @@ class FailedException(dbus.exceptions.DBusException):
 class Application(dbus.service.Object):
     def __init__(self):
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+        gobject.threads_init()
+        dbus.glib.init_threads()
         self.mainloop = GObject.MainLoop()
         self.bus = dbus.SystemBus()
         self.path = '/ukBaz/bluezero/application'
