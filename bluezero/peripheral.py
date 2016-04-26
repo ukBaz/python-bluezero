@@ -49,6 +49,8 @@ class FailedException(dbus.exceptions.DBusException):
 class Application(dbus.service.Object):
     def __init__(self):
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+        gobject.threads_init()
+        dbus.glib.init_threads()
         self.mainloop = GObject.MainLoop()
         self.bus = dbus.SystemBus()
         self.path = '/ukBaz/bluezero/application'
@@ -382,7 +384,8 @@ class UserDescriptor(Descriptor):
 
     def __init__(self, name, characteristic):
         self.writable = 'writable-auxiliaries' in characteristic.flags
-        self.value = array.array('B', bytes(name, encoding='utf-8'))
+        #self.value = array.array('B', bytes(name, encoding='utf-8'))
+        self.value = array.array('B', bytes(name))
         self.value = self.value.tolist()
         Descriptor.__init__(
             self,
