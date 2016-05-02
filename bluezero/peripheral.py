@@ -53,7 +53,7 @@ class Application(dbus.service.Object):
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         self.mainloop = GObject.MainLoop()
         self.bus = dbus.SystemBus()
-        self.path = '/ukBaz/bluezero/application'
+        self.path = '/ukBaz/bluezero/application{}'.format(id(self))
         self.services = []
         dbus.service.Object.__init__(self, self.bus, self.path)
 
@@ -95,12 +95,13 @@ class Application(dbus.service.Object):
 
         print('setup ad_manager')
         ad_manager = bluezutils.get_advert_manager_interface()
-
+        self.ad_manager = ad_manager
         print('setup service_manager')
         service_manager = bluezutils.get_gatt_manager_interface()
-
+        self.service_manager = service_manager
         print('Advertise service')
         service_ad = Advertisement(self, 'peripheral')
+        self.service_ad = service_ad
         primary_uuid = self.get_primary_service()
         service_ad.add_service_uuid(primary_uuid)
 
@@ -121,6 +122,10 @@ class Application(dbus.service.Object):
             print('Closing Mainloop')
             self.mainloop.quit()
 
+    def stop(self):
+        self.ad_manager.UnregisterAdvertisement(self.service_ad.get_path())
+        self.service_manager.UnregisterApplication(self.get_path())
+        self.mainloop.quit()
 
 class Service(dbus.service.Object):
 
