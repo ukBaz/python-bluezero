@@ -48,6 +48,8 @@ class FailedException(dbus.exceptions.DBusException):
 
 class Application(dbus.service.Object):
     def __init__(self):
+        GObject.threads_init()
+        dbus.mainloop.glib.threads_init()
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         self.mainloop = GObject.MainLoop()
         self.bus = dbus.SystemBus()

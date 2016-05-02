@@ -21,7 +21,7 @@ import array
 led = LED(24)
 button = Button(25)
 # pimoroni/explorer-hat
-led = LED(4)
+# led = LED(4)
 
 
 def ble_state_callback():
