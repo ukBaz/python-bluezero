@@ -390,7 +390,7 @@ class UserDescriptor(Descriptor):
     def __init__(self, name, characteristic):
         self.writable = 'writable-auxiliaries' in characteristic.flags
         #self.value = array.array('B', bytes(name, encoding='utf-8'))
-        self.value = array.array('B', bytes(name))
+        self.value = array.array('B', str.encode(name, 'utf-8'))
         self.value = self.value.tolist()
         Descriptor.__init__(
             self,
