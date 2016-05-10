@@ -1,6 +1,9 @@
 import sys
 import os
-sys.path.insert(0, os.path.split(os.path.dirname(os.path.realpath(__file__)))[0])
+sys.path.insert(0,
+                os.path.split(
+                    os.path.dirname(
+                        os.path.realpath(__file__)))[0])
 
 from time import sleep
 from threading import Thread
@@ -10,11 +13,15 @@ from bluezero import peripheral
 # Bluetooth Service
 
 service1 = peripheral.Service('12341000-1234-1234-1234-123456789abc', True)
-char1 = peripheral.Characteristic('12341002-1234-1234-1234-123456789abc',['read', 'write', 'notify'], service1)
+char1 = peripheral.Characteristic('12341002-1234-1234-1234-123456789abc',
+                                  ['read', 'write', 'notify'],
+                                  service1)
 service1.add_characteristic(char1)
 
 service2 = peripheral.Service('12341000-1234-1234-1234-123456789def', True)
-char2 = peripheral.Characteristic('12341002-1234-1234-1234-123456789def',['read', 'write', 'notify'], service2)
+char2 = peripheral.Characteristic('12341002-1234-1234-1234-123456789def',
+                                  ['read', 'write', 'notify'],
+                                  service2)
 service2.add_characteristic(char2)
 
 
@@ -24,8 +31,9 @@ app1.add_service(service1)
 app2 = peripheral.Application()
 app2.add_service(service2)
 
-
 TOGGLE_DELAY = 30
+
+
 def worker():
     try:
         print("Allowing the first app {} secs to run.".format(TOGGLE_DELAY))
@@ -44,11 +52,9 @@ def worker():
         print('KeyboardInterrupt')
 
 
-
-workerThread=Thread(target=worker)
-workerThread.daemon=False
+workerThread = Thread(target=worker)
+workerThread.daemon = False
 workerThread.start()
 
 # Start service and advertise
 app1.start()
-
