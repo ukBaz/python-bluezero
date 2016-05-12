@@ -14,8 +14,6 @@ sys.path.insert(0,
                 os.path.split(os.path.dirname(os.path.realpath(__file__)))[0])
 from bluezero import peripheral
 
-import array
-
 # Hardware
 # Ryanteck Traffic Hat
 led = LED(24)
@@ -23,17 +21,19 @@ button = Button(25)
 # pimoroni/explorer-hat
 # led = LED(4)
 
+led_state = False
+
 
 def ble_state_callback():
-    print('State Callback', led.is_lit, switch_characteristic.value)
-    if state_characteristic.value is None:
+    if switch_characteristic.value is None:
         print('Switch Characteristic is None')
+        state_characteristic.send_notify_event(0)
         led.off()
-    elif led.is_lit is True:
+    elif led.is_lit and switch_characteristic.value == 0:
         print('BLE send: off')
         state_characteristic.send_notify_event(0)
         led.off()
-    elif led.is_lit is False:
+    elif led.is_lit is False and switch_characteristic.value == 1:
         print('BLE send: on')
         state_characteristic.send_notify_event(1)
         led.on()
@@ -43,11 +43,13 @@ def button_callback():
     print('Button Callback')
     if led.is_lit:
         print('Turning LED off')
+        switch_characteristic.send_notify_event(0)
         state_characteristic.send_notify_event(0)
         led.off()
     else:
         print('Turning LED on')
         state_characteristic.send_notify_event(1)
+        switch_characteristic.send_notify_event(1)
         led.on()
 
 
@@ -62,13 +64,28 @@ light_service = peripheral.Service(
 
 print('**light service', light_service)
 
+# Swtich
+switch_characteristic = peripheral.Characteristic(
+    '12341001-1234-1234-1234-123456789abc',
+    ['read', 'write'],
+    light_service,
+    value=0)
+switch_characteristic.add_write_event(ble_state_callback)
+# Descriptor
+switch_descriptor = peripheral.UserDescriptor('Switch', switch_characteristic)
+switch_characteristic.add_descriptor(switch_descriptor)
+
+# Add characteristic
+light_service.add_characteristic(switch_characteristic)
+
 # state
 state_characteristic = peripheral.Characteristic(
     '12341002-1234-1234-1234-123456789abc',
-    ['read', 'write', 'notify'],
-    light_service)
+    ['notify'],
+    light_service,
+    value=0)
 state_characteristic.add_notify_event(ble_state_callback)
-state_characteristic.add_write_event(button_callback)
+state_characteristic.StartNotify()
 
 # Descriptor
 state_descriptor = peripheral.UserDescriptor('State', state_characteristic)

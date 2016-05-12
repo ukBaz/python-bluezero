@@ -289,7 +289,7 @@ class Characteristic(dbus.service.Object):
         # print('Writing Characteristic', value)
         # if not self.writable:
         #     raise NotPermittedException()
-        self.value = value
+        self.value = int.from_bytes(value, byteorder='little', signed=False)
         if self.write_cb is not None:
             # print('Write callback')
             self.write_cb()
