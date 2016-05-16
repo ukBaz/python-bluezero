@@ -18,6 +18,7 @@ import dbus.service
 # python-bluezero imports
 from bluezero import bluezutils
 from bluezero import adapter
+from bluezero import constants
 
 # array import
 import array
@@ -27,19 +28,6 @@ try:
     from gi.repository import GObject
 except ImportError:
     import gobject as GObject
-
-# General D-Bus Object Paths
-DBUS_OM_IFACE = 'org.freedesktop.DBus.ObjectManager'
-DBUS_PROP_IFACE = 'org.freedesktop.DBus.Properties'
-
-# Bluez D-Bus Object Paths
-GATT_MANAGER_IFACE = 'org.bluez.GattManager1'
-GATT_SERVICE_IFACE = 'org.bluez.GattService1'
-GATT_CHRC_IFACE = 'org.bluez.GattCharacteristic1'
-GATT_DESC_IFACE = 'org.bluez.GattDescriptor1'
-
-# Bluez Service Name
-BLUEZ_SERVICE_NAME = 'org.bluez'
 
 
 ########################################
@@ -161,7 +149,8 @@ class Application(dbus.service.Object):
                 primary_uuid = service.uuid
         return primary_uuid
 
-    @dbus.service.method(DBUS_OM_IFACE, out_signature='a{oa{sa{sv}}}')
+    @dbus.service.method(constants.DBUS_OM_IFACE,
+                         out_signature='a{oa{sa{sv}}}')
     def GetManagedObjects(self):
         """Get all objects that are managed by the application.
 
@@ -306,7 +295,7 @@ class Service(dbus.service.Object):
 
         """
         return {
-            GATT_SERVICE_IFACE: {
+            constants.GATT_SERVICE_IFACE: {
                 'UUID': self.uuid,
                 'Primary': self.primary,
                 'Characteristics': dbus.Array(
@@ -342,7 +331,7 @@ class Service(dbus.service.Object):
         """Return a list of the service characteristics."""
         return self.characteristics
 
-    @dbus.service.method(DBUS_PROP_IFACE,
+    @dbus.service.method(constants.DBUS_PROP_IFACE,
                          in_signature='s',
                          out_signature='a{sv}')
     def GetAll(self, interface):
@@ -356,12 +345,13 @@ class Service(dbus.service.Object):
         The interface must be ``org.bluez.GattService1`` otherwise an
         exception is raised.
         """
-        if interface != GATT_SERVICE_IFACE:
+        if interface != constants.GATT_SERVICE_IFACE:
             raise InvalidArgsException()
 
         return self.get_properties()
 
-    @dbus.service.method(DBUS_OM_IFACE, out_signature='a{oa{sa{sv}}}')
+    @dbus.service.method(constants.DBUS_OM_IFACE,
+                         out_signature='a{oa{sa{sv}}}')
     def GetManagedObjects(self):
         """Get all objects that are managed by the service.
 
@@ -382,40 +372,6 @@ class Service(dbus.service.Object):
         return response
 
 
-#############################
-# Interface search functions
-#############################
-def find_ad_adapter(bus):
-    """Find the advertising manager interface.
-
-    :param bus: D-Bus bus object that is searched.
-    """
-    remote_om = dbus.Interface(bus.get_object(BLUEZ_SERVICE_NAME, '/'),
-                               DBUS_OM_IFACE)
-    objects = remote_om.GetManagedObjects()
-
-    for o, props in objects.items():
-        if LE_ADVERTISING_MANAGER_IFACE in props:
-            return o
-
-    return None
-
-
-def find_gatt_adapter(bus):
-    """Find the GATT manager interface.
-
-    :param bus: D-Bus bus object that is searched.
-    """
-    remote_om = dbus.Interface(bus.get_object(BLUEZ_SERVICE_NAME, '/'),
-                               DBUS_OM_IFACE)
-    objects = remote_om.GetManagedObjects()
-
-    for o, props in objects.items():
-        if GATT_MANAGER_IFACE in props:
-            return o
-
-    return None
-
 ################################
 # Service registration callbacks
 ################################
@@ -430,6 +386,10 @@ def register_service_error_cb(error):
     """Service registration error callback."""
     print('Failed to register application: ' + str(error))
     # mainloop.quit()
+
+#######################################
+# Characteristic and Descriptor classes
+#######################################
 
 
 class Characteristic(dbus.service.Object):
@@ -478,7 +438,7 @@ class Characteristic(dbus.service.Object):
 
         """
         return {
-            GATT_CHRC_IFACE: {
+            constants.GATT_CHRC_IFACE: {
                 'Service': self.service.get_path(),
                 'UUID': self.uuid,
                 'Flags': self.flags,
@@ -515,7 +475,7 @@ class Characteristic(dbus.service.Object):
         """Return a list of the characteristic descriptors."""
         return self.descriptors
 
-    @dbus.service.method(DBUS_PROP_IFACE,
+    @dbus.service.method(constants.DBUS_PROP_IFACE,
                          in_signature='s',
                          out_signature='a{sv}')
     def GetAll(self, interface):
@@ -529,12 +489,12 @@ class Characteristic(dbus.service.Object):
         The interface must be ``org.bluez.GattCharacteristic1`` otherwise an
         exception is raised.
         """
-        if interface != GATT_CHRC_IFACE:
+        if interface != constants.GATT_CHRC_IFACE:
             raise InvalidArgsException()
 
         return self.get_properties()
 
-    @dbus.service.method(GATT_CHRC_IFACE, out_signature='ay')
+    @dbus.service.method(constants.GATT_CHRC_IFACE, out_signature='ay')
     def ReadValue(self):
         """Return the characteristic value.
 
@@ -546,7 +506,7 @@ class Characteristic(dbus.service.Object):
             self.value = 0
         return [dbus.Byte(self.value)]
 
-    @dbus.service.method(GATT_CHRC_IFACE, in_signature='ay')
+    @dbus.service.method(constants.GATT_CHRC_IFACE, in_signature='ay')
     def WriteValue(self, value):
         """Set the characteristic value.
 
@@ -575,7 +535,7 @@ class Characteristic(dbus.service.Object):
         """
         self.write_cb = object_id
 
-    @dbus.service.method(GATT_CHRC_IFACE)
+    @dbus.service.method(constants.GATT_CHRC_IFACE)
     def StartNotify(self):
         """Start BLE notifications for the characteristic.
 
@@ -589,7 +549,7 @@ class Characteristic(dbus.service.Object):
         self.notifying = True
         self.notify_cb()
 
-    @dbus.service.method(GATT_CHRC_IFACE)
+    @dbus.service.method(constants.GATT_CHRC_IFACE)
     def StopNotify(self):
         """Stop BLE notifications for the characteristic.
 
@@ -608,7 +568,7 @@ class Characteristic(dbus.service.Object):
         print('Default StartNotify called, returning error')
         raise NotSupportedException()
 
-    @dbus.service.signal(DBUS_PROP_IFACE,
+    @dbus.service.signal(constants.DBUS_PROP_IFACE,
                          signature='sa{sv}as')
     def PropertiesChanged(self, interface, changed, invalidated):
         """Emit a Properties Changed notification signal.
@@ -642,7 +602,7 @@ class Characteristic(dbus.service.Object):
             return
         # print('Update prop')
         self.PropertiesChanged(
-            GATT_CHRC_IFACE,
+            constants.GATT_CHRC_IFACE,
             {'Value': [dbus.Byte(self.value)]}, [])
 
 
@@ -687,7 +647,7 @@ class Descriptor(dbus.service.Object):
 
         """
         return {
-            GATT_DESC_IFACE: {
+            constants.GATT_DESC_IFACE: {
                 'Characteristic': self.chrc.get_path(),
                 'UUID': self.uuid,
                 'Flags': self.flags,
@@ -698,7 +658,7 @@ class Descriptor(dbus.service.Object):
         """Return the D-Bus object path."""
         return dbus.ObjectPath(self.path)
 
-    @dbus.service.method(DBUS_PROP_IFACE,
+    @dbus.service.method(constants.DBUS_PROP_IFACE,
                          in_signature='s',
                          out_signature='a{sv}')
     def GetAll(self, interface):
@@ -712,12 +672,12 @@ class Descriptor(dbus.service.Object):
         The interface must be ``org.bluez.GattDescriptor1`` otherwise an
         exception is raised.
         """
-        if interface != GATT_DESC_IFACE:
+        if interface != constants.GATT_DESC_IFACE:
             raise InvalidArgsException()
 
         return self.get_properties()
 
-    @dbus.service.method(GATT_DESC_IFACE, out_signature='ay')
+    @dbus.service.method(constants.GATT_DESC_IFACE, out_signature='ay')
     def ReadValue(self):
         """Return the descriptor value.
 
@@ -729,7 +689,7 @@ class Descriptor(dbus.service.Object):
         print('Default ReadValue called, returning error')
         raise NotSupportedException()
 
-    @dbus.service.method(GATT_DESC_IFACE, in_signature='ay')
+    @dbus.service.method(constants.GATT_DESC_IFACE, in_signature='ay')
     def WriteValue(self, value):
         """Set the descriptor value.
 
@@ -799,10 +759,6 @@ class UserDescriptor(Descriptor):
 # Advertisement Class and Callbacks
 ###################################
 
-# Advertisment D-Bus object paths
-LE_ADVERTISING_MANAGER_IFACE = 'org.bluez.LEAdvertisingManager1'
-LE_ADVERTISEMENT_IFACE = 'org.bluez.LEAdvertisement1'
-
 
 class Advertisement(dbus.service.Object):
     """Bluez Advertisement Class.
@@ -868,7 +824,7 @@ class Advertisement(dbus.service.Object):
                                                         signature='say')
         if self.include_tx_power is not None:
             properties['IncludeTxPower'] = dbus.Boolean(self.include_tx_power)
-        return {LE_ADVERTISEMENT_IFACE: properties}
+        return {constants.LE_ADVERTISEMENT_IFACE: properties}
 
     def get_path(self):
         """Return the D-Bus object path."""
@@ -918,7 +874,7 @@ class Advertisement(dbus.service.Object):
             self.service_data = dict()
         self.service_data[uuid] = data
 
-    @dbus.service.method(DBUS_PROP_IFACE,
+    @dbus.service.method(constants.DBUS_PROP_IFACE,
                          in_signature='s',
                          out_signature='a{sv}')
     def GetAll(self, interface):
@@ -933,12 +889,12 @@ class Advertisement(dbus.service.Object):
         exception is raised.
         """
         # print('GetAll')
-        if interface != LE_ADVERTISEMENT_IFACE:
+        if interface != constants.LE_ADVERTISEMENT_IFACE:
             raise InvalidArgsException()
         # print('returning props')
-        return self.get_properties()[LE_ADVERTISEMENT_IFACE]
+        return self.get_properties()[constants.LE_ADVERTISEMENT_IFACE]
 
-    @dbus.service.method(LE_ADVERTISEMENT_IFACE,
+    @dbus.service.method(constants.LE_ADVERTISEMENT_IFACE,
                          in_signature='',
                          out_signature='')
     def Release(self):
