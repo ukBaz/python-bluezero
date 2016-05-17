@@ -4,10 +4,10 @@ This file is a single location for the different object paths that are used as
 constants around the python-bluezero library.
 
 :Example:
-.. code-block:: python
+   .. code-block:: python
 
-   from bluezero import constants
-   my_function(constants.CONST_1, constants.CONST_2)
+      from bluezero import constants
+      my_function(constants.CONST_1, constants.CONST_2)
 
 """
 
