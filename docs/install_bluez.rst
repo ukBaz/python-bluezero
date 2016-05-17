@@ -1,14 +1,14 @@
-#####
+################
 Installing Bluez
-#####
+################
 
 Overview
------
+--------
 Bluezero relies on the dbus interface of Bluez. This is still under an 'experimental' flag and is changing rapidly whuch currently means that it is unlikely that the Linux version you have installed with have the correct version or the experimental flag set.
 This instructions are intended to jump start the switching to a newer version of Bluez which will need to be built from source.
 
 Packages that need available
------
+----------------------------
 The following packages is a super set of what is required. For some systems these may already be
 install or not required::
     sudo apt-get install bluetooth
@@ -41,7 +41,7 @@ If you are looking to development of Bluezero then you will need::
 
 
 Getting newer versions of Bluez source
-*****
+--------------------------------------
 
 Download the User Space BlueZ Package from http://www.bluez.org/download/ ::
 
@@ -50,7 +50,7 @@ Download the User Space BlueZ Package from http://www.bluez.org/download/ ::
     cd bluez-5.39
 
 How to config and compile Bluez 5.36 and later
-=======
+----------------------------------------------
 To configure run::
 
     ./configure --prefix=/usr \
@@ -65,21 +65,21 @@ To compile and install run::
     make && sudo make install
 
 Automatically run bluetoothd with experimental mode
-****
+---------------------------------------------------
 Edit bluetooth.service file to add --experimental flag e.g::
 
     sudo sed -i '/^ExecStart.*bluetoothd\s*$/ s/$/ --experimental/' /lib/systemd/system/bluetooth.service
 
 Notes for getting debug information
------
+-----------------------------------
 Monitor the bluetooth hci traffic
---------
+=================================
 Use Bluetooth monitor tool::
 
     sudo btmon -t |& tee ~/btmon.log
 
 Log of the bluetoothd
---------
+=====================
 Stop bluetooth service::
 
     service bluetooth stop
@@ -93,7 +93,8 @@ Manually run bluetoothd with experimental mode with debug::
     /usr/libexec/bluetooth/bluetoothd -nEd
 
 Monitor dbus traffic
---------
+====================
 debug probe to print message bus messages::
 
     dbus-monitor --system
+
