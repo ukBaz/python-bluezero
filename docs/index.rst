@@ -6,21 +6,21 @@
 Welcome to python-bluezero's documentation!
 ===========================================
 
-Contents:
+Installing Bluez
+****************
+
+.. toctree::
+   install_bluez
+
+python-bluezero modules
+***********************
 
 .. toctree::
    :maxdepth: 2
 
-   install_bluez
-
-.. automodule:: bluezero.bluezutils
-.. automodule:: bluezero.peripheral
-.. automodule:: bluezero.constants
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   peripheral
+   bluezutils
+   constants
+   adapter
+   device
+   url_to_advert
