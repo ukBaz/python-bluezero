@@ -4,6 +4,7 @@ This file is a single location for the different object paths that are used as
 constants around the python-bluezero library.
 
 :Example:
+
 .. code-block:: python
 
    from bluezero import constants
