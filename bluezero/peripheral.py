@@ -89,9 +89,9 @@ class FailedException(dbus.exceptions.DBusException):
 
     _dbus_error_name = 'org.bluez.Error.Failed'
 
-##################################
-# Application and Service Classes
-##################################
+###################
+# Application Class
+###################
 
 
 class Application(dbus.service.Object):
@@ -263,6 +263,10 @@ class Application(dbus.service.Object):
         self.service_manager.UnregisterApplication(self.get_path())
         self.mainloop.quit()
 
+##########################################
+# Service Class and Registration Callbacks
+##########################################
+
 
 class Service(dbus.service.Object):
     """Bluez Service Class.
@@ -398,11 +402,6 @@ class Service(dbus.service.Object):
         return response
 
 
-################################
-# Service registration callbacks
-################################
-
-
 def register_service_cb():
     """Service registration callback."""
     print('GATT application registered')
@@ -413,9 +412,9 @@ def register_service_error_cb(error):
     print('Failed to register application: ' + str(error))
     # mainloop.quit()
 
-#######################################
-# Characteristic and Descriptor classes
-#######################################
+######################
+# Characteristic Class
+######################
 
 
 class Characteristic(dbus.service.Object):
@@ -632,6 +631,10 @@ class Characteristic(dbus.service.Object):
         self.PropertiesChanged(
             constants.GATT_CHRC_IFACE,
             {'Value': [dbus.Byte(self.value)]}, [])
+
+####################
+# Descriptor Classes
+####################
 
 
 class Descriptor(dbus.service.Object):
