@@ -4,12 +4,15 @@ import os
 sys.path.insert(0,
                 os.path.split(os.path.dirname(os.path.realpath(__file__)))[0])
 from bluezero import peripheral
-from bluezero.url_to_advert import *
+import bluezero.bluezutils as bluezutils
 
 # Bluetooth
 # Add beacon information
 ukBaz_beacon = peripheral.Service('FEAA', True, type='broadcast')
-service_data = url_to_advert('https://github.com/ukBaz', 0x10, 0xFF)
+service_data = bluezutils.url_to_advert(
+    'https://github.com/ukBaz',
+    frame_type=0x10,
+    tx_power=0xFF)
 ukBaz_beacon.add_service_data(service_data)
 
 
