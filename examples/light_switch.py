@@ -101,6 +101,8 @@ for mngd_objcs in light_service.GetManagedObjects():
 app = peripheral.Application()
 app.add_service(light_service)
 
+app.add_device_name('BluezeroLight')
+
 # Start service and advertise
 try:
     app.start()
@@ -109,4 +111,5 @@ except KeyboardInterrupt:
     print('KeyboardInterrupt')
 finally:
     button.when_pressed = None
+    app.stop()
     print('finally')

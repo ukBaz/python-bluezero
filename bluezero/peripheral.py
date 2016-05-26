@@ -6,7 +6,7 @@ Current classes include:
 - Service -- Bluetooth Service
 - Characteristic -- Bluetooth Characteristic
 - Descriptor -- Bluetooth Descriptor
-- Advertisment -- Bluetooth Advertisement
+- Advertisement -- Bluetooth Advertisement
 """
 
 # D-Bus imports
@@ -106,7 +106,7 @@ class Application(dbus.service.Object):
     >>> app.start()
     """
 
-    def __init__(self):
+    def __init__(self, device_id=None):
         """Default initialiser.
 
         1. Initialises the program loop using ``GObject``.
@@ -127,6 +127,8 @@ class Application(dbus.service.Object):
 
         # Initialise services within the application
         self.services = []
+
+        self.dongle = adapter.Adapter(device_id)
 
     def get_path(self):
         """Return the D-Bus object path."""
@@ -171,6 +173,14 @@ class Application(dbus.service.Object):
 
         return response
 
+    def add_device_name(self, device_name):
+        """
+        Set the Bluetooth friendly name for the device
+
+        :param device_name: a string to be used as the name
+        """
+        self.dongle.alias(device_name)
+
     def start(self):
         """Start the application.
 
@@ -197,8 +207,7 @@ class Application(dbus.service.Object):
         ``try-except-finally`` block to enable keyboard interrupts.
         """
         # Register the Bluetooth adapter
-        dongle = adapter.Adapter()
-        dongle.powered('on')
+        self.dongle.powered('on')
 
         # Setup the advertising manager
         print('setup ad_manager')
@@ -800,7 +809,7 @@ class Advertisement(dbus.service.Object):
 
         The dictionary has the following keys:
 
-        - Type: the advertisment type.
+        - Type: the advertisement type.
         - ServiceUUIDS: UUIDs of services to advertise
         - SolicitUUIDS:
         - ManufacturerData: dictionary of manufacturer data
