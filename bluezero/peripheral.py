@@ -218,10 +218,18 @@ class Application(dbus.service.Object):
         self.service_manager = bluezutils.get_gatt_manager_interface()
 
         # Setup the advertisement
-        print('Advertise service')
         self.service_ad = Advertisement(self, 'peripheral')
-        primary_uuid = self.get_primary_service()
-        self.service_ad.add_service_uuid(primary_uuid)
+        for service in self.services:
+            if service.primary:
+                print('Advertising service ', service.uuid)
+                self.service_ad.add_service_uuid(service.uuid)
+                self.service_ad.ad_type = service.type
+                if service.service_data is not None:
+                    print('Adding service data: ',
+                          service.uuid,
+                          service.service_data)
+                    self.service_ad.add_service_data(service.uuid,
+                                                     service.service_data)
 
         # Register the advertisement
         print('Register Adver', self.service_ad.get_path())
@@ -251,7 +259,7 @@ class Application(dbus.service.Object):
         3. Stop the program loop.
 
         """
-        self.ad_manager.UnregisterAdvertisement(self.service_ad.get_path())
+        # self.ad_manager.UnregisterAdvertisement(self.service_ad.get_path())
         self.service_manager.UnregisterApplication(self.get_path())
         self.mainloop.quit()
 
@@ -269,7 +277,7 @@ class Service(dbus.service.Object):
 
     PATH_BASE = '/ukBaz/bluezero/service1'
 
-    def __init__(self, uuid, primary):
+    def __init__(self, uuid, primary, type='peripheral'):
         """Default initialiser.
 
         1. Registers the service on the D-Bus.
@@ -288,6 +296,8 @@ class Service(dbus.service.Object):
         # Setup UUID, primary flag
         self.uuid = uuid
         self.primary = primary
+        self.type = type
+        self.service_data = None
 
         # Initialise characteristics within the service
         self.characteristics = []
@@ -328,6 +338,13 @@ class Service(dbus.service.Object):
 
         """
         self.characteristics.append(characteristic)
+
+    def add_service_data(self, service_data):
+        """
+        Add service data to be include with advertisement
+        :param service_data: list of hex values to be used as service data
+        """
+        self.service_data = service_data
 
     def get_characteristic_paths(self):
         """Return the D-Bus object paths of all service characteristics."""
