@@ -45,9 +45,9 @@ Getting newer versions of Bluez source
 
 Download the User Space BlueZ Package from http://www.bluez.org/download/ ::
 
-    wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.39.tar.xz
-    tar xf bluez-5.39.tar.xz
-    cd bluez-5.39
+    wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.40.tar.xz
+    tar xf bluez-5.40.tar.xz
+    cd bluez-5.40
 
 How to config and compile Bluez 5.36 and later
 ----------------------------------------------
