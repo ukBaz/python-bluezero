@@ -520,8 +520,10 @@ class Characteristic(dbus.service.Object):
 
         return self.get_properties()
 
-    @dbus.service.method(constants.GATT_CHRC_IFACE, out_signature='ay')
-    def ReadValue(self):
+    @dbus.service.method(constants.GATT_CHRC_IFACE,
+                         in_signature='a{sv}',
+                         out_signature='ay')
+    def ReadValue(self, options):
         """Return the characteristic value.
 
         This method is registered with the D-Bus at
@@ -532,8 +534,8 @@ class Characteristic(dbus.service.Object):
             self.value = 0
         return [dbus.Byte(self.value)]
 
-    @dbus.service.method(constants.GATT_CHRC_IFACE, in_signature='ay')
-    def WriteValue(self, value):
+    @dbus.service.method(constants.GATT_CHRC_IFACE, in_signature='aya{sv}')
+    def WriteValue(self, value, options):
         """Set the characteristic value.
 
         This method is registered with the D-Bus at
@@ -703,8 +705,10 @@ class Descriptor(dbus.service.Object):
 
         return self.get_properties()
 
-    @dbus.service.method(constants.GATT_DESC_IFACE, out_signature='ay')
-    def ReadValue(self):
+    @dbus.service.method(constants.GATT_DESC_IFACE,
+                         in_signature='a{sv}',
+                         out_signature='ay')
+    def ReadValue(self, options):
         """Return the descriptor value.
 
         This method is registered with the D-Bus at
@@ -715,8 +719,8 @@ class Descriptor(dbus.service.Object):
         print('Default ReadValue called, returning error')
         raise NotSupportedException()
 
-    @dbus.service.method(constants.GATT_DESC_IFACE, in_signature='ay')
-    def WriteValue(self, value):
+    @dbus.service.method(constants.GATT_DESC_IFACE, in_signature='aya{sv}')
+    def WriteValue(self, value, options):
         """Set the descriptor value.
 
         This method is registered with the D-Bus at
@@ -759,7 +763,7 @@ class UserDescriptor(Descriptor):
             ['read', 'write'],
             characteristic)
 
-    def ReadValue(self):
+    def ReadValue(self, options):
         """Return the descriptor value.
 
         *(NB: This method is registered with the D-Bus at
@@ -768,7 +772,7 @@ class UserDescriptor(Descriptor):
         # print('Read Value: ', self.value)
         return self.value
 
-    def WriteValue(self, value):
+    def WriteValue(self, value, options):
         """Set the descriptor value.
 
         *(NB: This method is registered with the D-Bus at
