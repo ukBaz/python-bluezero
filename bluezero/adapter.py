@@ -280,8 +280,6 @@ class Adapter:
             else:
                 print('\t{0} = {1}'.format(key, value))
 
-        print()
-
         properties['Logged'] = True
 
     @staticmethod
