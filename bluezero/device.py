@@ -10,7 +10,7 @@ try:
     from gi.repository import GObject
 except ImportError:
     import gobject as GObject
-import bluezero.bluezutils as bluezutils
+from bluezero import tools
 
 
 class Device:
@@ -24,8 +24,8 @@ class Device:
         self.bus = dbus.SystemBus()
         self.mainloop = GObject.MainLoop()
         if adapter_obj is None:
-            self.adapter = bluezutils.find_adapter()
-            self.adapter_path = bluezutils.find_adapter().object_path
+            self.adapter = tools.find_adapter()
+            self.adapter_path = tools.find_adapter().object_path
         else:
             self.adapter = adapter_obj.adapter_iface
             self.adapter_path = adapter_obj.adapter_path
@@ -69,11 +69,11 @@ class Device:
         if address is None:
             print('Need address or object path parameter')
         else:
-            managed_objects = bluezutils.get_managed_objects()
+            managed_objects = tools.get_managed_objects()
             try:
-                dev = bluezutils.find_device_in_objects(managed_objects,
-                                                        address,
-                                                        self.dev_id)
+                dev = tools.find_device_in_objects(managed_objects,
+                                                   address,
+                                                   self.dev_id)
                 path = dev.object_path
             except:
                 path = address
@@ -83,7 +83,7 @@ class Device:
         if address is None:
             print('Need address parameter')
         else:
-            self.device = bluezutils.find_device(address, self.adapter_path)
+            self.device = tools.find_device(address, self.adapter_path)
             # print('Device: {0}'.format(device))
             if profile is None:
                 self.device.Connect()
@@ -97,7 +97,7 @@ class Device:
         if address is None:
             print('Need address parameter')
         else:
-            device = bluezutils.find_device(address, self.dev_id)
+            device = tools.find_device(address, self.dev_id)
             path = device.object_path
             print('Path to object: {}'.format(path))
             props = dbus.Interface(self.bus.get_object('org.bluez', path),
@@ -109,7 +109,7 @@ class Device:
         if address is None:
             print('Need address parameter')
         else:
-            device = bluezutils.find_device(address, self.dev_id)
+            device = tools.find_device(address, self.dev_id)
             path = device.object_path
             props = dbus.Interface(self.bus.get_object('org.bluez', path),
                                    'org.freedesktop.DBus.Properties')
@@ -120,7 +120,7 @@ class Device:
         if address is None:
             print('Need address parameter')
         else:
-            device = bluezutils.find_device(address, self.dev_id)
+            device = tools.find_device(address, self.dev_id)
             path = device.object_path
             props = dbus.Interface(self.bus.get_object('org.bluez', path),
                                    'org.freedesktop.DBus.Properties')
@@ -134,7 +134,7 @@ class Device:
         if address is None:
             print('Need address parameter')
         else:
-            device = bluezutils.find_device(address, self.dev_id)
+            device = tools.find_device(address, self.dev_id)
             path = device.object_path
             props = dbus.Interface(self.bus.get_object('org.bluez', path),
                                    'org.freedesktop.DBus.Properties')

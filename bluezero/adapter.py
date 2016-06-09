@@ -16,7 +16,7 @@ import dbus
 import dbus.mainloop.glib
 
 # python-bluezero imports
-from bluezero import bluezutils
+from bluezero import tools
 from bluezero import constants
 
 # Main eventloop import
@@ -75,8 +75,8 @@ class Adapter:
         """
         self.bus = dbus.SystemBus()
         self.dev_id = dev_id
-        self.adapter_iface = bluezutils.find_adapter(dev_id)
-        self.adapter_path = bluezutils.find_adapter(dev_id).object_path
+        self.adapter_iface = tools.find_adapter(dev_id)
+        self.adapter_path = tools.find_adapter(dev_id).object_path
         self.adapter = dbus.Interface(
             self.bus.get_object(
                 'org.bluez',

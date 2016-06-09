@@ -16,7 +16,7 @@ import dbus.mainloop.glib
 import dbus.service
 
 # python-bluezero imports
-from bluezero import bluezutils
+from bluezero import tools
 from bluezero import adapter
 from bluezero import constants
 
@@ -211,11 +211,11 @@ class Application(dbus.service.Object):
 
         # Setup the advertising manager
         print('setup ad_manager')
-        self.ad_manager = bluezutils.get_advert_manager_interface()
+        self.ad_manager = tools.get_advert_manager_interface()
 
         # Setup the service manager
         print('setup service_manager')
-        self.service_manager = bluezutils.get_gatt_manager_interface()
+        self.service_manager = tools.get_gatt_manager_interface()
 
         # Setup the advertisement
         self.service_ad = Advertisement(self, 'peripheral')
