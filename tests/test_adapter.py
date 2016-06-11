@@ -46,6 +46,41 @@ class TestBluezero(dbusmock.DBusTestCase):
         dongle = Adapter()
         self.assertEqual(dongle.alias(), 'my-computer')
 
+    def test_adapter_alias_write(self):
+        dev_name = 'my-test-dev'
+        dongle = Adapter()
+        dongle.alias(dev_name)
+        self.assertEqual(dongle.alias(), dev_name)
+
+    def test_adapter_power(self):
+        dongle = Adapter()
+        self.assertEqual(dongle.powered(), 1)
+
+    def test_adapter_power_write(self):
+        dongle = Adapter()
+        dongle.powered(0)
+        self.assertEqual(dongle.powered(), 0)
+
+    def test_adapter_discoverable(self):
+        dongle = Adapter()
+        self.assertEqual(dongle.discoverable(), 1)
+
+    def test_adapter_discoverabletimeout(self):
+        dongle = Adapter()
+        self.assertEqual(dongle.discoverabletimeout(), 180)
+
+    def test_adapter_pairable(self):
+        dongle = Adapter()
+        self.assertEqual(dongle.pairable(), 1)
+
+    def test_adapter_pairabletimeout(self):
+        dongle = Adapter()
+        self.assertEqual(dongle.pairabletimeout(), 180)
+
+    def test_adapter_discovering(self):
+        dongle = Adapter()
+        self.assertEqual(dongle.discovering(), 1)
+
 if __name__ == '__main__':
     # avoid writing to stderr
     unittest.main(testRunner=unittest.TextTestRunner(stream=sys.stdout,
