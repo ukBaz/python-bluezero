@@ -70,6 +70,29 @@ Edit bluetooth.service file to add --experimental flag e.g::
 
     sudo sed -i '/^ExecStart.*bluetoothd\s*$/ s/$/ --experimental/' /lib/systemd/system/bluetooth.service
 
+You will need to either, reboot or run:
+
+    sudo systemctl daemon-reload
+
+at this stage to use the bluetoothd in experimental mode.
+
+
+Switch controller to Bluetooth Low Engery only
+----------------------------------------------
+Much of what Bluezero is doing is using Bluetooth Low Energy.
+It has been discovered to get reliable connection to Android phones it is best to put the controller into le only mode.
+This is done in the /etc/bluetooth/main.conf file. Ensure that it contains the following:
+
+    ControllerMode = le
+
+Creating a Bluezero peripheral
+------------------------------
+A peripheral application will be registered on the DBus using the bus name of ukBaz.bluezero.
+An example dbus configuration file is provided and will need to be copied to the correct location.
+
+    sudo cp examples/ukBaz.bluezero.conf /etc/dbus-1/system.d/.
+
+
 Notes for getting debug information
 -----------------------------------
 Monitor the bluetooth hci traffic
