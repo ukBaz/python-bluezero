@@ -123,7 +123,8 @@ class Application(dbus.service.Object):
         # Initialise the D-Bus path and register it
         self.bus = dbus.SystemBus()
         self.path = '/ukBaz/bluezero/application{}'.format(id(self))
-        dbus.service.Object.__init__(self, self.bus, self.path)
+        self.bus_name = dbus.service.BusName('ukBaz.bluezero', self.bus)
+        dbus.service.Object.__init__(self, self.bus_name, self.path)
 
         # Initialise services within the application
         self.services = []
@@ -305,6 +306,10 @@ class Service(dbus.service.Object):
 
         # Initialise characteristics within the service
         self.characteristics = []
+
+    def UUID(self):
+        """Return Service UUID"""
+        return self.service.Get(constants.GATT_SERVICE_IFACE, 'UUID')
 
     def get_properties(self):
         """Return a dictionary of the service properties.
