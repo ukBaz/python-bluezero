@@ -9,7 +9,7 @@ A simple Python interface to Bluez stack
 
 Name and aim
 ============
-The aim of this library is to provide an API to access to _Bluez_ with _zero_ boilerplate code.
+The aim of this library is to provide an API to access to *Bluez* with *zero* boilerplate code.
 
 Goal
 ====
@@ -38,6 +38,7 @@ light_switch.py - Experiment to split user code from library code
 
 The rest of the experiments are just big code blobs that were just to prove we can do the required things.
 Not guaranteed to work beyond the specific hardware of the developers
+
 Beacon
 ------
 eddystone-url-beacon.py - Simple Eddystone URL beacon. Enter URL get beacon out
