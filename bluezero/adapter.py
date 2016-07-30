@@ -221,7 +221,7 @@ class Adapter:
             else:
                 value = dbus.Boolean(new_state)
             self.adapter_props.Set(constants.ADAPTER_INTERFACE,
-                                   Discoverable', value)
+                                   'Discoverable', value)
             discoverable = self.adapter_props.Get(
                 constants.ADAPTER_INTERFACE, 'Discoverable')
         return discoverable
