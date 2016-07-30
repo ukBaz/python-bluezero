@@ -41,50 +41,55 @@ class TestBluezeroAdapter(dbusmock.DBusTestCase):
         self.p_mock.wait()
 
     def test_adapter_address(self):
-        dongle = Adapter()
+        dongle = Adapter('/org/bluez/hci0')
         self.assertEqual(dongle.address(), '00:01:02:03:04:05')
 
     def test_adapter_name(self):
-        dongle = Adapter()
+        dongle = Adapter('/org/bluez/hci0')
         self.assertEqual(dongle.name(), 'my-computer')
 
     def test_adapter_alias(self):
-        dongle = Adapter()
+        dongle = Adapter('/org/bluez/hci0')
         self.assertEqual(dongle.alias(), 'my-computer')
 
     def test_adapter_alias_write(self):
         dev_name = 'my-test-dev'
-        dongle = Adapter()
+        dongle = Adapter('/org/bluez/hci0')
         dongle.alias(dev_name)
         self.assertEqual(dongle.alias(), dev_name)
 
     def test_adapter_power(self):
-        dongle = Adapter()
+        dongle = Adapter('/org/bluez/hci0')
         self.assertEqual(dongle.powered(), 1)
 
     def test_adapter_power_write(self):
-        dongle = Adapter()
+        dongle = Adapter('/org/bluez/hci0')
         dongle.powered(0)
         self.assertEqual(dongle.powered(), 0)
 
     def test_adapter_discoverable(self):
-        dongle = Adapter()
+        dongle = Adapter('/org/bluez/hci0')
         self.assertEqual(dongle.discoverable(), 1)
 
     def test_adapter_discoverabletimeout(self):
-        dongle = Adapter()
+        dongle = Adapter('/org/bluez/hci0')
         self.assertEqual(dongle.discoverabletimeout(), 180)
 
     def test_adapter_pairable(self):
-        dongle = Adapter()
+        dongle = Adapter('/org/bluez/hci0')
         self.assertEqual(dongle.pairable(), 1)
 
     def test_adapter_pairabletimeout(self):
-        dongle = Adapter()
+        dongle = Adapter('/org/bluez/hci0')
         self.assertEqual(dongle.pairabletimeout(), 180)
 
     def test_adapter_discovering(self):
-        dongle = Adapter()
+        dongle = Adapter('/org/bluez/hci0')
+        self.assertEqual(dongle.discovering(), 0)
+
+    def test_start_discovery(self):
+        dongle = Adapter('/org/bluez/hci0')
+        dongle.nearby_discovery()
         self.assertEqual(dongle.discovering(), 1)
 
 if __name__ == '__main__':
