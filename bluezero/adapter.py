@@ -20,10 +20,8 @@ from bluezero import tools
 from bluezero import constants
 
 # Main eventloop import
-try:
-    from gi.repository import GObject
-except ImportError:
-    import gobject as GObject
+from gi.repository import GLib
+
 
 # Initialise the mainloop
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -85,6 +83,9 @@ class Adapter:
         )
         self.compact = True
         self.devices = {}
+        self._nearby_timeout = 10
+        self._nearby_count = 0
+        self.mainloop = GLib.MainLoop()
 
     def address(self):
         """Return the adapter MAC address."""
@@ -93,6 +94,10 @@ class Adapter:
     def name(self):
         """Return the adapter name."""
         return self.adapter.Get(constants.ADAPTER_INTERFACE, 'Name')
+
+    def bt_class(self):
+        """Return the Bluetooth class of device."""
+        return self.adapter.Get(constants.ADAPTER_INTERFACE, 'Class')
 
     def alias(self, new_alias=None):
         """Return or set the adapter alias.
@@ -104,7 +109,7 @@ class Adapter:
         else:
             self.adapter.Set(constants.ADAPTER_INTERFACE, 'Alias', new_alias)
 
-    def list(self):
+    def info(self):
         """Return a dictionary of all the Adapter attributes."""
         adapters = {}
         om = dbus.Interface(
@@ -233,153 +238,18 @@ class Adapter:
         """Return whether the adapter is discovering."""
         return self.adapter.Get(constants.ADAPTER_INTERFACE, 'Discovering')
 
-    @staticmethod
-    def print_compact(address, properties):
-        """Print a bluetooth adapter's properties using a compact notation.
+    def _discovering_timeout(self):
+        """Test to see if discovering should stop"""
+        self._nearby_count += 1
+        if self._nearby_count > self._nearby_timeout:
+            self.stop_discovery()
+            self.mainloop.quit()
+        return True
 
-        The notation is ``[logged] address name``.
-
-        :param address: *ignored*
-        :param properties: a dictionary of the bluetooth adapter's properties
-        """
-        name = ''
-        address = '<unknown>'
-
-        for key, value in properties.items():
-            if type(value) is dbus.String:
-                value = str(value).encode('ascii', 'replace')
-            if key == 'Name':
-                name = str(value)
-            elif key == 'Address':
-                address = str(value)
-
-        if 'Logged' in properties:
-            flag = '*'
-        else:
-            flag = ' '
-
-        print('{0:s}{1:s} {2:s}'.format(flag, address, name))
-
-        properties['Logged'] = True
-
-    @staticmethod
-    def print_normal(address, properties):
-        """Print all of a bluetooth adapter's properties.
-
-        :param address: address of the bluetooth adapter
-        :param properties: a dictionary of the bluetooth adapter's properties
-        """
-        print('[ ' + address + ' ]')
-
-        for key in properties.keys():
-            value = properties[key]
-            if type(value) is dbus.String:
-                value = str(value).encode('ascii', 'replace')
-            if key == 'Class':
-                print('\t{0} = 0x{1:06x}'.format(key, value))
-            else:
-                print('\t{0} = {1}'.format(key, value))
-
-        properties['Logged'] = True
-
-    @staticmethod
-    def skip_dev(old_dev, new_dev):
-        """Determine whether to skip displaying a device.
-
-        :param old_dev: dictionary of the registered devices.
-        :param new_dev: properties of the new device.
-
-        This function is used by the ``interfaces_added`` and
-        ``properties_changed`` callbacks when scanning for devices.
-
-        .. seealso:: :func:`interfaces_added`
-        .. seealso:: :func:`properties_changed`
-        """
-        if 'Logged' not in old_dev:
-            return False
-        if 'Name' in old_dev:
-            return True
-        if 'Name' not in new_dev:
-            return True
-        return False
-
-    def interfaces_added(self, path, interfaces):
-        """Callback from a new interface when scanning for devices.
-
-        :param path: hi path to the new device
-        :param interfaces: dictionary of DBus interfaces.
-        """
-        # Select the Bluetooth Device interface
-        properties = interfaces[constants.DEVICE_INTERFACE]
-        if not properties:
-            return
-
-        if path in self.devices:
-            dev = self.devices[path]
-
-            if self.compact and self.skip_dev(dev, properties):
-                return
-            self.devices[path] = dict(list(self.devices[path].items()) +
-                                      list(properties.items()))
-        else:
-            self.devices[path] = properties
-
-        if 'Address' in self.devices[path]:
-            address = properties['Address']
-        else:
-            address = '<unknown>'
-
-        if self.compact:
-            self.print_compact(address, self.devices[path])
-        else:
-            self.print_normal(address, self.devices[path])
-
-    def properties_changed(self, interface, changed, invalidated, path):
-        """Callback from properties changed when scanning for devices.
-
-        :param interface: Object path to the interface that has changed.
-        :param changed: dictionary of the changed properties.
-        :param invalidated: *unused*
-        :param path: hci path to the device that has changed.
-        """
-        # Ignore properties on anything but org.Bluez.Device1
-        if interface != constants.DEVICE_INTERFACE:
-            return
-
-        if path in self.devices:
-            dev = self.devices[path]
-
-            if self.compact and self.skip_dev(dev, changed):
-                return
-            self.devices[path] = dict(list(self.devices[path].items()) +
-                                      list(changed.items()))
-        else:
-            self.devices[path] = changed
-
-        if 'Address' in self.devices[path]:
-            address = self.devices[path]['Address']
-        else:
-            address = '<unknown>'
-
-        if self.compact:
-            self.print_compact(address, self.devices[path])
-        else:
-            self.print_normal(address, self.devices[path])
-
-    def start_scan(self):
-        """Start scanning for Bluetooth devices."""
-        self.bus.add_signal_receiver(
-            self.interfaces_added,
-            dbus_interface=constants.DBUS_OM_IFACE,
-            signal_name='InterfacesAdded')
-
-        self.bus.add_signal_receiver(
-            self.properties_changed,
-            dbus_interface=constants.DBUS_PROP_IFACE,
-            signal_name='PropertiesChanged',
-            arg0=constants.DEVICE_INTERFACE,
-            path_keyword='path')
-
+    def nearby_discovery(self, timeout=10):
+        """Start discovery of nearby Bluetooth devices."""
+        self._nearby_timeout = timeout
+        self._nearby_count = 0
         om = dbus.Interface(
             self.bus.get_object(constants.BLUEZ_SERVICE_NAME, '/'),
             constants.DBUS_OM_IFACE)
@@ -388,11 +258,10 @@ class Adapter:
             if constants.DEVICE_INTERFACE in interfaces:
                 self.devices[path] = interfaces[constants.DEVICE_INTERFACE]
 
+        GLib.timeout_add(1000, self._discovering_timeout)
         self.adapter_iface.StartDiscovery()
+        self.mainloop.run()
 
-        mainloop = GObject.MainLoop()
-        mainloop.run()
-
-    def stop_scan(self):
-        """Stop scanning for Bluetooth devices."""
+    def stop_discovery(self):
+        """Stop scanning of nearby Bluetooth devices."""
         self.adapter_iface.StopDiscovery()

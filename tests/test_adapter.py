@@ -1,14 +1,16 @@
-import sys
 import subprocess
+import sys
 import unittest
+
 import dbus
 import dbus.mainloop.glib
 import dbusmock
 from gi.repository import GLib
+
 from bluezero.adapter import Adapter
 
 
-class TestBluezero(dbusmock.DBusTestCase):
+class TestBluezeroAdapter(dbusmock.DBusTestCase):
 
     @classmethod
     def setUpClass(klass):
@@ -19,7 +21,7 @@ class TestBluezero(dbusmock.DBusTestCase):
     def setUp(self):
         # bluetoothd
         (self.p_mock, self.obj_bluez) = self.spawn_server_template(
-            'bluez5', {}, stdout=subprocess.PIPE)
+            'tests/dbusmock_templates/bluezero.py', {}, stdout=subprocess.PIPE)
         self.dbusmock_bluez = dbus.Interface(self.obj_bluez, 'org.bluez.Mock')
         # Set up an adapter and device.
         adapter_name = 'hci0'
@@ -29,6 +31,10 @@ class TestBluezero(dbusmock.DBusTestCase):
         ml = GLib.MainLoop()
 
         self.dbusmock_bluez.AddAdapter(adapter_name, 'my-computer')
+        self.dbusmock_bluez.AddDevice(
+            adapter_name,
+            device_address,
+            device_alias)
 
     def tearDown(self):
         self.p_mock.terminate()
