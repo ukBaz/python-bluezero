@@ -1,14 +1,13 @@
-# -*- coding: utf-8 -*-
-
-'''bluetoothd mock template
+"""Bluezero DBus mock template
 
 This creates the expected methods and properties of the object manager
-org.bluez object (/), the manager object (/org/bluez), but no adapters or
-devices.
+org.bluez object (/), the manager object (/org/bluez) for BlueZ 5 only.
 
-This supports BlueZ 5 only.
-'''
 
+This is based on the BLueZ5 template from:
+https://github.com/martinpitt/python-dbusmock/
+
+That had the following licensing information:
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
 # Software Foundation; either version 3 of the License, or (at your option) any
@@ -19,6 +18,7 @@ __author__ = 'Philip Withnall'
 __email__ = 'philip.withnall@collabora.co.uk'
 __copyright__ = '(c) 2013 Collabora Ltd.'
 __license__ = 'LGPL 3+'
+"""
 
 import dbus
 
@@ -80,7 +80,7 @@ def AddAdapter(self, device_name, system_name):
             '0000110c-0000-1000-8000-00805f9b34fb',
         ], variant_level=1),
         'Discoverable': dbus.Boolean(True, variant_level=1),
-        'Discovering': dbus.Boolean(True, variant_level=1),
+        'Discovering': dbus.Boolean(False, variant_level=1),
         'Pairable': dbus.Boolean(True, variant_level=1),
         'Powered': dbus.Boolean(True, variant_level=1),
         'Address': dbus.String('00:01:02:03:04:05', variant_level=1),
@@ -102,7 +102,8 @@ def AddAdapter(self, device_name, system_name):
                    # Methods
                    [
                        ('RemoveDevice', 'o', '', ''),
-                       ('StartDiscovery', '', '', ''),
+                       ('StartDiscovery',
+                        '', '', 'self.mock_discovering(self)'),
                        ('StopDiscovery', '', '', ''),
                    ])
 
@@ -116,6 +117,7 @@ def AddAdapter(self, device_name, system_name):
         ('Unregister', 's', '', ''),
     ])
 
+    adapter.mock_discovering = mock_discovering
     manager = mockobject.objects['/']
     manager.EmitSignal(OBJECT_MANAGER_IFACE, 'InterfacesAdded',
                        'oa{sa{sv}}', [
@@ -124,6 +126,10 @@ def AddAdapter(self, device_name, system_name):
                        ])
 
     return path
+
+
+def mock_discovering(self):
+    self.Set(ADAPTER_IFACE, 'Discovering', dbus.Boolean(True, variant_level=1))
 
 
 @dbus.service.method(BLUEZ_MOCK_IFACE,
@@ -237,19 +243,19 @@ def AddService(self, adapter_device_name, device_address, alias):
 @dbus.service.method(BLUEZ_MOCK_IFACE,
                      in_signature='ss', out_signature='')
 def PairDevice(self, adapter_device_name, device_address):
-    '''Convenience method to mark an existing device as paired.
+    """Convenience method to mark an existing device as paired.
 
     You have to specify a device address which must be a valid Bluetooth
-    address (e.g. 'AA:BB:CC:DD:EE:FF'). The adapter device name is the
+    address (e.g. "AA:BB:CC:DD:EE:FF"). The adapter device name is the
     device_name passed to AddAdapter.
 
     This unblocks the device if it was blocked.
 
-    If the specified adapter or device don’t exist, a NoSuchAdapter or
+    If the specified adapter or device do not exist, a NoSuchAdapter or
     NoSuchDevice error will be returned on the bus.
 
     Returns nothing.
-    '''
+    """
     device_name = 'dev_' + device_address.replace(':', '_').upper()
     adapter_path = '/org/bluez/' + adapter_device_name
     device_path = adapter_path + '/' + device_name
@@ -314,7 +320,7 @@ def PairDevice(self, adapter_device_name, device_address):
 @dbus.service.method(BLUEZ_MOCK_IFACE,
                      in_signature='ss', out_signature='')
 def BlockDevice(self, adapter_device_name, device_address):
-    '''Convenience method to mark an existing device as blocked.
+    """Convenience method to mark an existing device as blocked.
 
     You have to specify a device address which must be a valid Bluetooth
     address (e.g. 'AA:BB:CC:DD:EE:FF'). The adapter device name is the
@@ -322,11 +328,11 @@ def BlockDevice(self, adapter_device_name, device_address):
 
     This disconnects the device if it was connected.
 
-    If the specified adapter or device don’t exist, a NoSuchAdapter or
+    If the specified adapter or device do not exist, a NoSuchAdapter or
     NoSuchDevice error will be returned on the bus.
 
     Returns nothing.
-    '''
+    """
     device_name = 'dev_' + device_address.replace(':', '_').upper()
     adapter_path = '/org/bluez/' + adapter_device_name
     device_path = adapter_path + '/' + device_name
@@ -359,7 +365,7 @@ def BlockDevice(self, adapter_device_name, device_address):
 @dbus.service.method(BLUEZ_MOCK_IFACE,
                      in_signature='', out_signature='')
 def ConnectDevice(self):
-    '''Convenience method to mark an existing device as connected.
+    """Convenience method to mark an existing device as connected.
 
     You have to specify a device address which must be a valid Bluetooth
     address (e.g. 'AA:BB:CC:DD:EE:FF'). The adapter device name is the
@@ -367,15 +373,15 @@ def ConnectDevice(self):
 
     This unblocks the device if it was blocked.
 
-    If the specified adapter or device don’t exist, a NoSuchAdapter or
+    If the specified adapter or device do not exist, a NoSuchAdapter or
     NoSuchDevice error will be returned on the bus.
 
     Returns nothing.
-    '''
+    """
     device_name = 'dev_' + '11:22:33:44:55:66'.replace(':', '_').upper()
     adapter_path = '/org/bluez/' + 'hci0'
     device_path = adapter_path + '/' + device_name
-    print('xxxx', adapter_path)
+    # print('xxxx', adapter_path)
     if adapter_path not in mockobject.objects:
         raise dbus.exceptions.DBusException(
             'Adapter %s does not exist.' % adapter_device_name,
@@ -405,19 +411,19 @@ def ConnectDevice(self):
 @dbus.service.method(BLUEZ_MOCK_IFACE,
                      in_signature='ss', out_signature='')
 def DisconnectDevice(self, adapter_device_name, device_address):
-    '''Convenience method to mark an existing device as disconnected.
+    """Convenience method to mark an existing device as disconnected.
 
     You have to specify a device address which must be a valid Bluetooth
-    address (e.g. 'AA:BB:CC:DD:EE:FF'). The adapter device name is the
+    address (e.g. "AA:BB:CC:DD:EE:FF"). The adapter device name is the
     device_name passed to AddAdapter.
 
-    This does not change the device’s blocked status.
+    This does not change the devices blocked status.
 
-    If the specified adapter or device don’t exist, a NoSuchAdapter or
+    If the specified adapter or device do not exist, a NoSuchAdapter or
     NoSuchDevice error will be returned on the bus.
 
     Returns nothing.
-    '''
+    """
     device_name = 'dev_' + device_address.replace(':', '_').upper()
     adapter_path = '/org/bluez/' + adapter_device_name
     device_path = adapter_path + '/' + device_name

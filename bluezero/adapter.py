@@ -58,46 +58,50 @@ class Adapter:
     :Example:
 
     >>> from bluezero import adapter
-    >>> dongle = adapter.Adapter()
+    >>> dongle = adapter.Adapter('/org/bluez/hci0')
     >>> dongle.powered('on')
 
     """
 
-    def __init__(self, dev_id=None):
+    def __init__(self, adapter_path):
         """Default initialiser.
 
-        Creates the D-Bus interface to the specified device ID.  If no device
-        ID is given, it will find the default device.
+        Creates the D-Bus interface to the specified local Bluetooth
+        adapter device.
+        The DBus path must be specified.
 
-        :param dev_id: (optional) device ID to initialise with.
+        :param dev_id: DBus path to the Bluetooth adapter.
         """
         self.bus = dbus.SystemBus()
-        self.dev_id = dev_id
-        self.adapter_iface = tools.find_adapter(dev_id)
-        self.adapter_path = tools.find_adapter(dev_id).object_path
-        self.adapter = dbus.Interface(
+
+        self.adapter_path = adapter_path
+        self.adapter_object = self.bus.get_object(
+            constants.BLUEZ_SERVICE_NAME,
+            self.adapter_path)
+        self.adapter_methods = dbus.Interface(self.adapter_object,
+                                              constants.ADAPTER_INTERFACE)
+
+        self.adapter_props = dbus.Interface(
             self.bus.get_object(
                 'org.bluez',
                 self.adapter_path),
             'org.freedesktop.DBus.Properties'
         )
-        self.compact = True
-        self.devices = {}
         self._nearby_timeout = 10
         self._nearby_count = 0
         self.mainloop = GLib.MainLoop()
 
     def address(self):
         """Return the adapter MAC address."""
-        return self.adapter.Get(constants.ADAPTER_INTERFACE, 'Address')
+        return self.adapter_props.Get(constants.ADAPTER_INTERFACE, 'Address')
 
     def name(self):
         """Return the adapter name."""
-        return self.adapter.Get(constants.ADAPTER_INTERFACE, 'Name')
+        return self.adapter_props.Get(constants.ADAPTER_INTERFACE, 'Name')
 
     def bt_class(self):
         """Return the Bluetooth class of device."""
-        return self.adapter.Get(constants.ADAPTER_INTERFACE, 'Class')
+        return self.adapter_props.Get(constants.ADAPTER_INTERFACE, 'Class')
 
     def alias(self, new_alias=None):
         """Return or set the adapter alias.
@@ -105,9 +109,11 @@ class Adapter:
         :param new_alias: (optional) the new alias of the adapter.
         """
         if new_alias is None:
-            return self.adapter.Get(constants.ADAPTER_INTERFACE, 'Alias')
+            return self.adapter_props.Get(
+                constants.ADAPTER_INTERFACE, 'Alias')
         else:
-            self.adapter.Set(constants.ADAPTER_INTERFACE, 'Alias', new_alias)
+            self.adapter_props.Set(
+                constants.ADAPTER_INTERFACE, 'Alias', new_alias)
 
     def info(self):
         """Return a dictionary of all the Adapter attributes."""
@@ -143,7 +149,8 @@ class Adapter:
         """
         powered = ''
         if new_state is None:
-            powered = self.adapter.Get(constants.ADAPTER_INTERFACE, 'Powered')
+            powered = self.adapter_props.Get(
+                constants.ADAPTER_INTERFACE, 'Powered')
         else:
             if new_state == 'on':
                 value = dbus.Boolean(1)
@@ -151,8 +158,10 @@ class Adapter:
                 value = dbus.Boolean(0)
             else:
                 value = dbus.Boolean(new_state)
-            self.adapter.Set(constants.ADAPTER_INTERFACE, 'Powered', value)
-            powered = self.adapter.Get(constants.ADAPTER_INTERFACE, 'Powered')
+            self.adapter_props.Set(
+                constants.ADAPTER_INTERFACE, 'Powered', value)
+            powered = self.adapter_props.Get(
+                constants.ADAPTER_INTERFACE, 'Powered')
         return powered
 
     def pairable(self, new_state=None):
@@ -163,8 +172,8 @@ class Adapter:
         Whether changed or not, the pairable state is returned.
         """
         if new_state is None:
-            pairable = self.adapter.Get(constants.ADAPTER_INTERFACE,
-                                        'Pairable')
+            pairable = self.adapter_props.Get(
+                constants.ADAPTER_INTERFACE, 'Pairable')
         else:
             if new_state == 'on':
                 value = dbus.Boolean(1)
@@ -172,9 +181,10 @@ class Adapter:
                 value = dbus.Boolean(0)
             else:
                 value = dbus.Boolean(new_state)
-            self.adapter.Set(constants.ADAPTER_INTERFACE, 'Pairable', value)
-            pairable = self.adapter.Get(constants.ADAPTER_INTERFACE,
-                                        'Pairable')
+            self.adapter_props.Set(
+                constants.ADAPTER_INTERFACE, 'Pairable', value)
+            pairable = self.adapter_props.Get(
+                constants.ADAPTER_INTERFACE, 'Pairable')
         return pairable
 
     def pairabletimeout(self, new_to=None):
@@ -185,12 +195,12 @@ class Adapter:
         Whether changed or not, the pairable timeout is returned.
         """
         if new_to is None:
-            pt = self.adapter.Get(constants.ADAPTER_INTERFACE,
-                                  'PairableTimeout')
+            pt = self.adapter_props.Get(constants.ADAPTER_INTERFACE,
+                                        'PairableTimeout')
         else:
             timeout = dbus.UInt32(new_to)
-            self.adapter.Set(constants.ADAPTER_INTERFACE,
-                             'PairableTimeout', timeout)
+            self.adapter_props.Set(constants.ADAPTER_INTERFACE,
+                                   'PairableTimeout', timeout)
         return pt
 
     def discoverable(self, new_state=None):
@@ -201,8 +211,8 @@ class Adapter:
         Whether changed or not, the discoverable state is returned.
         """
         if new_state is None:
-            discoverable = self.adapter.Get(constants.ADAPTER_INTERFACE,
-                                            'Discoverable')
+            discoverable = self.adapter_props.Get(
+                constants.ADAPTER_INTERFACE, 'Discoverable')
         else:
             if new_state == 'on':
                 value = dbus.Boolean(1)
@@ -210,10 +220,10 @@ class Adapter:
                 value = dbus.Boolean(0)
             else:
                 value = dbus.Boolean(new_state)
-            self.adapter.Set(constants.ADAPTER_INTERFACE,
-                             'Discoverable', value)
-            discoverable = self.adapter.Get(constants.ADAPTER_INTERFACE,
-                                            'Discoverable')
+            self.adapter_props.Set(constants.ADAPTER_INTERFACE,
+                                   'Discoverable', value)
+            discoverable = self.adapter_props.Get(
+                constants.ADAPTER_INTERFACE, 'Discoverable')
         return discoverable
 
     def discoverabletimeout(self, new_dt=None):
@@ -224,19 +234,20 @@ class Adapter:
         Whether changed or not, the discoverable timeout is returned.
         """
         if new_dt is None:
-            dt = self.adapter.Get(constants.ADAPTER_INTERFACE,
-                                  'DiscoverableTimeout')
+            dt = self.adapter_props.Get(constants.ADAPTER_INTERFACE,
+                                        'DiscoverableTimeout')
         else:
             to = dbus.UInt32(new_dt)
-            self.adapter.Set(constants.ADAPTER_INTERFACE,
-                             'DiscoverableTimeout', to)
-            dt = self.adapter.Get(constants.ADAPTER_INTERFACE,
-                                  'DiscoverableTimeout')
+            self.adapter_props.Set(constants.ADAPTER_INTERFACE,
+                                   'DiscoverableTimeout', to)
+            dt = self.adapter_props.Get(constants.ADAPTER_INTERFACE,
+                                        'DiscoverableTimeout')
         return dt
 
     def discovering(self):
         """Return whether the adapter is discovering."""
-        return self.adapter.Get(constants.ADAPTER_INTERFACE, 'Discovering')
+        return self.adapter_props.Get(
+            constants.ADAPTER_INTERFACE, 'Discovering')
 
     def _discovering_timeout(self):
         """Test to see if discovering should stop"""
@@ -250,18 +261,11 @@ class Adapter:
         """Start discovery of nearby Bluetooth devices."""
         self._nearby_timeout = timeout
         self._nearby_count = 0
-        om = dbus.Interface(
-            self.bus.get_object(constants.BLUEZ_SERVICE_NAME, '/'),
-            constants.DBUS_OM_IFACE)
-        objects = om.GetManagedObjects()
-        for path, interfaces in objects.items():
-            if constants.DEVICE_INTERFACE in interfaces:
-                self.devices[path] = interfaces[constants.DEVICE_INTERFACE]
 
         GLib.timeout_add(1000, self._discovering_timeout)
-        self.adapter_iface.StartDiscovery()
+        self.adapter_methods.StartDiscovery()
         self.mainloop.run()
 
     def stop_discovery(self):
         """Stop scanning of nearby Bluetooth devices."""
-        self.adapter_iface.StopDiscovery()
+        self.adapter_methods.StopDiscovery()
