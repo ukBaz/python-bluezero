@@ -2,9 +2,15 @@
 
 # D-Bus import
 import dbus
+import dbus.mainloop.glib
+from gi.repository import GLib
 
 # python-bluezero constants import
 from bluezero import constants
+
+dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+mainloop = GLib.MainLoop()
+bus = dbus.SystemBus(mainloop)
 
 
 def get_managed_objects():
@@ -231,3 +237,11 @@ def url_to_advert(url, frame_type, tx_power):
             service_data.extend([ord(url[x])])
 
     return service_data
+
+
+def start_mainloop():
+    mainloop.run()
+
+
+def stop_mainloop():
+    mainloop.quit()
