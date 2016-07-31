@@ -84,6 +84,17 @@ class Characteristic:
         return self.characteristic_props.Get(
             constants.GATT_CHRC_IFACE, 'Service')
 
+    def value(self):
+        """
+        The cached value of the characteristic. This property
+        gets updated only after a successful read request and
+        when a notification or indication is received, upon
+        which a PropertiesChanged signal will be emitted.
+        :return: DBus byte array
+        """
+        return self.characteristic_props.Get(
+            constants.GATT_CHRC_IFACE, 'Value')
+
     def notifying(self):
         """
         Returns a boolean of if this characteristic has notifications enabled
@@ -100,10 +111,11 @@ class Characteristic:
         return self.characteristic_props.Get(
             constants.GATT_CHRC_IFACE, 'Flags')
 
-    def read_raw_value(self, options=''):
+    def read_raw_value(self, flags=''):
         """
         Return the characteristic value if allowed
-        :param options:
+        :param flags: "offset": Start offset
+					    "device": Device path (Server only)
         :return:
 
         Possible Errors:    org.bluez.Error.Failed
@@ -113,16 +125,16 @@ class Characteristic:
                             org.bluez.Error.NotAuthorized
                             org.bluez.Error.NotSupported
         """
-        return self.characteristic_methods.ReadValue(dbus.Array(options))
+        return self.characteristic_methods.ReadValue(dbus.Array())
 
-    def write_value(self, value, options):
+    def write_value(self, value, flags=''):
         """
         Write a new value to the characteristic
         :param value:
-        :param options:
+        :param flags:
         :return:
         """
-        self.characteristic_methods.WriteValue(value, dbus.Array(options))
+        self.characteristic_methods.WriteValue(value, dbus.Array(flags))
 
     def start_notify(self):
         self.characteristic_methods.StartNotify(
@@ -161,3 +173,75 @@ class Characteristic:
 
     def stop_notify_cb(self):
         print('Notifications disabled')
+
+
+class Descriptor:
+    def __init__(self, descriptor_path):
+        self.descriptor_path = descriptor_path
+        self.descriptor_methods = dbus.Interface(
+            bus.get_object(
+                constants.BLUEZ_SERVICE_NAME,
+                self.descriptor_path),
+            constants.GATT_DESC_IFACE)
+        self.descriptor_props = dbus.Interface(
+            bus.get_object(
+                constants.BLUEZ_SERVICE_NAME,
+                self.descriptor_path),
+            dbus.PROPERTIES_IFACE)
+
+    def UUID(self):
+        """
+        Returns value of Descriptor UUID for this path
+        :return: string example '00002a00-0000-1000-8000-00805f9b34fb'
+        """
+        return self.descriptor_props.Get(
+            constants.GATT_DESC_IFACE, 'UUID')
+
+    def characteristic(self):
+        """
+        Object path of the GATT characteristic the descriptor
+        belongs to
+        :return: DBus object
+        """
+        return self.descriptor_props.Get(
+            constants.GATT_DESC_IFACE, 'UUID')
+
+    def value(self):
+        """
+        The cached value of the descriptor. This property
+        gets updated only after a successful read request, upon
+        which a PropertiesChanged signal will be emitted.
+        :return: DBus byte array
+        """
+        return self.descriptor_props.Get(
+            constants.GATT_CHRC_IFACE, 'Value')
+
+    def flags(self):
+        """
+        Returns a list of how this descriptor value can be used
+        :return: list example ['read', 'write']
+        """
+        return self.descriptor_props.Get(
+            constants.GATT_CHRC_IFACE, 'Flags')
+
+    def read_raw_value(self, flags=''):
+        """
+        Issues a request to read the value of the
+        descriptor and returns the value if the
+        operation was successful.
+
+        :param flags: "offset": Start offset
+                        "device": Device path (Server only)
+        :return: dbus byte array
+        """
+        return self.descriptor_methods.ReadValue(dbus.Array(flags))
+
+    def write_value(self, value, flags=''):
+        """
+        Issues a request to write the value of the descriptor
+        :param value: DBus byte array
+        :param flags: "offset": Start offset
+					  "device": Device path (Server only)
+        :return:
+        """
+        self.descriptor_methods.WriteValue(value, dbus.Array(flags))
