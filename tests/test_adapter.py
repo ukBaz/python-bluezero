@@ -60,11 +60,12 @@ class TestBluezeroAdapter(dbusmock.DBusTestCase):
 
     def test_adapter_power(self):
         dongle = Adapter('/org/bluez/hci0')
+        dongle.powered('on')
         self.assertEqual(dongle.powered(), 1)
 
     def test_adapter_power_write(self):
         dongle = Adapter('/org/bluez/hci0')
-        dongle.powered(0)
+        dongle.powered('off')
         self.assertEqual(dongle.powered(), 0)
 
     def test_adapter_discoverable(self):

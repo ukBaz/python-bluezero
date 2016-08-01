@@ -16,7 +16,6 @@ import dbus
 import dbus.mainloop.glib
 
 # python-bluezero imports
-from bluezero import tools
 from bluezero import constants
 
 # Main eventloop import
@@ -250,7 +249,7 @@ class Adapter:
             constants.ADAPTER_INTERFACE, 'Discovering')
 
     def _discovering_timeout(self):
-        """Test to see if discovering should stop"""
+        """Test to see if discovering should stop."""
         self._nearby_count += 1
         if self._nearby_count > self._nearby_timeout:
             self.stop_discovery()
@@ -259,6 +258,8 @@ class Adapter:
 
     def nearby_discovery(self, timeout=10):
         """Start discovery of nearby Bluetooth devices."""
+        if not self.powered():
+            self.powered('on')
         self._nearby_timeout = timeout
         self._nearby_count = 0
 
