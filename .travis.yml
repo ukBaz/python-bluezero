@@ -34,7 +34,7 @@ before_script:
   # - echo $TRAVIS_PYTHON_VERSION
   # - echo $PYTHONPATH
 script:
-  - python -m unittest tests.test_url_to_hex -v
+  - python -m unittest -v tests.test_url_to_hex
 after_success:
   - "pep8 bluezero"
   - "pep8 --ignore=E402 examples"
