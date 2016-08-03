@@ -14,34 +14,31 @@ class TestBluezeroAdapter(dbusmock.DBusTestCase):
 
     @classmethod
     def setUpClass(klass):
-        klass.start_session_bus()
         klass.start_system_bus()
         klass.dbus_con = klass.get_dbus(True)
 
+        (klass.p_mock, klass.obj_bluez) = klass.spawn_server_template(
+            'bluez5', {}, stdout=subprocess.PIPE)
+
     def setUp(self):
         # bluetoothd
-        (self.p_mock, self.obj_bluez) = self.spawn_server_template(
-            'tests/dbusmock_templates/bluezero.py', {}, stdout=subprocess.PIPE)
+        self.obj_bluez.Reset()
+        self.dbusmock = dbus.Interface(self.obj_bluez, dbusmock.MOCK_IFACE)
         self.dbusmock_bluez = dbus.Interface(self.obj_bluez, 'org.bluez.Mock')
-        # Set up an adapter and device.
-        adapter_name = 'hci0'
-        device_address = '11:22:33:44:55:66'
-        device_alias = 'My Phone'
-
-        ml = GLib.MainLoop()
-
-        self.dbusmock_bluez.AddAdapter(adapter_name, 'my-computer')
-        self.dbusmock_bluez.AddDevice(
-            adapter_name,
-            device_address,
-            device_alias)
 
     def tearDown(self):
         self.p_mock.terminate()
         self.p_mock.wait()
 
     def test_adapter_address(self):
-        dongle = Adapter('/org/bluez/hci0')
+        # Chosen parameters.
+        adapter_name = 'hci0'
+        system_name = 'my-computer'
+
+        # Add an adapter
+        path = self.dbusmock_bluez.AddAdapter(adapter_name, system_name)
+        self.assertEqual(path, '/org/bluez/' + adapter_name)
+        dongle = Adapter(path)
         self.assertEqual(dongle.address(), '00:01:02:03:04:05')
 
     def test_adapter_name(self):
