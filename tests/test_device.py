@@ -15,37 +15,36 @@ class TestBluezeroDevice(dbusmock.DBusTestCase):
 
     @classmethod
     def setUpClass(klass):
-        klass.start_session_bus()
         klass.start_system_bus()
         klass.dbus_con = klass.get_dbus(True)
+        (klass.p_mock, klass.obj_bluez) = klass.spawn_server_template(
+            'bluez5', {}, stdout=subprocess.PIPE)
 
     def setUp(self):
-        # bluetoothd
-        (self.p_mock, self.obj_bluez) = self.spawn_server_template(
-            'tests/dbusmock_templates/bluezero.py', {}, stdout=subprocess.PIPE)
+        self.obj_bluez.Reset()
+        self.dbusmock = dbus.Interface(self.obj_bluez, dbusmock.MOCK_IFACE)
         self.dbusmock_bluez = dbus.Interface(self.obj_bluez, 'org.bluez.Mock')
-        # Set up an adapter_props and device.
-        adapter_name = 'hci0'
-        device_address = '11:22:33:44:55:66'
-        device_alias = 'Peripheral Device'
-
-        ml = GLib.MainLoop()
-
-        self.dbusmock_bluez.AddAdapter(adapter_name, 'my-computer')
-        self.dbusmock_bluez.AddDevice(
-            adapter_name,
-            device_address,
-            device_alias)
-        self.dbusmock_bluez.ConnectDevice()
 
     def tearDown(self):
         self.p_mock.terminate()
         self.p_mock.wait()
 
     def test_device_name(self):
-        test_dev = Device('/org/bluez/hci0/dev_11_22_33_44_55_66')
-        found_name = test_dev.name()
-        # print('Connected? :', test_dev.connected())
+        adapter_name = 'hci0'
+        address = '11:22:33:44:55:66'
+        alias = 'Peripheral Device'
+
+        path = self.dbusmock_bluez.AddAdapter(adapter_name, 'my-computer')
+        self.assertEqual(path, '/org/bluez/' + adapter_name)
+        dongle = Adapter('/org/bluez/hci0')
+
+        path = self.dbusmock_bluez.AddDevice('hci0',
+                                             '11:22:33:44:55:66', 'xxx')
+        self.assertEqual(path,
+                         '/org/bluez/' + adapter_name + '/dev_' +
+                         address.replace(':', '_'))
+        ble_dev = Device('/org/bluez/hci0/dev_11_22_33_44_55_66')
+        # found_name = ble_dev.name()
         self.assertEqual(found_name, 'Peripheral Device')
 
 

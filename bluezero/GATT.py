@@ -115,7 +115,7 @@ class Characteristic:
         """
         Return the characteristic value if allowed
         :param flags: "offset": Start offset
-					    "device": Device path (Server only)
+                        "device": Device path (Server only)
         :return:
 
         Possible Errors:    org.bluez.Error.Failed
@@ -241,7 +241,7 @@ class Descriptor:
         Issues a request to write the value of the descriptor
         :param value: DBus byte array
         :param flags: "offset": Start offset
-					  "device": Device path (Server only)
+                      "device": Device path (Server only)
         :return:
         """
         self.descriptor_methods.WriteValue(value, dbus.Array(flags))
