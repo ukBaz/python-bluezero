@@ -5,7 +5,6 @@ import dbus.mainloop.glib
 from gi.repository import GLib
 
 from bluezero import constants
-from bluezero import tools
 
 
 class Device:
