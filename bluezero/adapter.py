@@ -16,7 +16,6 @@ import dbus
 import dbus.mainloop.glib
 
 # python-bluezero imports
-from bluezero import tools
 from bluezero import constants
 
 # Main eventloop import
