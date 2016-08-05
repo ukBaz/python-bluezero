@@ -39,12 +39,13 @@ class TestBluezeroDevice(dbusmock.DBusTestCase):
         dongle = Adapter('/org/bluez/hci0')
 
         path = self.dbusmock_bluez.AddDevice('hci0',
-                                             '11:22:33:44:55:66', 'xxx')
+                                             '11:22:33:44:55:66',
+                                             'Peripheral Device')
         self.assertEqual(path,
                          '/org/bluez/' + adapter_name + '/dev_' +
                          address.replace(':', '_'))
         ble_dev = Device('/org/bluez/hci0/dev_11_22_33_44_55_66')
-        # found_name = ble_dev.name()
+        found_name = ble_dev.name()
         self.assertEqual(found_name, 'Peripheral Device')
 
 
