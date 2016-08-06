@@ -69,7 +69,7 @@ class Adapter:
         adapter device.
         The DBus path must be specified.
 
-        :param dev_id: DBus path to the Bluetooth adapter.
+        :param adapter_path: DBus path to the Bluetooth adapter.
         """
         self.bus = dbus.SystemBus()
 
@@ -80,12 +80,9 @@ class Adapter:
         self.adapter_methods = dbus.Interface(self.adapter_object,
                                               constants.ADAPTER_INTERFACE)
 
-        self.adapter_props = dbus.Interface(
-            self.bus.get_object(
-                'org.bluez',
-                self.adapter_path),
-            'org.freedesktop.DBus.Properties'
-        )
+        self.adapter_props = dbus.Interface(self.adapter_object,
+                                            dbus.PROPERTIES_IFACE)
+
         self._nearby_timeout = 10
         self._nearby_count = 0
         self.mainloop = GLib.MainLoop()
@@ -249,7 +246,7 @@ class Adapter:
             constants.ADAPTER_INTERFACE, 'Discovering')
 
     def _discovering_timeout(self):
-        """Test to see if discovering should stop"""
+        """Test to see if discovering should stop."""
         self._nearby_count += 1
         if self._nearby_count > self._nearby_timeout:
             self.stop_discovery()
