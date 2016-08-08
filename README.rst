@@ -5,6 +5,19 @@ python-bluezero
     :target: https://travis-ci.org/ukBaz/python-bluezero
     :alt: Build Status
 
+.. image:: https://codeclimate.com/github/ukBaz/python-bluezero/badges/gpa.svg
+   :target: https://codeclimate.com/github/ukBaz/python-bluezero
+   :alt: Code Climate
+   
+.. image:: https://codeclimate.com/github/ukBaz/python-bluezero/badges/coverage.svg
+   :target: https://codeclimate.com/github/ukBaz/python-bluezero/coverage
+   :alt: Test Coverage
+
+.. image:: https://codeclimate.com/github/ukBaz/python-bluezero/badges/issue_count.svg
+   :target: https://codeclimate.com/github/ukBaz/python-bluezero
+   :alt: Issue Count
+
+
 A simple Python interface to Bluez stack
 
 Name and aim
