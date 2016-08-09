@@ -240,3 +240,64 @@ class Descriptor:
         :return:
         """
         self.descriptor_methods.WriteValue(value, dbus.Array(flags))
+
+
+class Profile:
+    def __init__(self, profile_path):
+        self.profile_path = profile_path
+        self.bus = dbus.SystemBus()
+        self.profile_object = self.bus.get_object(
+            constants.BLUEZ_SERVICE_NAME,
+            self.profile_path)
+        self.profile_methods = dbus.Interface(
+            self.profile_object,
+            constants.GATT_PROFILE_IFACE)
+        self.profile_props = dbus.Interface(self.profile_object,
+                                            dbus.PROPERTIES_IFACE)
+
+    def release(self):
+        """
+
+        :return:
+        """
+        self.profile_methods.Release()
+
+    def UUIDs(self):
+        """128-bit GATT service UUIDs to auto connect.
+
+        :return: list of UUIDs
+        """
+        return self.profile_props.Get(constants.GATT_PROFILE_IFACE, 'UUIDs')
+
+
+class GattManager:
+    def __init__(self, manager_path):
+        self.manager_path = manager_path
+        self.bus = dbus.SystemBus()
+        self.manager_obj = self.bus.get_object(
+            constants.BLUEZ_SERVICE_NAME,
+            self.manager_path)
+        self.manager_methods = dbus.Interface(
+            self.manager_obj,
+            constants.GATT_MANAGER_IFACE)
+        self.manager_props = dbus.Interface(self.manager_obj,
+                                            dbus.PROPERTIES_IFACE)
+
+    def register_application(self, application, options):
+        """
+
+        :param application:
+        :param options:
+        :return:
+        """
+        self.manager_methods.RegisterApplication(
+            application, options
+        )
+
+    def unregister_application(self, application):
+        """
+
+        :param application:
+        :return:
+        """
+        self.manager_methods.UnregisterApplication(application)
