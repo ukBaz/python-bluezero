@@ -23,6 +23,7 @@ DEVICE_INTERFACE = 'org.bluez.Device1'
 
 # Bluez GATT D-Bus Object Paths
 GATT_MANAGER_IFACE = 'org.bluez.GattManager1'
+GATT_PROFILE_IFACE = 'org.bluez.GattProfile1'
 GATT_SERVICE_IFACE = 'org.bluez.GattService1'
 GATT_CHRC_IFACE = 'org.bluez.GattCharacteristic1'
 GATT_DESC_IFACE = 'org.bluez.GattDescriptor1'
