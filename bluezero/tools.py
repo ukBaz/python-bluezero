@@ -10,14 +10,13 @@ from bluezero import constants
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 mainloop = GLib.MainLoop()
-bus = dbus.SystemBus(mainloop)
 
 
 def get_managed_objects():
     """Return the objects currently managed by the DBus Object Manager."""
     bus = dbus.SystemBus()
-    manager = dbus.Interface(
-        bus.get_object(constants.BLUEZ_SERVICE_NAME, '/'),
+    manager = dbus.Interface(self.bus.get_object(
+        constants.BLUEZ_SERVICE_NAME, '/'),
         constants.DBUS_OM_IFACE)
     return manager.GetManagedObjects()
 
