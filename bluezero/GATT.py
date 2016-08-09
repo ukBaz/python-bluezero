@@ -6,7 +6,6 @@ from bluezero import constants
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 mainloop = GLib.MainLoop()
-bus = dbus.SystemBus(mainloop)
 
 
 def generic_error_cb(error):
@@ -17,16 +16,14 @@ def generic_error_cb(error):
 class Service:
     def __init__(self, service_path):
         self.service_path = service_path
-        self.service_methods = dbus.Interface(
-            bus.get_object(
-                constants.BLUEZ_SERVICE_NAME,
-                self.service_path),
-            constants.ADAPTER_INTERFACE)
-        self.service_props = dbus.Interface(
-            bus.get_object(
-                constants.BLUEZ_SERVICE_NAME,
-                self.service_path),
-            dbus.PROPERTIES_IFACE)
+        self.bus = dbus.SystemBus()
+        self.service_object = self.bus.get_object(
+            constants.BLUEZ_SERVICE_NAME,
+            self.service_path)
+        self.service_methods = dbus.Interface(self.service_object,
+                                              constants.ADAPTER_INTERFACE)
+        self.service_props = dbus.Interface(self.service_object,
+                                            dbus.PROPERTIES_IFACE)
 
     def UUID(self):
         """
@@ -56,15 +53,15 @@ class Service:
 class Characteristic:
     def __init__(self, characteristic_path):
         self.characteristic_path = characteristic_path
+        self.bus = dbus.SystemBus()
+        self.characteristic_object = self.bus.get_object(
+            constants.BLUEZ_SERVICE_NAME,
+            self.characteristic_path)
         self.characteristic_methods = dbus.Interface(
-            bus.get_object(
-                constants.BLUEZ_SERVICE_NAME,
-                self.characteristic_path),
+            self.characteristic_object,
             constants.GATT_CHRC_IFACE)
         self.characteristic_props = dbus.Interface(
-            bus.get_object(
-                constants.BLUEZ_SERVICE_NAME,
-                self.characteristic_path),
+            self.characteristic_object,
             dbus.PROPERTIES_IFACE)
 
     def UUID(self):
@@ -178,16 +175,14 @@ class Characteristic:
 class Descriptor:
     def __init__(self, descriptor_path):
         self.descriptor_path = descriptor_path
-        self.descriptor_methods = dbus.Interface(
-            bus.get_object(
-                constants.BLUEZ_SERVICE_NAME,
-                self.descriptor_path),
-            constants.GATT_DESC_IFACE)
-        self.descriptor_props = dbus.Interface(
-            bus.get_object(
-                constants.BLUEZ_SERVICE_NAME,
-                self.descriptor_path),
-            dbus.PROPERTIES_IFACE)
+        self.bus = dbus.SystemBus()
+        self.descriptor_object = self.bus.get_object(
+            constants.BLUEZ_SERVICE_NAME,
+            self.descriptor_path)
+        self.descriptor_methods = dbus.Interface(self.descriptor_object,
+                                                 constants.GATT_DESC_IFACE)
+        self.descriptor_props = dbus.Interface(self.descriptor_object,
+                                               dbus.PROPERTIES_IFACE)
 
     def UUID(self):
         """
