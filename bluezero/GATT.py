@@ -270,6 +270,15 @@ class Profile:
         return self.profile_props.Get(constants.GATT_PROFILE_IFACE, 'UUIDs')
 
 
+def register_app_cb():
+    print('GATT application registered')
+
+
+def register_app_error_cb(error):
+    print('Failed to register application: ' + str(error))
+    mainloop.quit()
+
+
 class GattManager:
     def __init__(self, manager_path):
         self.manager_path = manager_path
@@ -291,7 +300,9 @@ class GattManager:
         :return:
         """
         self.manager_methods.RegisterApplication(
-            application, options
+            application, options,
+            reply_handler=register_app_cb,
+            error_handler=register_app_error_cb
         )
 
     def unregister_application(self, application):
