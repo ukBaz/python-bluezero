@@ -39,7 +39,6 @@ class Advertisement(dbus.service.Object):
     >>> from bluezero import advertisement
     >>> beacon = advertisement.Advertisement(1, 'broadcast')
     >>> beacon.Set('org.bluez.LEAdvertisement1', 'ServiceUUIDs', ['FEAA'])
-    >>> url_code = [0x10, 0x00, 0x00, 0x63, 0x73, 0x72, 0x00, 0x61, 0x62, 0x6f, 0x75, 0x74]
     >>> beacon.Set('org.bluez.LEAdvertisement1',
     >>>            'ServiceData',
     >>>            {'FEAA': [0x10, 0x00, 0x00, 0x63, 0x73, 0x72, 0x00, 0x61,
@@ -59,7 +58,7 @@ class Advertisement(dbus.service.Object):
         :param device_path: DBus path to the advertising data.
         """
         # Setup D-Bus object paths and register service
-        self.path = '/ukBaz/bluezero/advertisement' + str('{0:04d}'.format(advert_id))
+        self.path = '/ukBaz/bluezero/advertisement{0:04d}'.format(advert_id)
         self.bus = dbus.SystemBus()
         self.interface = constants.LE_ADVERTISEMENT_IFACE
         dbus.service.Object.__init__(self, self.bus, self.path)
@@ -73,7 +72,6 @@ class Advertisement(dbus.service.Object):
                 'IncludeTxPower': False
             }
         }
-
 
     def get_path(self):
         """Return the DBus object path"""
@@ -133,7 +131,6 @@ class Advertisement(dbus.service.Object):
 
         return response
 
-
     @dbus.service.method(dbus.PROPERTIES_IFACE,
                          in_signature='ss', out_signature='v')
     def Get(self, interface_name, property_name):
@@ -148,7 +145,6 @@ class Advertisement(dbus.service.Object):
             raise dbus.exceptions.DBusException(
                 'no such property ' + property_name,
                 name=interface_name + '.UnknownProperty')
-
 
     @dbus.service.method(dbus.PROPERTIES_IFACE,
                          in_signature='ssv', out_signature='')

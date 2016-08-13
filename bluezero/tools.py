@@ -24,6 +24,7 @@ def bluez_version():
     ver = p.communicate()
     return str(ver[0].decode().rstrip())
 
+
 def get_managed_objects():
     """Return the objects currently managed by the DBus Object Manager."""
     bus = dbus.SystemBus()
