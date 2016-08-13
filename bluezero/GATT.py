@@ -300,7 +300,7 @@ class GattManager:
         :return:
         """
         self.manager_methods.RegisterApplication(
-            application, options,
+            application.get_path(), options,
             reply_handler=register_app_cb,
             error_handler=register_app_error_cb
         )
