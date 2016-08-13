@@ -1,5 +1,8 @@
 """Utility functions for python-bluezero."""
 
+# Standard libraries
+import subprocess
+
 # D-Bus import
 import dbus
 import dbus.mainloop.glib
@@ -11,6 +14,15 @@ from bluezero import constants
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 mainloop = GLib.MainLoop()
 
+
+def bluez_version():
+    """
+    get the version of the BlueZ daemon being used on the system
+    :return: String of BlueZ version
+    """
+    p = subprocess.Popen(['bluetoothctl', '-v'], stdout=subprocess.PIPE)
+    ver = p.communicate()
+    return str(ver[0].decode().rstrip())
 
 def get_managed_objects():
     """Return the objects currently managed by the DBus Object Manager."""

@@ -9,16 +9,48 @@ Classes:
 from __future__ import absolute_import, print_function, unicode_literals
 
 import dbus
+import dbus.exceptions
+import dbus.service
 import dbus.mainloop.glib
 from gi.repository import GLib
 
 from bluezero import constants
 
 
-class Advertisement:
-    """Advertisement data to broadcast Class."""
+########################################
+# Exception classes
+#######################################
+class InvalidArgsException(dbus.exceptions.DBusException):
+    """This is a D-Bus exception class for Invalid Arguments.
 
-    def __init__(self, advertisement_path):
+    All this class does is set the internal variable ``_dbus_error_name`` to
+    the object path for D-Bus Invalid Argument Exceptions.
+
+    """
+
+    _dbus_error_name = 'org.freedesktop.DBus.Error.InvalidArgs'
+
+
+class Advertisement(dbus.service.Object):
+    """Advertisement data to broadcast Class.
+
+    An example of an Eddystone beacon:
+    >>> from bluezero import tools
+    >>> from bluezero import advertisement
+    >>> beacon = advertisement.Advertisement(1, 'broadcast')
+    >>> beacon.Set('org.bluez.LEAdvertisement1', 'ServiceUUIDs', ['FEAA'])
+    >>> url_code = [0x10, 0x00, 0x00, 0x63, 0x73, 0x72, 0x00, 0x61, 0x62, 0x6f, 0x75, 0x74]
+    >>> beacon.Set('org.bluez.LEAdvertisement1',
+    >>>            'ServiceData',
+    >>>            {'FEAA': [0x10, 0x00, 0x00, 0x63, 0x73, 0x72, 0x00, 0x61,
+    >>>                      0x62, 0x6f, 0x75, 0x74]})
+    >>> ad_manager= advertisement.AdvertisingManager('/org/bluez/hci0')
+    >>> ad_manager.register_advertisement(beacon, {})
+    >>> tools.start_mainloop()
+
+    """
+
+    def __init__(self, advert_id, ad_type):
         """Default initialiser.
 
         Creates the D-Bus interface to the specified advertising data.
@@ -26,21 +58,31 @@ class Advertisement:
 
         :param device_path: DBus path to the advertising data.
         """
+        # Setup D-Bus object paths and register service
+        self.path = '/ukBaz/bluezero/advertisement' + str('{0:04d}'.format(advert_id))
         self.bus = dbus.SystemBus()
-        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-        self.mainloop = GLib.MainLoop()
+        self.interface = constants.LE_ADVERTISEMENT_IFACE
+        dbus.service.Object.__init__(self, self.bus, self.path)
+        self.props = {
+            constants.LE_ADVERTISEMENT_IFACE: {
+                'Type': ad_type,
+                'ServiceUUIDs': None,
+                'ManufacturerData': None,
+                'SolicitUUIDs': None,
+                'ServiceData': None,
+                'IncludeTxPower': False
+            }
+        }
 
-        self.advertisement_path = advertisement_path
-        self.advertisement_obj = self.bus.get_object(
-            constants.BLUEZ_SERVICE_NAME,
-            self.advertisement_path)
-        self.advertisement_methods = dbus.Interface(
-            self.advertisement_obj,
-            constants.LE_ADVERTISEMENT_IFACE)
-        self.advertisement_props = dbus.Interface(self.advertisement_obj,
-                                                  dbus.PROPERTIES_IFACE)
 
-    def release(self):
+    def get_path(self):
+        """Return the DBus object path"""
+        return dbus.ObjectPath(self.path)
+
+    @dbus.service.method(constants.LE_ADVERTISEMENT_IFACE,
+                         in_signature='',
+                         out_signature='')
+    def Release(self):
         """
         This method gets called when the service daemon
         removes the Advertisement. A client can use it to do
@@ -49,99 +91,83 @@ class Advertisement:
         called it has already been unregistered.
         :return:
         """
-        self.advertisement_methods.Release()
+        pass
 
-    def type(self, advert_type=None):
-        """Return or set the advertisement type.
+    @dbus.service.method(constants.DBUS_PROP_IFACE,
+                         in_signature='s',
+                         out_signature='a{sv}')
+    def GetAll(self, interface_name):
+        """Return the advertisement properties.
 
-        Possible values: "broadcast" or "peripheral"
+        This method is registered with the D-Bus at
+        ``org.freedesktop.DBus.Properties``
 
-        :param new_alias: (optional) type of advertisement requested.
+        :param interface: interface to get the properties of.
+
+        The interface must be ``org.bluez.LEAdvertisement1`` otherwise an
+        exception is raised.
         """
-        if advert_type is None:
-            return self.advertisement_props.Get(
-                constants.LE_ADVERTISEMENT_IFACE, 'Type')
-        else:
-            self.advertisement_props.Set(constants.LE_ADVERTISEMENT_IFACE,
-                                         'Alias',
-                                         advert_type)
+        if interface_name != constants.LE_ADVERTISEMENT_IFACE:
+            raise InvalidArgsException()
 
-    def service_UUIDs(self, services_dict=None):
-        """List of UUIDs to include in the "Service UUID" field of
-            the Advertising Data.
+        response = {}
+        response['Type'] = self.props[interface_name]['Type']
+        if self.props[interface_name]['ServiceUUIDs'] is not None:
+            response['ServiceUUIDs'] = dbus.Array(
+                self.props[interface_name]['ServiceUUIDs'],
+                signature='s')
+        if self.props[interface_name]['ServiceData'] is not None:
+            response['ServiceData'] = dbus.Dictionary(
+                self.props[interface_name]['ServiceData'],
+                signature='say')
+        if self.props[interface_name]['ManufacturerData'] is not None:
+            response['ManufacturerData'] = dbus.Dictionary(
+                self.props[interface_name]['ManufacturerData'],
+                signature='qay')
+        if self.props[interface_name]['SolicitUUIDs'] is not None:
+            response['SolicitUUIDs'] = dbus.Array(
+                self.props[interface_name]['SolicitUUIDs'],
+                signature='s')
+        response['IncludeTxPower'] = dbus.Boolean(
+            self.props[interface_name]['IncludeTxPower'])
 
-        :param services_dict: list of service UUIDs
-        :return:
-        """
-        if services_dict is None:
-            return self.advertisement_props.Get(
-                constants.LE_ADVERTISEMENT_IFACE, 'ServiceUUIDs')
-        else:
-            self.advertisement_props.Set(constants.LE_ADVERTISEMENT_IFACE,
-                                         'ServiceUUIDs',
-                                         services_dict)
-
-    def manufacturer_data(self, manufact_data=None):
-        """Dictionary of Manufacturer Data fields to include in
-            the Advertising Data.  Keys are the Manufacturer ID
-            to associate with the data
-
-        :param manufact_data: Manufacturer Data dictionary
-        :return:
-        """
-        if manufact_data is None:
-            return self.advertisement_props.Get(
-                constants.LE_ADVERTISEMENT_IFACE, 'ManufacturerData')
-        else:
-            self.advertisement_props.Set(constants.LE_ADVERTISEMENT_IFACE,
-                                         'ManufacturerData',
-                                         manufact_data)
-
-    def solicit_UUIDs(self, solicit_data=None):
-        """List of UUIDs to include in "Service Solicitation"
-            Advertisement Data.
-
-        :param solicit_data:
-        :return:
-        """
-        if solicit_data is None:
-            return self.advertisement_props.Get(
-                constants.LE_ADVERTISEMENT_IFACE, 'SolicitUUIDs')
-        else:
-            self.advertisement_props.Set(constants.LE_ADVERTISEMENT_IFACE,
-                                         'SolicitUUIDs',
-                                         solicit_data)
-
-    def service_data(self, service_content=None):
-        """Dictionary of Service Data elements to include.
-        The keys are the UUID to associate with the data
-
-        :param service_content:
-        :return:
-        """
-        if service_content is None:
-            return self.advertisement_props.Get(
-                constants.LE_ADVERTISEMENT_IFACE, 'ServiceData')
-        else:
-            self.advertisement_props.Set(constants.LE_ADVERTISEMENT_IFACE,
-                                         'ServiceData',
-                                         service_content)
-
-    def include_tx_power(self, tx_include=None):
-        """Boolean defining if Tx Power in the advertising packet.
-            If missing, the Tx Power is not included.
+        return response
 
 
-        :param tx_include:
-        :return:
-        """
-        if tx_include is None:
-            return self.advertisement_props.Get(
-                constants.LE_ADVERTISEMENT_IFACE, 'IncludeTxPower')
-        else:
-            self.advertisement_props.Set(constants.LE_ADVERTISEMENT_IFACE,
-                                         'IncludeTxPower',
-                                         tx_include)
+    @dbus.service.method(dbus.PROPERTIES_IFACE,
+                         in_signature='ss', out_signature='v')
+    def Get(self, interface_name, property_name):
+        """DBus API for getting a property value"""
+
+        if interface_name != constants.LE_ADVERTISEMENT_IFACE:
+            raise InvalidArgsException()
+
+        try:
+            return self.GetAll(interface_name)[property_name]
+        except KeyError:
+            raise dbus.exceptions.DBusException(
+                'no such property ' + property_name,
+                name=interface_name + '.UnknownProperty')
+
+
+    @dbus.service.method(dbus.PROPERTIES_IFACE,
+                         in_signature='ssv', out_signature='')
+    def Set(self, interface_name, property_name, value, *args, **kwargs):
+        """Standard D-Bus API for setting a property value"""
+
+        try:
+            iface_props = self.props[interface_name]
+        except KeyError:
+            raise dbus.exceptions.DBusException(
+                'no such interface ' + interface_name,
+                name=self.interface + '.UnknownInterface')
+
+        if property_name not in iface_props:
+            raise dbus.exceptions.DBusException(
+                'no such property ' + property_name,
+                name=self.interface + '.UnknownProperty')
+
+        iface_props[property_name] = value
 
 
 def register_ad_cb():
@@ -177,7 +203,7 @@ class AdvertisingManager:
         :return:
         """
         self.advert_mngr_methods.RegisterAdvertisement(
-            advertisement.advertisement_path,
+            advertisement.get_path(),
             options,
             reply_handler=register_ad_cb,
             error_handler=register_ad_error_cb
@@ -193,5 +219,5 @@ class AdvertisingManager:
         :return:
         """
         self.advert_mngr_methods.UnregisterAdvertisement(
-            advertisement.advertisement_path
+            advertisement.get_path()
         )
