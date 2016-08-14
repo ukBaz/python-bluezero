@@ -28,10 +28,33 @@ def bluez_version():
 def get_managed_objects():
     """Return the objects currently managed by the DBus Object Manager."""
     bus = dbus.SystemBus()
-    manager = dbus.Interface(self.bus.get_object(
+    manager = dbus.Interface(bus.get_object(
         constants.BLUEZ_SERVICE_NAME, '/'),
         constants.DBUS_OM_IFACE)
     return manager.GetManagedObjects()
+
+
+def uuid_dbus_path(iface, UUID):
+    """
+    Return the DBus object path currently managed by the DBus Object Manager
+    for a given UUID.
+
+    :param iface: BlueZ interface of interest
+    :param UUID: 128-bit UUID
+    :return: list of DBus object paths that match given UUID
+    >>> from bluezero import tools
+    >>> from bluezero import constants
+    >>> tools.uuid_dbus_path(constants.GATT_SERVICE_IFACE,
+                             'e95dd91d-251d-470a-a062-fa1922dfa9a8')
+    """
+    response = []
+    objects = get_managed_objects()
+    for obj, ifaces in objects.items():
+        if iface in ifaces.keys():
+            if ifaces[iface]['UUID'] == UUID:
+                response.append(obj)
+
+    return response
 
 
 def find_adapter(pattern=None):
