@@ -4,6 +4,7 @@ Level 1 file for creating Eddystone beacons
 from bluezero import tools
 from bluezero import broadcaster
 
+
 class EddystoneURL:
     def __init__(self, url):
         service_data = tools.url_to_advert(url, 0x10, 0x00)
