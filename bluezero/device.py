@@ -38,7 +38,7 @@ class Device:
             self.remote_device_path)
         self.remote_device_methods = dbus.Interface(
             self.remote_device_obj,
-            constants.ADAPTER_INTERFACE)
+            constants.DEVICE_INTERFACE)
         self.remote_device_props = dbus.Interface(self.remote_device_obj,
                                                   dbus.PROPERTIES_IFACE)
 
