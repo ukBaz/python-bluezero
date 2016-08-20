@@ -25,28 +25,46 @@ class TestBluezeroDevice(dbusmock.DBusTestCase):
         self.dbusmock = dbus.Interface(self.obj_bluez, dbusmock.MOCK_IFACE)
         self.dbusmock_bluez = dbus.Interface(self.obj_bluez, 'org.bluez.Mock')
 
-    def tearDown(self):
-        self.p_mock.terminate()
-        self.p_mock.wait()
-
     def test_device_name(self):
         adapter_name = 'hci0'
-        address = '11:22:33:44:55:66'
+        address = '22:22:33:44:55:66'
         alias = 'Peripheral Device'
 
         path = self.dbusmock_bluez.AddAdapter(adapter_name, 'my-computer')
         self.assertEqual(path, '/org/bluez/' + adapter_name)
         dongle = Adapter('/org/bluez/hci0')
 
-        path = self.dbusmock_bluez.AddDevice('hci0',
-                                             '11:22:33:44:55:66',
-                                             'Peripheral Device')
+        path = self.dbusmock_bluez.AddDevice(adapter_name,
+                                             address,
+                                             alias)
         self.assertEqual(path,
                          '/org/bluez/' + adapter_name + '/dev_' +
                          address.replace(':', '_'))
-        ble_dev = Device('/org/bluez/hci0/dev_11_22_33_44_55_66')
-        found_name = ble_dev.name()
-        self.assertEqual(found_name, 'Peripheral Device')
+        ble_dev = Device('/org/bluez/hci0/dev_22_22_33_44_55_66')
+        conn_state = ble_dev.name()
+        self.assertEqual(conn_state, alias)
+
+    def test_connected(self):
+        adapter_name = 'hci0'
+        address = '22:22:33:44:55:66'
+        alias = 'Peripheral Device'
+
+        path = self.dbusmock_bluez.AddAdapter(adapter_name, 'my-computer')
+        self.assertEqual(path, '/org/bluez/' + adapter_name)
+        dongle = Adapter('/org/bluez/hci0')
+
+        path = self.dbusmock_bluez.AddDevice(adapter_name,
+                                             address,
+                                             alias)
+        self.assertEqual(path,
+                         '/org/bluez/' + adapter_name + '/dev_' +
+                         address.replace(':', '_'))
+        ble_dev = Device('/org/bluez/hci0/dev_22_22_33_44_55_66')
+        conn_state = ble_dev.connected()
+        self.assertEqual(conn_state, False)
+        self.dbusmock_bluez.ConnectDevice(adapter_name, address)
+        conn_state = ble_dev.connected()
+        self.assertEqual(conn_state, True)
 
 
 if __name__ == '__main__':
