@@ -51,7 +51,29 @@ def uuid_dbus_path(iface, UUID):
     objects = get_managed_objects()
     for obj, ifaces in objects.items():
         if iface in ifaces.keys():
-            if ifaces[iface]['UUID'] == UUID:
+            if ifaces[iface]['UUID'] == UUID.lower():
+                response.append(obj)
+
+    return response
+
+
+def device_dbus_path(iface, search_value):
+    """
+    Return the DBus object path currently managed by the DBus Object Manager
+    for a given Device. It looks at the device name containing the substring
+
+    :param iface: BlueZ interface of interest
+    :param search_value: sub-string to find
+    :return: list of DBus object paths that match given device name
+    >>> from bluezero import tools
+    >>> from bluezero import constants
+    >>> devices = tools.device_dbus_path(constants.DEVICE_INTERFACE, 'puteg')
+    """
+    response = []
+    objects = get_managed_objects()
+    for obj, ifaces in objects.items():
+        if iface in ifaces.keys():
+            if search_value in ifaces[iface]['Name']:
                 response.append(obj)
 
     return response
