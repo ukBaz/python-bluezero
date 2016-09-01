@@ -77,7 +77,7 @@ You will need to either, reboot or run:
 at this stage to use the bluetoothd in experimental mode.
 
 
-Switch controller to Bluetooth Low Engery only
+Switch controller to Bluetooth Low Energy only
 ----------------------------------------------
 Much of what Bluezero is doing is using Bluetooth Low Energy.
 It has been discovered to get reliable connection to Android phones it is best to put the controller into le only mode.
