@@ -80,8 +80,8 @@ class Application(dbus.service.Object):
         response = {}
 
         for object in self.managed_objs:
-            iface = object.interface
-            response[object.get_path()] = {iface: object.GetAll(iface)}
+            for iface in object.props.keys():
+                response[object.get_path()] = {iface: object.GetAll(iface)}
 
         return response
 
@@ -125,9 +125,11 @@ class Service(dbus.service.Object):
         self.bus = dbus.SystemBus()
         self.interface = constants.GATT_SERVICE_IFACE
         dbus.service.Object.__init__(self, self.bus, self.path)
-        self.props = {constants.GATT_SERVICE_IFACE: {'UUID': uuid,
-                                                     'Primary': primary}
-                      }
+        self.props = {
+            constants.GATT_SERVICE_IFACE: {
+                'UUID': uuid,
+                'Primary': primary}
+        }
 
     def get_path(self):
         """Return the DBus object path"""
@@ -244,14 +246,19 @@ class Characteristic(dbus.service.Object):
         self.path = PATH_BASE + str('{0:04d}'.format(characteristic_id))
         self.bus = dbus.SystemBus()
         dbus.service.Object.__init__(self, self.bus, self.path)
-        self.props = {'UUID': uuid,
-                      'Service': service_obj.get_path(),
-                      'Value': value,
-                      'Notify': notifiying,
-                      'Flags': flags}
+        self.props = {
+            constants.GATT_CHRC_IFACE: {
+                'UUID': uuid,
+                'Service': service_obj.get_path(),
+                'Value': value,
+                'Notifying': notifying,
+                'Flags': flags}
+        }
 
-        for prop in self.props.keys():
-            self.Set(constants.GATT_DESC_IFACE, prop, self.props[prop])
+        for prop in self.props[constants.GATT_CHRC_IFACE].keys():
+            self.Set(constants.GATT_CHRC_IFACE,
+                     prop,
+                     self.props[constants.GATT_CHRC_IFACE][prop])
 
     def get_path(self):
         """Return the DBus object path"""
@@ -274,9 +281,12 @@ class Characteristic(dbus.service.Object):
         if interface_name != constants.GATT_CHRC_IFACE:
             raise InvalidArgsException()
 
-        return {
-            constants.GATT_CHRC_IFACE: self.props
-        }
+        try:
+            return self.props[interface_name]
+        except KeyError:
+            raise dbus.exceptions.DBusException(
+                'no such interface ' + interface_name,
+                name=interface_name + '.UnknownInterface')
 
     @dbus.service.method(dbus.PROPERTIES_IFACE,
                          in_signature='ss', out_signature='v')
@@ -305,14 +315,14 @@ class Characteristic(dbus.service.Object):
     def Set(self, interface_name, property_name, value, *args, **kwargs):
         """Standard D-Bus API for setting a property value"""
 
-        if property_name not in self.props:
+        if property_name not in self.props[constants.GATT_CHRC_IFACE]:
             raise dbus.exceptions.DBusException(
                 'no such property ' + property_name,
                 name=constants.GATT_CHRC_IFACE + '.UnknownProperty')
 
-        self.props[property_name] = value
+        self.props[constants.GATT_CHRC_IFACE][property_name] = value
 
-        if bool(self.props['Notifying']) is True:
+        if bool(self.props[constants.GATT_CHRC_IFACE]['Notifying']) is True:
             self.EmitSignal(dbus.PROPERTIES_IFACE,
                             'PropertiesChanged',
                             'sa{sv}as',
@@ -323,8 +333,8 @@ class Characteristic(dbus.service.Object):
                              ])
 
     @dbus.service.method(constants.GATT_CHRC_IFACE,
-                         in_signature='', out_signature='v')
-    def ReadValue(self):
+                         in_signature='a{sv}', out_signature='ay')
+    def ReadValue(self, options):
         """
         DBus method for getting the characteristic value
         :return: value
@@ -332,8 +342,8 @@ class Characteristic(dbus.service.Object):
         return self.GetAll(constants.GATT_CHRC_IFACE)['Value']
 
     @dbus.service.method(constants.GATT_CHRC_IFACE,
-                         in_signature='', out_signature='v')
-    def WriteValue(self, value):
+                         in_signature='aya{sv}', out_signature='v')
+    def WriteValue(self, value, options):
         """
         DBus method for setting the characteristic value
         :return: value
@@ -407,12 +417,17 @@ class Descriptor(dbus.service.Object):
         self.path = PATH_BASE + str('{0:04d}'.format(descriptor_id))
         self.bus = dbus.SystemBus()
         dbus.service.Object.__init__(self, self.bus, self.path)
-        self.props = {'UUID': uuid,
-                      'Characteristic': characteristic_obj.get_path(),
-                      'Value': value,
-                      'Flags': flags}
-        for prop in self.props.keys():
-            self.Set(constants.GATT_DESC_IFACE, prop, self.props[prop])
+        self.props = {
+            constants.GATT_DESC_IFACE: {
+                'UUID': uuid,
+                'Characteristic': characteristic_obj.get_path(),
+                'Value': value,
+                'Flags': flags}
+        }
+        for prop in self.props[constants.GATT_DESC_IFACE].keys():
+            self.Set(constants.GATT_DESC_IFACE,
+                     prop,
+                     self.props[constants.GATT_DESC_IFACE][prop])
 
     def get_path(self):
         """Return the DBus object path"""
@@ -435,9 +450,12 @@ class Descriptor(dbus.service.Object):
         if interface_name != constants.GATT_DESC_IFACE:
             raise InvalidArgsException()
 
-        return {
-            constants.GATT_DESC_IFACE: self.props
-        }
+        try:
+            return self.props[interface_name]
+        except KeyError:
+            raise dbus.exceptions.DBusException(
+                'no such interface ' + interface_name,
+                name=interface_name + '.UnknownInterface')
 
     @dbus.service.method(dbus.PROPERTIES_IFACE,
                          in_signature='ss', out_signature='v')
@@ -466,12 +484,12 @@ class Descriptor(dbus.service.Object):
     def Set(self, interface_name, property_name, value, *args, **kwargs):
         """Standard D-Bus API for setting a property value"""
 
-        if property_name not in self.props:
+        if property_name not in self.props[constants.GATT_DESC_IFACE]:
             raise dbus.exceptions.DBusException(
                 'no such property ' + property_name,
                 name=constants.GATT_DESC_IFACE + '.UnknownProperty')
 
-        self.props[property_name] = value
+        self.props[interface_name][property_name] = value
 
         self.PropertiesChanged(interface_name,
                                dbus.Dictionary({property_name: value},
