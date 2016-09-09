@@ -56,7 +56,7 @@ class Beacon:
         """
         if not self.dongle.powered():
             self.dongle.powered(True)
-        ad_manager = advertisement.AdvertisingManager(self.dongle.adapter_path)
+        ad_manager = advertisement.AdvertisingManager(self.dongle.path)
         ad_manager.register_advertisement(self.broadcaster, {})
 
         try:
