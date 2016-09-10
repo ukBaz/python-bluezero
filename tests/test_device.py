@@ -41,7 +41,7 @@ class TestBluezeroDevice(dbusmock.DBusTestCase):
                          '/org/bluez/' + adapter_name + '/dev_' +
                          address.replace(':', '_'))
         ble_dev = Device('/org/bluez/hci0/dev_22_22_33_44_55_66')
-        conn_state = ble_dev.name()
+        conn_state = ble_dev.name
         self.assertEqual(conn_state, alias)
 
     def test_connected(self):
@@ -60,10 +60,10 @@ class TestBluezeroDevice(dbusmock.DBusTestCase):
                          '/org/bluez/' + adapter_name + '/dev_' +
                          address.replace(':', '_'))
         ble_dev = Device('/org/bluez/hci0/dev_22_22_33_44_55_66')
-        conn_state = ble_dev.connected()
+        conn_state = ble_dev.connected
         self.assertEqual(conn_state, False)
         self.dbusmock_bluez.ConnectDevice(adapter_name, address)
-        conn_state = ble_dev.connected()
+        conn_state = ble_dev.connected
         self.assertEqual(conn_state, True)
 
 
