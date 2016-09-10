@@ -30,12 +30,8 @@ class Beacon:
         :param service: Valid service UUID
         :param data:
         """
-        self.broadcaster.Set(constants.LE_ADVERTISEMENT_IFACE,
-                             'ServiceUUIDs',
-                             [service])
-        self.broadcaster.Set(constants.LE_ADVERTISEMENT_IFACE,
-                             'ServiceData',
-                             {service: data})
+        self.broadcaster.service_UUIDs = [service]
+        self.broadcaster.service_data = {service: data}
 
     def add_manufacturer_data(self):
         pass
@@ -54,8 +50,8 @@ class Beacon:
         Start beacon
         :return:
         """
-        if not self.dongle.powered():
-            self.dongle.powered(True)
+        if not self.dongle.powered:
+            self.dongle.powered = True
         ad_manager = advertisement.AdvertisingManager(self.dongle.path)
         ad_manager.register_advertisement(self.broadcaster, {})
 
