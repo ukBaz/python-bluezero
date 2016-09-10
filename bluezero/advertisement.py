@@ -19,6 +19,7 @@ from bluezero import constants
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 mainloop = GLib.MainLoop()
 
+
 ########################################
 # Exception classes
 #######################################
@@ -41,8 +42,9 @@ class Advertisement(dbus.service.Object):
     >>> from bluezero import advertisement
     >>> beacon = advertisement.Advertisement(1, 'broadcast')
     >>> beacon.service_UUIDs = ['FEAA']
-    >>> beacon.service_data =  {'FEAA': [0x10, 0x00, 0x00, 0x63, 0x73, 0x72, 0x00, 0x61,
-    >>>                        0x62, 0x6f, 0x75, 0x74]}
+    >>> beacon.service_data =  {'FEAA': [0x10, 0x00, 0x00, 0x63, 0x73,
+    >>>                                  0x72, 0x00, 0x61, 0x62, 0x6f,
+    >>>                                  0x75, 0x74]}
     >>> ad_manager = advertisement.AdvertisingManager('/org/bluez/hci0')
     >>> ad_manager.register_advertisement(beacon, {})
     >>> tools.start_mainloop()
@@ -97,7 +99,7 @@ class Advertisement(dbus.service.Object):
                         'ServiceUUIDs')
 
     @service_UUIDs.setter
-    def  service_UUIDs(self, UUID):
+    def service_UUIDs(self, UUID):
         self.Set(constants.LE_ADVERTISEMENT_IFACE,
                  'ServiceUUIDs',
                  UUID)
