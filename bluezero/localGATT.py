@@ -43,6 +43,7 @@ class Application(dbus.service.Object):
     This is the parent class for a python Bluez application.
 
     :Example:
+
     >>> from bluezero import GATT
     >>> from bluezero import localGATT
     >>> from bluezero import tools
@@ -52,6 +53,7 @@ class Application(dbus.service.Object):
     >>> srv_mng = GATT.GattManager('/org/bluez/hci0')
     >>> srv_mng.register_application(app.get_path(), {})
     >>> tools.start_mainloop()
+
     """
     def __init__(self, device_id=None):
         """Default initialiser.
@@ -59,6 +61,7 @@ class Application(dbus.service.Object):
         1. Initialises the program loop using ``GObject``.
         2. Registers the Application on the D-Bus.
         3. Initialises the list of services offered by the application.
+
         """
         # Initialise the D-Bus path and register it
         self.bus = dbus.SystemBus()
