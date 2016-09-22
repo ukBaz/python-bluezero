@@ -35,17 +35,26 @@ def list_adapters():
         constants.DBUS_OM_IFACE)
     manager_obj = manager.GetManagedObjects()
     for path, ifaces in manager_obj.items():
-        adapter = ifaces.get(constants.ADAPTER_INTERFACE)
-        if adapter is None:
-            continue
-        else:
-            obj = bus.get_object(constants.BLUEZ_SERVICE_NAME, path)
-            paths.append(
-                dbus.Interface(obj, constants.ADAPTER_INTERFACE).object_path)
+        if constants.ADAPTER_INTERFACE in ifaces:
+            paths.append(path)
     if len(paths) < 1:
-        raise Exception('No Bluetooth adapter found')
+        raise AdapterError('No Bluetooth adapter found')
     else:
         return paths
+
+
+def interfaces_added(path, interfaces):
+    if constants.DEVICE_INTERFACE in interfaces:
+        print('Device added at {}'.format(path))
+
+
+def properties_changed(interface, changed, invalidated, path):
+    if constants.DEVICE_INTERFACE in interface:
+        print('Property changed {}'.format(changed.keys()))
+
+
+class AdapterError(Exception):
+    pass
 
 
 class Adapter:
@@ -73,10 +82,10 @@ class Adapter:
         """
         self.bus = dbus.SystemBus()
 
-        self.adapter_path = adapter_path
+        self.path = adapter_path
         self.adapter_object = self.bus.get_object(
             constants.BLUEZ_SERVICE_NAME,
-            self.adapter_path)
+            self.path)
         self.adapter_methods = dbus.Interface(self.adapter_object,
                                               constants.ADAPTER_INTERFACE)
 
@@ -87,159 +96,110 @@ class Adapter:
         self._nearby_count = 0
         self.mainloop = GLib.MainLoop()
 
+        self.bus.add_signal_receiver(interfaces_added,
+                                     dbus_interface=constants.DBUS_OM_IFACE,
+                                     signal_name='InterfacesAdded')
+
+        self.bus.add_signal_receiver(properties_changed,
+                                     dbus_interface=dbus.PROPERTIES_IFACE,
+                                     signal_name='PropertiesChanged',
+                                     arg0=constants.DEVICE_INTERFACE,
+                                     path_keyword='path')
+
+    @property
     def address(self):
         """Return the adapter MAC address."""
         return self.adapter_props.Get(constants.ADAPTER_INTERFACE, 'Address')
 
+    @property
     def name(self):
         """Return the adapter name."""
         return self.adapter_props.Get(constants.ADAPTER_INTERFACE, 'Name')
 
+    @property
     def bt_class(self):
         """Return the Bluetooth class of device."""
         return self.adapter_props.Get(constants.ADAPTER_INTERFACE, 'Class')
 
+    @property
     def alias(self, new_alias=None):
         """Return or set the adapter alias.
 
         :param new_alias: (optional) the new alias of the adapter.
         """
-        if new_alias is None:
-            return self.adapter_props.Get(
-                constants.ADAPTER_INTERFACE, 'Alias')
-        else:
-            self.adapter_props.Set(
-                constants.ADAPTER_INTERFACE, 'Alias', new_alias)
+        return self.adapter_props.Get(
+            constants.ADAPTER_INTERFACE, 'Alias')
 
-    def info(self):
-        """Return a dictionary of all the Adapter attributes."""
-        adapters = {}
-        om = dbus.Interface(
-            self.bus.get_object(constants.BLUEZ_SERVICE_NAME, '/'),
-            constants.DBUS_OM_IFACE)
-        objects = om.GetManagedObjects()
-        for path, interfaces in objects.items():
-            if constants.ADAPTER_INTERFACE not in interfaces:
-                continue
+    @alias.setter
+    def alias(self, new_alias):
+        self.adapter_props.Set(
+            constants.ADAPTER_INTERFACE, 'Alias', new_alias)
 
-            # print(' [ %s ]' % (path))
+    def get_all(self):
+        """Print all the Adapter attributes."""
+        return self.adapter_props.GetAll(constants.ADAPTER_INTERFACE)
 
-            props = interfaces[constants.ADAPTER_INTERFACE]
+    @property
+    def powered(self):
+        """Get the power state of the Adapter."""
+        return self.adapter_props.Get(
+            constants.ADAPTER_INTERFACE, 'Powered')
 
-            for (key, value) in props.items():
-                if key == 'Class':
-                    print('\t{0} = 0x{1:06x}'.format(key, value))
-                    adapters[key] = '0x{0:06x}'.format(value)
-                else:
-                    print('\t{0} = {1}'.format(key, value))
-                    adapters[key] = '{0}'.format(value)
-            # print('Returning')
-            return adapters
+    @powered.setter
+    def powered(self, new_state):
+        """Set the power state of the Adapter.
 
-    def powered(self, new_state=None):
-        """Get or set the power state of the Adapter.
-
-        :param new_state: (optional) on or off changes the state.
-
-        Whether changed or not, the power state is returned.
+        :param new_state: boolean.
         """
-        powered = ''
-        if new_state is None:
-            powered = self.adapter_props.Get(
-                constants.ADAPTER_INTERFACE, 'Powered')
-        else:
-            if new_state == 'on':
-                value = dbus.Boolean(1)
-            elif new_state == 'off':
-                value = dbus.Boolean(0)
-            else:
-                value = dbus.Boolean(new_state)
-            self.adapter_props.Set(
-                constants.ADAPTER_INTERFACE, 'Powered', value)
-            powered = self.adapter_props.Get(
-                constants.ADAPTER_INTERFACE, 'Powered')
-        return powered
+        self.adapter_props.Set(
+            constants.ADAPTER_INTERFACE, 'Powered', new_state)
 
-    def pairable(self, new_state=None):
-        """Get or set the pairable state of the Adapter.
+    @property
+    def pairable(self):
+        """Get the pairable state of the Adapter."""
+        return self.adapter_props.Get(
+            constants.ADAPTER_INTERFACE, 'Pairable')
 
-        :param new_state: (optional) on or off changes the state.
+    @pairable.setter
+    def pairable(self, new_state):
+        """Set the pairable state of the Adapter."""
+        self.adapter_props.Set(
+            constants.ADAPTER_INTERFACE, 'Pairable', new_state)
 
-        Whether changed or not, the pairable state is returned.
-        """
-        if new_state is None:
-            pairable = self.adapter_props.Get(
-                constants.ADAPTER_INTERFACE, 'Pairable')
-        else:
-            if new_state == 'on':
-                value = dbus.Boolean(1)
-            elif new_state == 'off':
-                value = dbus.Boolean(0)
-            else:
-                value = dbus.Boolean(new_state)
-            self.adapter_props.Set(
-                constants.ADAPTER_INTERFACE, 'Pairable', value)
-            pairable = self.adapter_props.Get(
-                constants.ADAPTER_INTERFACE, 'Pairable')
-        return pairable
+    @property
+    def pairabletimeout(self):
+        """Set the pairable timeout of the Adapter."""
+        return self.adapter_props.Get(constants.ADAPTER_INTERFACE,
+                                      'PairableTimeout')
 
-    def pairabletimeout(self, new_to=None):
-        """Get or set the pairable timeout of the Adapter.
+    @pairabletimeout.setter
+    def pairabletimeout(self, new_timeout):
+        self.adapter_props.Set(constants.ADAPTER_INTERFACE,
+                               'PairableTimeout', new_timeout)
 
-        :param new_to: (optional) new timeout value (UInt32).
+    @property
+    def discoverable(self):
+        """Get the discoverable state of the Adapter."""
+        return self.adapter_props.Get(
+            constants.ADAPTER_INTERFACE, 'Discoverable')
 
-        Whether changed or not, the pairable timeout is returned.
-        """
-        if new_to is None:
-            pt = self.adapter_props.Get(constants.ADAPTER_INTERFACE,
-                                        'PairableTimeout')
-        else:
-            timeout = dbus.UInt32(new_to)
-            self.adapter_props.Set(constants.ADAPTER_INTERFACE,
-                                   'PairableTimeout', timeout)
-        return pt
+    @discoverable.setter
+    def discoverable(self, new_state):
+        self.adapter_props.Set(constants.ADAPTER_INTERFACE,
+                               'Discoverable', new_state)
 
-    def discoverable(self, new_state=None):
-        """Get or set the discoverable state of the Adapter.
+    @property
+    def discoverabletimeout(self):
+        """Get the discoverable timeout of the Adapter."""
+        return self.adapter_props.Get(constants.ADAPTER_INTERFACE,
+                                      'DiscoverableTimeout')
 
-        :param new_state: (optional) on or off changes the state.
+    @discoverabletimeout.setter
+    def discoverabletimeout(self, new_timeout):
+        self.adapter_props.Set(constants.ADAPTER_INTERFACE,
+                               'DiscoverableTimeout', new_timeout)
 
-        Whether changed or not, the discoverable state is returned.
-        """
-        if new_state is None:
-            discoverable = self.adapter_props.Get(
-                constants.ADAPTER_INTERFACE, 'Discoverable')
-        else:
-            if new_state == 'on':
-                value = dbus.Boolean(1)
-            elif new_state == 'off':
-                value = dbus.Boolean(0)
-            else:
-                value = dbus.Boolean(new_state)
-            self.adapter_props.Set(constants.ADAPTER_INTERFACE,
-                                   'Discoverable', value)
-            discoverable = self.adapter_props.Get(
-                constants.ADAPTER_INTERFACE, 'Discoverable')
-        return discoverable
-
-    def discoverabletimeout(self, new_dt=None):
-        """Get or set the discoverable timeout of the Adapter.
-
-        :param new_dt: (optional) new timeout value (UInt32).
-
-        Whether changed or not, the discoverable timeout is returned.
-        """
-        if new_dt is None:
-            dt = self.adapter_props.Get(constants.ADAPTER_INTERFACE,
-                                        'DiscoverableTimeout')
-        else:
-            to = dbus.UInt32(new_dt)
-            self.adapter_props.Set(constants.ADAPTER_INTERFACE,
-                                   'DiscoverableTimeout', to)
-            dt = self.adapter_props.Get(constants.ADAPTER_INTERFACE,
-                                        'DiscoverableTimeout')
-        return dt
-
+    @property
     def discovering(self):
         """Return whether the adapter is discovering."""
         return self.adapter_props.Get(

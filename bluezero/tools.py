@@ -34,6 +34,17 @@ def get_managed_objects():
     return manager.GetManagedObjects()
 
 
+def get_dbus_path(iface, prop, value):
+    response = []
+    objects = get_managed_objects()
+    for obj, ifaces in objects.items():
+        if iface in ifaces.keys():
+            if ifaces[iface][prop] == value:
+                response.append(obj)
+
+    return response
+
+
 def uuid_dbus_path(iface, UUID):
     """
     Return the DBus object path currently managed by the DBus Object Manager

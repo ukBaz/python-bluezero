@@ -16,6 +16,9 @@ from gi.repository import GLib
 
 from bluezero import constants
 
+dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+mainloop = GLib.MainLoop()
+
 
 ########################################
 # Exception classes
@@ -38,12 +41,11 @@ class Advertisement(dbus.service.Object):
     >>> from bluezero import tools
     >>> from bluezero import advertisement
     >>> beacon = advertisement.Advertisement(1, 'broadcast')
-    >>> beacon.Set('org.bluez.LEAdvertisement1', 'ServiceUUIDs', ['FEAA'])
-    >>> beacon.Set('org.bluez.LEAdvertisement1',
-    >>>            'ServiceData',
-    >>>            {'FEAA': [0x10, 0x00, 0x00, 0x63, 0x73, 0x72, 0x00, 0x61,
-    >>>                      0x62, 0x6f, 0x75, 0x74]})
-    >>> ad_manager= advertisement.AdvertisingManager('/org/bluez/hci0')
+    >>> beacon.service_UUIDs = ['FEAA']
+    >>> beacon.service_data =  {'FEAA': [0x10, 0x00, 0x00, 0x63, 0x73,
+    >>>                                  0x72, 0x00, 0x61, 0x62, 0x6f,
+    >>>                                  0x75, 0x74]}
+    >>> ad_manager = advertisement.AdvertisingManager('/org/bluez/hci0')
     >>> ad_manager.register_advertisement(beacon, {})
     >>> tools.start_mainloop()
 
@@ -90,6 +92,44 @@ class Advertisement(dbus.service.Object):
         :return:
         """
         pass
+
+    @property
+    def service_UUIDs(self):
+        return self.Get(constants.LE_ADVERTISEMENT_IFACE,
+                        'ServiceUUIDs')
+
+    @service_UUIDs.setter
+    def service_UUIDs(self, UUID):
+        self.Set(constants.LE_ADVERTISEMENT_IFACE,
+                 'ServiceUUIDs',
+                 UUID)
+
+    def manufacturer_data(self):
+        pass
+
+    def solicit_UUIDs(self):
+        pass
+
+    @property
+    def service_data(self):
+        return self.Get(constants.LE_ADVERTISEMENT_IFACE,
+                        'ServiceData')
+
+    @service_data.setter
+    def service_data(self, data):
+        self.Set(constants.LE_ADVERTISEMENT_IFACE,
+                 'ServiceData',
+                 data)
+
+    @property
+    def include_tx_power(self):
+        return self.Get(constants.LE_ADVERTISEMENT_IFACE,
+                        'IncludeTxPower')
+
+    @include_tx_power.setter
+    def include_tx_power(self, state):
+        return self.set(constants.LE_ADVERTISEMENT_IFACE,
+                        'IncludeTxPower', state)
 
     @dbus.service.method(constants.DBUS_PROP_IFACE,
                          in_signature='s',
@@ -199,7 +239,7 @@ class AdvertisingManager:
         :return:
         """
         self.advert_mngr_methods.RegisterAdvertisement(
-            advertisement.get_path(),
+            advertisement.path,
             options,
             reply_handler=register_ad_cb,
             error_handler=register_ad_error_cb
@@ -215,5 +255,5 @@ class AdvertisingManager:
         :return:
         """
         self.advert_mngr_methods.UnregisterAdvertisement(
-            advertisement.get_path()
+            advertisement.path
         )

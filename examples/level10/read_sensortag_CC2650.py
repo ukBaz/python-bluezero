@@ -62,8 +62,8 @@ def read_sensor(config_path, data_path):
 
 def client():
     dongle = adapter.Adapter(adapter.list_adapters()[0])
-    if not dongle.powered():
-        dongle.powered(True)
+    if not dongle.powered:
+        dongle.powered = True
 
     dongle.nearby_discovery()
     cc2650 = device.Device(tools.device_dbus_path(constants.DEVICE_INTERFACE,
@@ -71,7 +71,7 @@ def client():
     # Connect to device
     cc2650.connect()
 
-    while not cc2650.services_resolved():
+    while not cc2650.services_resolved:
         sleep(0.5)
 
     # constants
@@ -101,7 +101,7 @@ def client():
         'F000AA21-0451-4000-B000-000000000000')[0])
 
     # Read the connected status property
-    if cc2650.connected():
+    if cc2650.connected:
         # IR Temperature Sensor
         print('\nIR Temperature Sensor')
         read_sensor(TMP_CONF_PATH, TMP_DATA_PATH)

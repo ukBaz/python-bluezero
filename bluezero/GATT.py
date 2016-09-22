@@ -25,6 +25,7 @@ class Service:
         self.service_props = dbus.Interface(self.service_object,
                                             dbus.PROPERTIES_IFACE)
 
+    @property
     def UUID(self):
         """
         Returns value of Service UUID for this path
@@ -33,6 +34,7 @@ class Service:
         return self.service_props.Get(
             constants.GATT_SERVICE_IFACE, 'UUID')
 
+    @property
     def device(self):
         """
         Returns the DBus object that this service belongs to
@@ -41,7 +43,8 @@ class Service:
         return self.service_props.Get(
             constants.GATT_SERVICE_IFACE, 'Device')
 
-    def Primary(self):
+    @property
+    def primary(self):
         """
         Returns a boolean saying if this a primary service
         :return: boolean
@@ -64,6 +67,7 @@ class Characteristic:
             self.characteristic_object,
             dbus.PROPERTIES_IFACE)
 
+    @property
     def UUID(self):
         """
         Returns value of Characteristic UUID for this path
@@ -72,6 +76,7 @@ class Characteristic:
         return self.characteristic_props.Get(
             constants.GATT_CHRC_IFACE, 'UUID')
 
+    @property
     def service(self):
         """
         Returns the DBus object for the service that this characteristic
@@ -81,6 +86,7 @@ class Characteristic:
         return self.characteristic_props.Get(
             constants.GATT_CHRC_IFACE, 'Service')
 
+    @property
     def value(self):
         """
         The cached value of the characteristic. This property
@@ -92,6 +98,7 @@ class Characteristic:
         return self.characteristic_props.Get(
             constants.GATT_CHRC_IFACE, 'Value')
 
+    @property
     def notifying(self):
         """
         Returns a boolean of if this characteristic has notifications enabled
@@ -100,6 +107,7 @@ class Characteristic:
         return self.characteristic_props.Get(
             constants.GATT_CHRC_IFACE, 'Notifying')
 
+    @property
     def flags(self):
         """
         Returns a list of how this characteristic value can be used
@@ -184,6 +192,7 @@ class Descriptor:
         self.descriptor_props = dbus.Interface(self.descriptor_object,
                                                dbus.PROPERTIES_IFACE)
 
+    @property
     def UUID(self):
         """
         Returns value of Descriptor UUID for this path
@@ -192,6 +201,7 @@ class Descriptor:
         return self.descriptor_props.Get(
             constants.GATT_DESC_IFACE, 'UUID')
 
+    @property
     def characteristic(self):
         """
         Object path of the GATT characteristic the descriptor
@@ -201,6 +211,7 @@ class Descriptor:
         return self.descriptor_props.Get(
             constants.GATT_DESC_IFACE, 'UUID')
 
+    @property
     def value(self):
         """
         The cached value of the descriptor. This property
@@ -211,6 +222,7 @@ class Descriptor:
         return self.descriptor_props.Get(
             constants.GATT_CHRC_IFACE, 'Value')
 
+    @property
     def flags(self):
         """
         Returns a list of how this descriptor value can be used
@@ -262,6 +274,7 @@ class Profile:
         """
         self.profile_methods.Release()
 
+    @property
     def UUIDs(self):
         """128-bit GATT service UUIDs to auto connect.
 

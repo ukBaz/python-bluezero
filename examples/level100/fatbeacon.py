@@ -16,41 +16,42 @@ def advertise_beacon():
 
     advertiser0 = advertisement.Advertisement(0, 'peripheral')
 
-    advertiser0.Set(constants.LE_ADVERTISEMENT_IFACE,
-                    'ServiceData',
-                    {'FEAA': [0x10, 0x08, 0x0E, 70, 97, 116, 79, 110, 101]})
+    advertiser0.service_UUIDs = ['FEAA']
+    advertiser0.service_data = {'FEAA': [0x10, 0x08, 0x0E, 70, 97,
+                                         116, 79, 110, 101]}
 
-    advertiser0.Set(constants.LE_ADVERTISEMENT_IFACE,
-                    'ServiceUUIDs',
-                    ['FEAA'])
-
-    if not dongle.powered():
-        dongle.powered(True)
-    ad_manager = advertisement.AdvertisingManager(dongle.adapter_path)
+    if not dongle.powered:
+        dongle.powered = True
+    ad_manager = advertisement.AdvertisingManager(dongle.path)
     ad_manager.register_advertisement(advertiser0, {})
 
     return ad_manager, advertiser0
 
 
 def build_fat_service():
-    # value_string = '<html><head><title></title>
-    #                   </head><body>Fat beacon</body></html>'
-    value_string = [60, 104, 116, 109, 108, 62, 60, 104, 101, 97, 100, 62,
-                    60, 116, 105, 116, 108, 101, 62, 60, 47, 116, 105, 116,
-                    108, 101, 62, 60, 47, 104, 101, 97, 100, 62, 60, 98, 111,
-                    100, 121, 62, 70, 97, 116, 32, 98, 101, 97, 99, 111, 110,
-                    60, 47, 98, 111, 100, 121, 62, 60, 47, 104, 116, 109,
-                    108, 62]
+    html_string = """<html><head><style>
+body { background-color: linen; }
+h1 { color: maroon; margin-left: 40px; }
+</style><title>FatBeacon Demo</title>
+<meta charset='UTF-8'><meta name='description' content='FatBeacon Demo'/>
+</head> <body> <h1>Fat Beacon</h1> <p>
+A FatBeacon is a beacon that rather than advertising a URL
+to load a web page from it actually hosts the web page on the
+device and services it up from the BLE characteristic
+</p> </body> </html>"""
+    html_ord = []
+    for char in html_string:
+        html_ord.append(ord(char))
 
     app = localGATT.Application()
     srv = localGATT.Service(1, FAT_SERVICE, True)
     fat_html = localGATT.Characteristic(1,
                                         HTML_CHRC,
                                         srv,
-                                        value_string,
+                                        html_ord,
                                         False,
                                         ['read'])
-    fat_html.Set(constants.GATT_SERVICE_IFACE, 'Service', srv.get_path())
+    fat_html.service = srv.path
     app.add_managed_object(srv)
     app.add_managed_object(fat_html)
     srv_mng = GATT.GattManager('/org/bluez/hci0')
