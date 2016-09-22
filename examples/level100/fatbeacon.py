@@ -29,31 +29,16 @@ def advertise_beacon():
 
 
 def build_fat_service():
-    html_string = """<html>
-        <head>
-            <style>
-                body {
-                    background-color: linen;
-                }
-                h1 {
-                    color: maroon;
-                    margin-left: 40px;
-                }
-            </style>
-            <title>FatBeacon Demo</title>
-            <meta charset='UTF-8'>
-            <meta name='description' content='FatBeacon Demo'/>
-        </head>
-        <body>
-            <h1>Fat Beacon</h1>
-            <p>
-            A FatBeacon is a beacon that rather than advertising a URL
-            to load a web page from it actually hosts the web page on the
-            device and services it up from the BLE characteristic
-            </p>
-        </body>
-     </html>
-     """
+    html_string = """<html><head><style>
+body { background-color: linen; }
+h1 { color: maroon; margin-left: 40px; }
+</style><title>FatBeacon Demo</title>
+<meta charset='UTF-8'><meta name='description' content='FatBeacon Demo'/>
+</head> <body> <h1>Fat Beacon</h1> <p>
+A FatBeacon is a beacon that rather than advertising a URL
+to load a web page from it actually hosts the web page on the
+device and services it up from the BLE characteristic
+</p> </body> </html>"""
     html_ord = []
     for char in html_string:
         html_ord.append(ord(char))

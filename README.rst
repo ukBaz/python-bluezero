@@ -44,26 +44,36 @@ Examples
 ========
 If you are coming here for the first time then looking at the examples is probably the place to start
 
-GATT Server (Peripheral role)
------------------------------
-light_switch.py - Experiment to split user code from library code
-
-
-The rest of the experiments are just big code blobs that were just to prove we can do the required things.
-Not guaranteed to work beyond the specific hardware of the developers
-
-Beacon
-------
-eddystone-url-beacon.py - Simple Eddystone URL beacon. Enter URL get beacon out
-
-Scanner
+Adapter
 -------
-No example currently. see issue [#11] (https://github.com/ukBaz/python-bluezero/issues/11)
-
-GATT Server (Peripheral role)
------------------------------
-battery_service.py - Based heavily on the Bluez examples and reports fake heart rate and battery levels
+adapter_example.py
+******************
+This will check that it can find the Bluetooth adapter on the computer running the code.
+It will print to screen various information and check it is powered before scanning for
+nearby devices
 
 GATT Client (Central role)
 --------------------------
-read_sensortag_CC2650.py - This is a simple example of how to read the Ti Sensortag CC2650
+read_sensortag_CC2650.py
+************************
+This is a simple example of how to read the Ti Sensortag CC2650
+microbit_button.py
+******************
+This example
+
+Beacon
+------
+eddystone-url-beacon.py
+***********************
+Simple Eddystone URL beacon. Can be read with any Physical Web application
+fatbeacon.py
+************
+Experiment with Eddystone FatBeacon. Contains service for beacon to connect to that sends html page.
+
+Scanner
+-------
+No example currently.
+
+GATT Server (Peripheral role)
+-----------------------------
+No working example
