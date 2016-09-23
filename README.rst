@@ -46,6 +46,7 @@ If you are coming here for the first time then looking at the examples is probab
 
 Adapter
 -------
+
 adapter_example.py
 ******************
 This will check that it can find the Bluetooth adapter on the computer running the code.
@@ -54,18 +55,22 @@ nearby devices
 
 GATT Client (Central role)
 --------------------------
+
 read_sensortag_CC2650.py
 ************************
 This is a simple example of how to read the Ti Sensortag CC2650
+
 microbit_button.py
 ******************
 This example
 
 Beacon
 ------
+
 eddystone-url-beacon.py
 ***********************
 Simple Eddystone URL beacon. Can be read with any Physical Web application
+
 fatbeacon.py
 ************
 Experiment with Eddystone FatBeacon. Contains service for beacon to connect to that sends html page.
