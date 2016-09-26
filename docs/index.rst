@@ -3,8 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to python-bluezero's documentation!
-===========================================
+====================================
+Welcome to Bluezero's documentation!
+====================================
+.. toctree::
+   overview
 
 Installing Bluez
 ****************
@@ -16,11 +19,4 @@ python-bluezero modules
 ***********************
 
 .. toctree::
-   :maxdepth: 2
-
-   peripheral
-   bluezutils
-   constants
-   adapter
-   device
-   url_to_advert
+   api_modules

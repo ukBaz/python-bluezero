@@ -7,15 +7,16 @@ from bluezero import broadcaster
 
 class EddystoneURL:
     def __init__(self, url, tx_power=0x08):
-        """
-        The Eddystone-URL frame broadcasts a URL using a compressed encoding
+        """The Eddystone-URL frame broadcasts a URL using a compressed encoding
         format in order to fit more within the limited advertisement packet.
-        Example:
+        :Example:
+
         >>> from bluezero import eddystone
         >>> eddystone.EddystoneURL('https://github.com/ukBaz')
 
         :param url: String containing URL e.g. ('http://camjam.me')
         :param tx_power:
+
         """
         service_data = tools.url_to_advert(url, 0x10, tx_power)
         if len(service_data) > 17:

@@ -47,8 +47,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'python-bluezero'
-copyright = u'2016, Mark Roberts'
-author = u'Mark Roberts'
+copyright = u'2016, Barry Byford, Mark Roberts'
+author = u'Barry Byford, Mark Roberts'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -226,7 +226,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'python-bluezero.tex', u'python-bluezero Documentation',
-     u'Mark Roberts', 'manual'),
+     u'Barry Byford, Mark Roberts', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -270,7 +270,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'python-bluezero', u'python-bluezero Documentation',
-     author, 'python-bluezero', 'One line description of project.',
+     author, 'python-bluezero', 'Simple Python BLE API.',
      'Miscellaneous'),
 ]
 

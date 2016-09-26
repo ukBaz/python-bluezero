@@ -11,6 +11,7 @@ Packages that need available
 ----------------------------
 The following packages is a super set of what is required. For some systems these may already be
 install or not required::
+
     sudo apt-get install bluetooth
     sudo apt-get install bluez-tools
     # Not required if building from source
@@ -37,6 +38,9 @@ If you are looking to development of Bluezero then you will need::
     sudo apt-get install python-dbusmock
     # Do I need the following?
     sudo apt-get install python3-dbusmock
+    # For doing Sphinx documentation
+    sudo pip3 install Sphinx
+    sudo pip3 install sphinx_rtd_theme
 
 
 

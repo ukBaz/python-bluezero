@@ -53,6 +53,7 @@ def uuid_dbus_path(iface, UUID):
     :param iface: BlueZ interface of interest
     :param UUID: 128-bit UUID
     :return: list of DBus object paths that match given UUID
+
     >>> from bluezero import tools
     >>> from bluezero import constants
     >>> tools.uuid_dbus_path(constants.GATT_SERVICE_IFACE,
@@ -76,6 +77,7 @@ def device_dbus_path(iface, search_value):
     :param iface: BlueZ interface of interest
     :param search_value: sub-string to find
     :return: list of DBus object paths that match given device name
+
     >>> from bluezero import tools
     >>> from bluezero import constants
     >>> devices = tools.device_dbus_path(constants.DEVICE_INTERFACE, 'puteg')

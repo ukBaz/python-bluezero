@@ -38,6 +38,8 @@ class Advertisement(dbus.service.Object):
     """Advertisement data to broadcast Class.
 
     An example of an Eddystone beacon:
+    :Example:
+
     >>> from bluezero import tools
     >>> from bluezero import advertisement
     >>> beacon = advertisement.Advertisement(1, 'broadcast')
