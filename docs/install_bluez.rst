@@ -49,11 +49,11 @@ Getting newer versions of Bluez source
 
 Download the User Space BlueZ Package from http://www.bluez.org/download/ ::
 
-    wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.40.tar.xz
-    tar xf bluez-5.40.tar.xz
-    cd bluez-5.40
+    wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.42.tar.xz
+    tar xf bluez-5.42.tar.xz
+    cd bluez-5.42
 
-How to config and compile Bluez 5.36 and later
+How to config and compile Bluez 5.42 and later
 ----------------------------------------------
 To configure run::
 
@@ -68,17 +68,18 @@ To compile and install run::
 
     make && sudo make install
 
-Automatically run bluetoothd with experimental mode
----------------------------------------------------
-Edit bluetooth.service file to add --experimental flag e.g::
-
-    sudo sed -i '/^ExecStart.*bluetoothd\s*$/ s/$/ --experimental/' /lib/systemd/system/bluetooth.service
-
+Restart bluetoothd with new version
+-----------------------------------
 You will need to either, reboot or run:
 
     sudo systemctl daemon-reload
+    sudo service bluetooth restart
 
-at this stage to use the bluetoothd in experimental mode.
+The bluetoothd should now be the new version. To check the bluetoothd is running
+
+    service bluetooth status
+
+To check the version use bluetoothctl and type version
 
 
 Switch controller to Bluetooth Low Energy only
