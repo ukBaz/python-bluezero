@@ -26,7 +26,7 @@ before_install:
   - sudo apt-get install -qq python-dbus python3-dbus python-gi python3-gi
 install:
   # - pip install --upgrade pip
-  - pip install pep8
+  - pip install pycodestyle
   - pip install python-dbusmock
 before_script:
   # - .travis/setup.sh
@@ -38,6 +38,6 @@ script:
   - python -m unittest -v tests.test_adapter
   - python -m unittest -v tests.test_adapter
 after_success:
-  - "pep8 bluezero"
-  - "pep8 --ignore=E402 examples"
-  - "pep8 tests"
+  - "pycodestyle bluezero"
+  - "pycodestyle --ignore=E402 examples"
+  - "pycodestyle tests"
