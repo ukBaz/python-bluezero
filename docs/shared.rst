@@ -2,15 +2,21 @@
 Shared
 ======
 
+Tools
+=====
+
 .. currentmodule:: bluezero.tools
 
 .. automodule:: bluezero.tools
     :members:
+
+
+Constants
+=========
 
 .. currentmodule:: bluezero.constants
 
 .. automodule:: bluezero.constants
     :members:
 
-.. py:data:: GATT_MANAGER_IFACE
-
+.. autodata::

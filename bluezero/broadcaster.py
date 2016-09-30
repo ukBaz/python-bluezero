@@ -8,6 +8,9 @@ from bluezero import advertisement
 
 
 class Beacon:
+    """
+    Create a non-connectable Bluetooth instance advertising information
+    """
     def __init__(self, adapter_obj=None):
         """Default initialiser.
 
@@ -28,15 +31,28 @@ class Beacon:
         """
         Add service and service data to be used in beacon message
         :param service: Valid service UUID
-        :param data:
+        :param data: Data to be sent (Limit of ??)
         """
         self.broadcaster.service_UUIDs = [service]
         self.broadcaster.service_data = {service: data}
 
-    def add_manufacturer_data(self):
+    def add_manufacturer_data(self, manufacturer, data):
+        """
+        Add manufacturer information to be used in beacon message
+        :param manufacturer: Use numbers from Bluetooth SIG
+        https://www.bluetooth.com/specifications/assigned-numbers/16-bit-UUIDs-for-Members
+        :param data: Data to be sent (Limit of ??)
+        """
         pass
 
     def include_tx_power(self, show_power=None):
+        """
+        Use to include TX power in advertisement.
+        This is different to the TX power in specific beacon format
+        (e.g. Eddystone)
+        :param show_power:
+        :return:
+        """
         if show_power is None:
             self.broadcaster.Get(constants.LE_ADVERTISEMENT_IFACE,
                                  'IncludeTxPower')
@@ -47,8 +63,7 @@ class Beacon:
 
     def start_beacon(self):
         """
-        Start beacon
-        :return:
+        Start beacon advertising
         """
         if not self.dongle.powered:
             self.dongle.powered = True

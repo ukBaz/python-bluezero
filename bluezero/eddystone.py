@@ -6,6 +6,11 @@ from bluezero import broadcaster
 
 
 class EddystoneURL:
+    """
+    Eddystone is a Bluetooth Low Energy beacon profile released by
+    Google in July 2015
+    https://github.com/google/eddystone
+    """
     def __init__(self, url, tx_power=0x08):
         """The Eddystone-URL frame broadcasts a URL using a compressed encoding
         format in order to fit more within the limited advertisement packet.

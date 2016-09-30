@@ -1,3 +1,5 @@
+.. image:: asset/bluez_logo.jpg
+
 ********
 Overview
 ********
@@ -13,10 +15,11 @@ or just LE.
 The BLE functionality is dominated by key/value pairs to create the Generic Attribute Profile (GATT).
 
 BLE defines multiple roles that devices can play:
-- The Broadcaster (beacon) is a transmitter only application.
-- The Observer (scanner) is for receiver only applications.
-- Devices acting in the Peripheral role can receive connections.
-- Devices acting in the Central role can connect to Peripheral devices.
+
+* The Broadcaster (beacon) is a transmitter only application.
+* The Observer (scanner) is for receiver only applications.
+* Devices acting in the Peripheral role can receive connections.
+* Devices acting in the Central role can connect to Peripheral devices.
 
 BlueZ
 =====
@@ -58,12 +61,17 @@ Level 100
 Summary of Bluezero Files
 -------------------------
 
-=================  ================   =============  ============
-    Level 1           Level 10         Level 100        shared
-=================  ================   =============  ============
-scanner.py           observer.py       adapter.py     tools.py
-microbit.py          central.py        device.py      constants.py
-eddystone-URL.py     broadcaster.py    GATT.py
-automation_io.py     peripheral.py     advertise.py
-                                       localGATT.py
-=================  ================   =============  ============
++------------------+----------------+--------------+--------------+
+|  Level 1         | Level 10       | Level 100    |    shared    |
++==================+================+==============+==============+
+| automation_io.py | broadcaster.py | adapter.py   | tools.py     |
++------------------+----------------+--------------+--------------+
+| eddystone-URL.py | central.py     | advertise.py | constants.py |
++------------------+----------------+--------------+--------------+
+| microbit.py      | observer.py    | device.py    |              |
++------------------+----------------+--------------+--------------+
+|                  | peripheral.py  | GATT.py      |              |
++------------------+----------------+--------------+--------------+
+|                  | scanner.py     | localGATT.py |              |
++------------------+----------------+--------------+--------------+
+

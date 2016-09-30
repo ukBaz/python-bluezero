@@ -67,7 +67,7 @@ class Adapter:
 
     >>> from bluezero import adapter
     >>> dongle = adapter.Adapter('/org/bluez/hci0')
-    >>> dongle.powered('on')
+    >>> dongle.powered = True
 
     """
 

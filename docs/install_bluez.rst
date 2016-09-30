@@ -4,8 +4,11 @@ Installing Bluez
 
 Overview
 --------
-Bluezero relies on the dbus interface of Bluez. This is still under an 'experimental' flag and is changing rapidly whuch currently means that it is unlikely that the Linux version you have installed with have the correct version or the experimental flag set.
-This instructions are intended to jump start the switching to a newer version of Bluez which will need to be built from source.
+Bluezero relies on the dbus interface of Bluez. This is still under an 'experimental' flag and is changing
+rapidly which currently means that it is unlikely that the Linux version you have installed with have the
+correct version or the experimental flag set.
+This instructions are intended to jump start the switching to a newer version of Bluez which will need
+to be built from source.
 
 Packages that need available
 ----------------------------
@@ -38,11 +41,14 @@ If you are looking to development of Bluezero then you will need::
     sudo apt-get install python-dbusmock
     # Do I need the following?
     sudo apt-get install python3-dbusmock
+
+There are also some pip installs required for development::
+
     # For doing Sphinx documentation
     sudo pip3 install Sphinx
     sudo pip3 install sphinx_rtd_theme
-
-
+    # To check code against PEP 8 style conventions
+    sudo pip3 install pycodestyle
 
 Getting newer versions of Bluez source
 --------------------------------------
@@ -70,17 +76,20 @@ To compile and install run::
 
 Restart bluetoothd with new version
 -----------------------------------
-You will need to either, reboot or run:
+You will need to either, reboot or run::
 
     sudo systemctl daemon-reload
     sudo service bluetooth restart
 
-The bluetoothd should now be the new version. To check the bluetoothd is running
+The bluetoothd should now be the new version. To check the bluetoothd is running::
 
     service bluetooth status
 
-To check the version use bluetoothctl and type version
+To check the version use bluetoothctl and type version::
 
+    $ bluetoothctl
+    [bluetooth]# version
+    Version 5.42
 
 Switch controller to Bluetooth Low Energy only
 ----------------------------------------------
