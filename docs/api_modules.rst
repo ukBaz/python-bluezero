@@ -3,7 +3,7 @@ python-bluezero Modules
 =======================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
    level1
    level10

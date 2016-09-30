@@ -144,6 +144,7 @@ class Device:
         return self.remote_device_props.Get(
             constants.DEVICE_INTERFACE, 'Adapter')
 
+    @property
     def legacy_pairing(self):
         """Indicate the legacy pairing status.
 
@@ -152,6 +153,17 @@ class Device:
         return self.remote_device_props.Get(
             constants.DEVICE_INTERFACE,
             'LegacyPairing')
+
+    @legacy_pairing.setter
+    def legacy_pairing(self, new_status):
+        """Indicate the legacy pairing status.
+
+        Set to true if the device only supports the pre-2.1 pairing mechanism.
+        """
+        self.remote_device_props.Set(
+            constants.DEVICE_INTERFACE,
+            'LegacyPairing',
+            new_status)
 
     @property
     def modalias(self):
