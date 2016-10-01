@@ -39,5 +39,5 @@ script:
   - python -m unittest -v tests.test_adapter
 after_success:
   - "pycodestyle bluezero"
-  - "pycodestyle --ignore=E402 examples"
+  - "pycodestyle examples"
   - "pycodestyle tests"

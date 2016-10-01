@@ -9,6 +9,9 @@ Welcome to Bluezero's documentation!
 .. toctree::
    overview
 
+.. toctree::
+   examples
+
 Installing Bluez
 ****************
 

@@ -10,11 +10,9 @@ The information for the CC2650 comes from:
 http://processors.wiki.ti.com/index.php/CC2650_SensorTag_User%27s_Guide
 
 This program makes some assumptions to keep the complexity down:
-1) The paths to characteristics are known
-2) The adapter is hci0
-3) A scan has happened and the sensortag is in the device list
-   (Probably true as you will have had to get the paths to characteristics)
-4) You are running Bluez 5.36 or higher (with the experimental flag)
+1) The adapter is the first one in the list of adapters
+    (normally there is only one)
+2) You are running Bluez 5.42 or higher
 """
 from time import sleep
 

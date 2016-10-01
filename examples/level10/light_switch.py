@@ -4,14 +4,9 @@ to extend a light switch to be switchable by both a switch and bluetooth.
 An honourable mention to the Authors of Make:Bluetooth for the idea.
 In particular Alasdair Allan that did a great demo at OSCON 2015.
 """
-import sys
-import os
-
 from gpiozero import LED
 from gpiozero import Button
 
-sys.path.insert(0,
-                os.path.split(os.path.dirname(os.path.realpath(__file__)))[0])
 from bluezero import peripheral
 
 # Hardware
