@@ -6,8 +6,15 @@
 ====================================
 Welcome to Bluezero's documentation!
 ====================================
+
+Overview
+********
+
 .. toctree::
    overview
+
+Examples
+********
 
 .. toctree::
    examples
