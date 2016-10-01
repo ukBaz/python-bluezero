@@ -1,15 +1,11 @@
 """
 This is a simple example of how to read data from a micro:bit.
 
-It undoubtedly needs polishing and isn't production worthy.
-It is however a starting point...
+You will need the Bluetooth services of the micro:bit exposed.
 
-This code assumes you have connected to your micro:bit once already using
-bluetoothctl. A video of how to do this is at:
-https://youtu.be/QxPsVozglnM
-
-This is needed so that Bluez knows about the micro:bit without having to
-do a scan. This code does not do a scan.
+This code was developed using the 'Bluetooth Most Services, No Security'
+micro:bit hex file from:
+http://bluetooth-mdw.blogspot.co.uk/p/bbc-microbit.html
 
 """
 import argparse
