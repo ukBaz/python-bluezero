@@ -4,16 +4,18 @@ Installing Bluez
 
 Overview
 --------
-Bluezero relies on the dbus interface of Bluez. This is still under an 'experimental' flag and is changing
-rapidly which currently means that it is unlikely that the Linux version you have installed with have the
-correct version or the experimental flag set.
-This instructions are intended to jump start the switching to a newer version of Bluez which will need
-to be built from source.
+
+Bluezero relies on the dbus interface of Bluez.  This library requires the
+features provided by Bluez version **5.42** and later.  As this is as recent
+build,  it is unlikely that the Linux version you have installed will have the
+correct version. These instructions are intended to jump start the switching to
+a newer version of Bluez which will need to be built from source.
 
 Packages that need available
 ----------------------------
-The following packages is a super set of what is required. For some systems these may already be
-install or not required::
+
+The following packages are a super set of what is required. For some systems
+these may already be install or not required::
 
     sudo apt-get install bluetooth
     sudo apt-get install bluez-tools
@@ -33,7 +35,8 @@ To compile a new version of Bluez::
     sudo apt-get install libical-dev
     sudo apt-get install libreadline-dev
 
-If you are looking to development of Bluezero then you will need::
+If you are looking to contribute to the development of Bluezero then you will
+need::
 
     sudo apt-get install rsync
     sudo apt-get install python-dbus
@@ -66,9 +69,7 @@ To configure run::
     ./configure --prefix=/usr \
                 --mandir=/usr/share/man \
                 --sysconfdir=/etc \
-                --localstatedir=/var \
-                --enable-experimental \
-                --enable-maintainer-mode
+                --localstatedir=/var
 
 To compile and install run::
 
@@ -81,7 +82,8 @@ You will need to either, reboot or run::
     sudo systemctl daemon-reload
     sudo service bluetooth restart
 
-The bluetoothd should now be the new version. To check the bluetoothd is running::
+The bluetoothd should now be the new version. To check the bluetoothd is
+running::
 
     service bluetooth status
 
@@ -93,16 +95,20 @@ To check the version use bluetoothctl and type version::
 
 Switch controller to Bluetooth Low Energy only
 ----------------------------------------------
-Much of what Bluezero is doing is using Bluetooth Low Energy.
-It has been discovered to get reliable connection to Android phones it is best to put the controller into le only mode.
-This is done in the /etc/bluetooth/main.conf file. Ensure that it contains the following:
+
+Much of what Bluezero is doing is using Bluetooth Low Energy. It has been
+discovered to get reliable connection to Android phones it is best to put the
+controller into le only mode. This is done in the ``/etc/bluetooth/main.conf``
+file. Ensure that it contains the following::
 
     ControllerMode = le
 
 Creating a Bluezero peripheral
 ------------------------------
-A peripheral application will be registered on the DBus using the bus name of ukBaz.bluezero.
-An example dbus configuration file is provided and will need to be copied to the correct location.
+
+A peripheral application will be registered on the DBus using the bus name of
+``ukBaz.bluezero``. An example dbus configuration file is provided and will
+need to be copied to the correct location::
 
     sudo cp examples/ukBaz.bluezero.conf /etc/dbus-1/system.d/.
 
@@ -121,7 +127,8 @@ Stop bluetooth service::
 
     service bluetooth stop
 
-Kill the process (use ‘service bluetooth status’ to get the pid) the launch daemon with debug::
+Kill the process (use ‘service bluetooth status’ to get the pid) the launch
+daemon with debug::
 
     sudo /usr/libexec/bluetooth/bluetoothd -nEd |& tee ~/bluetoothd.log
 
@@ -134,4 +141,3 @@ Monitor dbus traffic
 debug probe to print message bus messages::
 
     dbus-monitor --system
-
