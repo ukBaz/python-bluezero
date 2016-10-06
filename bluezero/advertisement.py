@@ -119,9 +119,10 @@ class Advertisement(dbus.service.Object):
 
     @service_data.setter
     def service_data(self, data):
-        self.Set(constants.LE_ADVERTISEMENT_IFACE,
-                 'ServiceData',
-                 data)
+        for UUID in data:
+            self.Set(constants.LE_ADVERTISEMENT_IFACE,
+                     'ServiceData',
+                     {UUID: dbus.Array(data[UUID], signature='y')})
 
     @property
     def include_tx_power(self):
@@ -159,11 +160,11 @@ class Advertisement(dbus.service.Object):
         if self.props[interface_name]['ServiceData'] is not None:
             response['ServiceData'] = dbus.Dictionary(
                 self.props[interface_name]['ServiceData'],
-                signature='say')
+                signature='sv')
         if self.props[interface_name]['ManufacturerData'] is not None:
             response['ManufacturerData'] = dbus.Dictionary(
                 self.props[interface_name]['ManufacturerData'],
-                signature='qay')
+                signature='qv')
         if self.props[interface_name]['SolicitUUIDs'] is not None:
             response['SolicitUUIDs'] = dbus.Array(
                 self.props[interface_name]['SolicitUUIDs'],
