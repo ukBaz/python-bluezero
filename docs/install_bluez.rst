@@ -69,11 +69,22 @@ To configure run::
     ./configure --prefix=/usr \
                 --mandir=/usr/share/man \
                 --sysconfdir=/etc \
-                --localstatedir=/var
+                --localstatedir=/var \
+                --enable-experimental \
+                --enable-maintainer-mode
 
 To compile and install run::
 
-    make && sudo make install
+    make -j 4 && sudo make install
+
+Automatically run bluetoothd with experimental mode
+---------------------------------------------------
+Some of the BlueZ DBus API functionality is still behind an experimental flag.
+This can be switch on by default in the bluetooth.service file
+
+Edit bluetooth.service file to add --experimental flag e.g::
+
+    sudo sed -i '/^ExecStart.*bluetoothd\s*$/ s/$/ --experimental/' /lib/systemd/system/bluetooth.service
 
 Restart bluetoothd with new version
 -----------------------------------
