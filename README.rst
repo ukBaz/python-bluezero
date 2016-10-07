@@ -18,7 +18,7 @@ python-bluezero
    :alt: Issue Count
 
 
-A simple Python interface to Bluez stack
+A simple Python interface to BlueZ stack
 
 Name and aim
 ============
@@ -71,14 +71,14 @@ eddystone-url-beacon.py
 ***********************
 Simple Eddystone URL beacon. Can be read with any Physical Web application
 
-fatbeacon.py
-************
-Experiment with Eddystone FatBeacon. Contains service for beacon to connect to that sends html page.
-
 Scanner
 -------
 No example currently.
 
 GATT Server (Peripheral role)
 -----------------------------
-No working example
+
+fatbeacon.py
+************
+Experiment with Eddystone FatBeacon. Contains service for beacon to connect to that sends html page.
+

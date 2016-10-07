@@ -97,6 +97,7 @@ class Advertisement(dbus.service.Object):
 
     @property
     def service_UUIDs(self):
+        """List of UUIDs that represent available services."""
         return self.Get(constants.LE_ADVERTISEMENT_IFACE,
                         'ServiceUUIDs')
 
@@ -107,13 +108,16 @@ class Advertisement(dbus.service.Object):
                  UUID)
 
     def manufacturer_data(self):
+        """Manufacturer Data to be broadcast (Currently not supported)"""
         pass
 
     def solicit_UUIDs(self):
+        """Manufacturer Data to be broadcast (Currently not supported)"""
         pass
 
     @property
     def service_data(self):
+        """Service Data to be broadcast"""
         return self.Get(constants.LE_ADVERTISEMENT_IFACE,
                         'ServiceData')
 
@@ -126,6 +130,7 @@ class Advertisement(dbus.service.Object):
 
     @property
     def include_tx_power(self):
+        """Include TX power in advert (Different from beacon packet)"""
         return self.Get(constants.LE_ADVERTISEMENT_IFACE,
                         'IncludeTxPower')
 
