@@ -209,7 +209,7 @@ class Service(dbus.service.Object):
         This signal is registered with the D-Bus at
         ``org.freedesktop.DBus.Properties``.
         """
-        pass
+        print('Service properties changed: ', interface, changed, invalidated)
 
 
 class Characteristic(dbus.service.Object):
@@ -325,15 +325,20 @@ class Characteristic(dbus.service.Object):
 
         self.props[constants.GATT_CHRC_IFACE][property_name] = value
 
-        if bool(self.props[constants.GATT_CHRC_IFACE]['Notifying']) is True:
-            self.EmitSignal(dbus.PROPERTIES_IFACE,
-                            'PropertiesChanged',
-                            'sa{sv}as',
-                            [interface_name,
-                             dbus.Dictionary({property_name: value},
-                                             signature='sv'),
-                             dbus.Array([], signature='s')
-                             ])
+        self.PropertiesChanged(interface_name,
+                               dbus.Dictionary({property_name: value},
+                                               signature='sv'),
+                               dbus.Array([], signature='s'))
+
+    @dbus.service.signal(constants.DBUS_PROP_IFACE,
+                         signature='sa{sv}as')
+    def PropertiesChanged(self, interface, changed, invalidated):
+        """Emit a Properties Changed notification signal.
+
+        This signal is registered with the D-Bus at
+        ``org.freedesktop.DBus.Properties``.
+        """
+        print('Char Prop Changed')
 
     @dbus.service.method(constants.GATT_CHRC_IFACE,
                          in_signature='a{sv}', out_signature='ay')
@@ -360,7 +365,7 @@ class Characteristic(dbus.service.Object):
         DBus method for enabling notifications of the characteristic value.
         :return: value
         """
-        if not self.props['Notifying'] is True:
+        if not self.props[constants.GATT_CHRC_IFACE]['Notifying'] is True:
             print('Notifying already, nothing to do')
             return
 
@@ -375,7 +380,7 @@ class Characteristic(dbus.service.Object):
         DBus method for disabling notifications of the characteristic value.
         :return: value
         """
-        if self.props['Notifying'] is False:
+        if self.props[constants.GATT_CHRC_IFACE]['Notifying'] is False:
             print('Not Notifying, nothing to do')
             return
 
