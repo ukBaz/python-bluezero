@@ -329,7 +329,7 @@ class Characteristic(dbus.service.Object):
 
         self.props[constants.GATT_CHRC_IFACE][property_name] = value
 
-        self.PropertiesChanged(interface_name,
+        return self.PropertiesChanged(interface_name,
                                dbus.Dictionary({property_name: value},
                                                signature='sv'),
                                dbus.Array([], signature='s'))
@@ -503,7 +503,7 @@ class Descriptor(dbus.service.Object):
 
         self.props[interface_name][property_name] = value
 
-        self.PropertiesChanged(interface_name,
+        return self.PropertiesChanged(interface_name,
                                dbus.Dictionary({property_name: value},
                                                signature='sv'),
                                dbus.Array([], signature='s'))
@@ -516,7 +516,7 @@ class Descriptor(dbus.service.Object):
         This signal is registered with the D-Bus at
         ``org.freedesktop.DBus.Properties``.
         """
-        pass
+        return 0
 
     @dbus.service.method(constants.GATT_DESC_IFACE,
                          in_signature='', out_signature='v')
