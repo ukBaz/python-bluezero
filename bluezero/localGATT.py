@@ -267,6 +267,10 @@ class Characteristic(dbus.service.Object):
         """Return the DBus object path"""
         return dbus.ObjectPath(self.path)
 
+
+    def add_call_back(self, callback):
+        self.PropertiesChanged = callback
+
     @dbus.service.method(constants.DBUS_PROP_IFACE,
                          in_signature='s',
                          out_signature='a{sv}')
