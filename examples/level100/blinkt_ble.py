@@ -3,13 +3,15 @@ from bluezero import localGATT
 from bluezero import advertisement
 from bluezero import adapter
 from bluezero import tools
-
 import dbus
-
 from blinkt import set_pixel, set_all, show
 
+WEB_BLINKT = 'https://goo.gl/wQOjbe'
+TX_POWER = 0x08
+EDDYSTONE = 'FEAA'
 SERVICE_UUID='0000FFF0-0000-1000-8000-00805F9B34FB'
 CHAR_UUID='0000FFF3-0000-1000-8000-00805F9B34FB'
+
 
 class blinkt:
     def __init__(self, ble):
@@ -43,11 +45,11 @@ class ble:
         self.srv = localGATT.Service(1, SERVICE_UUID, True)
 
         self.charc = localGATT.Characteristic(1,
-                                               CHAR_UUID,
-                                               self.srv,
-                                               [0xBB],
-                                               True,
-                                               ['write'])
+                                              CHAR_UUID,
+                                              self.srv,
+                                              [0xBB],
+                                              True,
+                                              ['write'])
 
         self.charc.service = self.srv.path
         self.app.add_managed_object(self.srv)
@@ -58,7 +60,10 @@ class ble:
 
         self.dongle = adapter.Adapter(adapter.list_adapters()[0])
         advert = advertisement.Advertisement(1, 'peripheral')
+
         advert.service_UUIDs = [SERVICE_UUID]
+        eddystone_data = tools.url_to_advert(WEB_BLINKT, 0x10, TX_POWER)
+        advert.service_data = {EDDYSTONE: eddystone_data}
         if not self.dongle.powered:
             self.dongle.powered = True
         ad_manager = advertisement.AdvertisingManager(self.dongle.path)
