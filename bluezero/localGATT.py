@@ -267,7 +267,6 @@ class Characteristic(dbus.service.Object):
         """Return the DBus object path"""
         return dbus.ObjectPath(self.path)
 
-
     def add_call_back(self, callback):
         self.PropertiesChanged = callback
 
@@ -330,9 +329,9 @@ class Characteristic(dbus.service.Object):
         self.props[constants.GATT_CHRC_IFACE][property_name] = value
 
         return self.PropertiesChanged(interface_name,
-                               dbus.Dictionary({property_name: value},
-                                               signature='sv'),
-                               dbus.Array([], signature='s'))
+                                      dbus.Dictionary({property_name: value},
+                                                      signature='sv'),
+                                      dbus.Array([], signature='s'))
 
     @dbus.service.signal(constants.DBUS_PROP_IFACE,
                          signature='sa{sv}as')
@@ -504,9 +503,9 @@ class Descriptor(dbus.service.Object):
         self.props[interface_name][property_name] = value
 
         return self.PropertiesChanged(interface_name,
-                               dbus.Dictionary({property_name: value},
-                                               signature='sv'),
-                               dbus.Array([], signature='s'))
+                                      dbus.Dictionary({property_name: value},
+                                                      signature='sv'),
+                                      dbus.Array([], signature='s'))
 
     @dbus.service.signal(constants.DBUS_PROP_IFACE,
                          signature='sa{sv}as')

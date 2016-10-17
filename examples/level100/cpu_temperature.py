@@ -23,6 +23,7 @@ def get_cpu_temperature():
     cpu_temp = os.popen('vcgencmd measure_temp').readline()
     return float(cpu_temp.replace('temp=', '').replace("'C\n", ''))
 
+
 def sint16(value):
     return int(value * 100).to_bytes(2, byteorder='little', signed=True)
 
@@ -67,7 +68,9 @@ class TemperatureChrc(localGATT.Characteristic):
         GLib.timeout_add(500, self.temperature_cb)
 
     def ReadValue(self, options):
-        return dbus.Array(cpu_temp_sint16(self.props[constants.GATT_CHRC_IFACE]['Value']))
+        return dbus.Array(
+            cpu_temp_sint16(self.props[constants.GATT_CHRC_IFACE]['Value'])
+        )
 
     def StartNotify(self):
         if self.props[constants.GATT_CHRC_IFACE]['Notifying']:
@@ -130,7 +133,6 @@ class ble:
 
     def add_call_back(self, callback):
         self.charc.PropertiesChanged = callback
-
 
     def start_bt(self):
         # self.light.StartNotify()

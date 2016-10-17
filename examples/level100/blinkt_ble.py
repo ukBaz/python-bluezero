@@ -9,8 +9,8 @@ from blinkt import set_pixel, set_all, show
 WEB_BLINKT = 'https://goo.gl/wQOjbe'
 TX_POWER = 0x08
 EDDYSTONE = 'FEAA'
-SERVICE_UUID='0000FFF0-0000-1000-8000-00805F9B34FB'
-CHAR_UUID='0000FFF3-0000-1000-8000-00805F9B34FB'
+SERVICE_UUID = '0000FFF0-0000-1000-8000-00805F9B34FB'
+CHAR_UUID = '0000FFF3-0000-1000-8000-00805F9B34FB'
 
 
 class blinkt:
@@ -19,17 +19,17 @@ class blinkt:
 
     def on_ble_write(self, *args, **kwargs):
         try:
-            #bytes=[0x07, 0x02, 0x00, 0x01, 0x00, 0x0FF, 0x00]
+            # bytes=[0x07, 0x02, 0x00, 0x01, 0x00, 0x0FF, 0x00]
             bytes = args[1]["Value"]
             if len(bytes) > 2:
-                cmd = (bytes[0]<<8) + (bytes[1] & 0xff)
+                cmd = (bytes[0] << 8) + (bytes[1] & 0xff)
 
                 if cmd == 0x0702:
-                    if len(bytes) >=7:
-                        set_pixel(bytes[3]-1, bytes[4], bytes[5], bytes[6] )
+                    if len(bytes) >= 7:
+                        set_pixel(bytes[3] - 1, bytes[4], bytes[5], bytes[6])
                 elif cmd == 0x0601:
-                    if len(bytes) >=5:
-                        set_all(bytes[2], bytes[3], bytes[4] )
+                    if len(bytes) >= 5:
+                        set_all(bytes[2], bytes[3], bytes[4])
                 show()
         except Exception as inst:
             print(type(inst))
@@ -71,7 +71,6 @@ class ble:
 
     def add_call_back(self, callback):
         self.charc.PropertiesChanged = callback
-
 
     def start_bt(self):
         # self.light.StartNotify()
