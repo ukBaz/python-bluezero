@@ -519,8 +519,8 @@ class Descriptor(dbus.service.Object):
         return 0
 
     @dbus.service.method(constants.GATT_DESC_IFACE,
-                         in_signature='', out_signature='v')
-    def ReadValue(self):
+                         in_signature='a{sv}', out_signature='ay')
+    def ReadValue(self, options):
         """
         DBus method for getting the characteristic value
         :return: value
@@ -528,8 +528,8 @@ class Descriptor(dbus.service.Object):
         return self.GetAll(constants.GATT_DESC_IFACE)['Value']
 
     @dbus.service.method(constants.GATT_DESC_IFACE,
-                         in_signature='v', out_signature='')
-    def WriteValue(self, value):
+                         in_signature='aya{sv}', out_signature='')
+    def WriteValue(self, value, options):
         """
         DBus method for setting the descriptor value
         :return:

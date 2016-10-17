@@ -98,11 +98,12 @@ class ble:
         self.charc.service = self.srv.path
 
         cpu_format_value = dbus.Array([dbus.Byte(0x0E),
-                            dbus.Byte(0xFE),
-                            dbus.Byte(0x27),
-                            dbus.Byte(0x2F),
-                            dbus.Byte(0x01),
-                            dbus.Byte(0x01)])
+                                       dbus.Byte(0xFE),
+                                       dbus.Byte(0x2F),
+                                       dbus.Byte(0x27),
+                                       dbus.Byte(0x01),
+                                       dbus.Byte(0x00),
+                                       dbus.Byte(0x00)])
         self.cpu_format = localGATT.Descriptor(4,
                                                CPU_FMT_DSCP,
                                                self.charc,
