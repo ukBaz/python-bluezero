@@ -62,7 +62,8 @@ This is a simple example of how to read the Ti Sensortag CC2650
 
 microbit_button.py
 ******************
-This example
+This example simply reads the button values from the micro:bit and displays them on
+LEDs attached to the hardware
 
 Beacon
 ------
@@ -82,3 +83,20 @@ fatbeacon.py
 ************
 Experiment with Eddystone FatBeacon. Contains service for beacon to connect to that sends html page.
 
+lightswitch.py
+**************
+A simple light switch example using an LED and a switch.
+Write a value to the switch characteristic to change the state of the light
+
+blinkt_ble.py
+*************
+This can be controlled from web page via web bluetooth.
+This example advertises the URL via Eddystone URL. Once you attached you can change the
+colours of the LEDs on the Pimoroni Blinkt.
+
+cpu_temperature.py
+******************
+This example transmits the temperature of the CPU over the single characteristic.
+If your hardware does not support the `vcgencmd` then change the `get_cpu_temperature()`
+function to use the randomly generated temperature.
+Values are only updated when notification are switched on.
