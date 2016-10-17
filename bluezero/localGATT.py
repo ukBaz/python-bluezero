@@ -209,7 +209,7 @@ class Service(dbus.service.Object):
         This signal is registered with the D-Bus at
         ``org.freedesktop.DBus.Properties``.
         """
-        pass
+        print('Service properties changed: ', interface, changed, invalidated)
 
 
 class Characteristic(dbus.service.Object):
@@ -266,6 +266,9 @@ class Characteristic(dbus.service.Object):
     def get_path(self):
         """Return the DBus object path"""
         return dbus.ObjectPath(self.path)
+
+    def add_call_back(self, callback):
+        self.PropertiesChanged = callback
 
     @dbus.service.method(constants.DBUS_PROP_IFACE,
                          in_signature='s',
@@ -325,15 +328,20 @@ class Characteristic(dbus.service.Object):
 
         self.props[constants.GATT_CHRC_IFACE][property_name] = value
 
-        if bool(self.props[constants.GATT_CHRC_IFACE]['Notifying']) is True:
-            self.EmitSignal(dbus.PROPERTIES_IFACE,
-                            'PropertiesChanged',
-                            'sa{sv}as',
-                            [interface_name,
-                             dbus.Dictionary({property_name: value},
-                                             signature='sv'),
-                             dbus.Array([], signature='s')
-                             ])
+        return self.PropertiesChanged(interface_name,
+                                      dbus.Dictionary({property_name: value},
+                                                      signature='sv'),
+                                      dbus.Array([], signature='s'))
+
+    @dbus.service.signal(constants.DBUS_PROP_IFACE,
+                         signature='sa{sv}as')
+    def PropertiesChanged(self, interface, changed, invalidated):
+        """Emit a Properties Changed notification signal.
+
+        This signal is registered with the D-Bus at
+        ``org.freedesktop.DBus.Properties``.
+        """
+        print('Char Prop Changed')
 
     @dbus.service.method(constants.GATT_CHRC_IFACE,
                          in_signature='a{sv}', out_signature='ay')
@@ -360,7 +368,7 @@ class Characteristic(dbus.service.Object):
         DBus method for enabling notifications of the characteristic value.
         :return: value
         """
-        if not self.props['Notifying'] is True:
+        if not self.props[constants.GATT_CHRC_IFACE]['Notifying'] is True:
             print('Notifying already, nothing to do')
             return
 
@@ -375,7 +383,7 @@ class Characteristic(dbus.service.Object):
         DBus method for disabling notifications of the characteristic value.
         :return: value
         """
-        if self.props['Notifying'] is False:
+        if self.props[constants.GATT_CHRC_IFACE]['Notifying'] is False:
             print('Not Notifying, nothing to do')
             return
 
@@ -494,10 +502,10 @@ class Descriptor(dbus.service.Object):
 
         self.props[interface_name][property_name] = value
 
-        self.PropertiesChanged(interface_name,
-                               dbus.Dictionary({property_name: value},
-                                               signature='sv'),
-                               dbus.Array([], signature='s'))
+        return self.PropertiesChanged(interface_name,
+                                      dbus.Dictionary({property_name: value},
+                                                      signature='sv'),
+                                      dbus.Array([], signature='s'))
 
     @dbus.service.signal(constants.DBUS_PROP_IFACE,
                          signature='sa{sv}as')
@@ -507,11 +515,11 @@ class Descriptor(dbus.service.Object):
         This signal is registered with the D-Bus at
         ``org.freedesktop.DBus.Properties``.
         """
-        pass
+        return 0
 
     @dbus.service.method(constants.GATT_DESC_IFACE,
-                         in_signature='', out_signature='v')
-    def ReadValue(self):
+                         in_signature='a{sv}', out_signature='ay')
+    def ReadValue(self, options):
         """
         DBus method for getting the characteristic value
         :return: value
@@ -519,8 +527,8 @@ class Descriptor(dbus.service.Object):
         return self.GetAll(constants.GATT_DESC_IFACE)['Value']
 
     @dbus.service.method(constants.GATT_DESC_IFACE,
-                         in_signature='v', out_signature='')
-    def WriteValue(self, value):
+                         in_signature='aya{sv}', out_signature='')
+    def WriteValue(self, value, options):
         """
         DBus method for setting the descriptor value
         :return:
