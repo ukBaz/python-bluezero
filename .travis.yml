@@ -37,7 +37,8 @@ script:
   - python -m unittest -v tests.test_url_to_hex
   - python -m unittest -v tests.test_adapter
   - python -m unittest -v tests.test_adapter
-after_success:
   - "pycodestyle bluezero"
   - "pycodestyle examples"
   - "pycodestyle tests"
+after_success:
+  # 
