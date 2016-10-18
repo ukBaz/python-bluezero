@@ -8,7 +8,10 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import dbus
 import dbus.mainloop.glib
-from gi.repository import GLib
+try:
+    from gi.repository import GObject
+except ImportError:
+    import gobject as GObject
 
 from bluezero import constants
 
@@ -30,7 +33,7 @@ class Device:
         """
         self.bus = dbus.SystemBus()
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-        self.mainloop = GLib.MainLoop()
+        self.mainloop = GObject.MainLoop()
 
         self.remote_device_path = device_path
         self.remote_device_obj = self.bus.get_object(

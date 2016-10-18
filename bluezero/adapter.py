@@ -19,7 +19,10 @@ import dbus.mainloop.glib
 from bluezero import constants
 
 # Main eventloop import
-from gi.repository import GLib
+try:
+    from gi.repository import GObject
+except ImportError:
+    import gobject as GObject
 
 
 # Initialise the mainloop
@@ -94,7 +97,7 @@ class Adapter:
 
         self._nearby_timeout = 10
         self._nearby_count = 0
-        self.mainloop = GLib.MainLoop()
+        self.mainloop = GObject.MainLoop()
 
         self.bus.add_signal_receiver(interfaces_added,
                                      dbus_interface=constants.DBUS_OM_IFACE,
@@ -218,7 +221,7 @@ class Adapter:
         self._nearby_timeout = timeout
         self._nearby_count = 0
 
-        GLib.timeout_add(1000, self._discovering_timeout)
+        GObject.timeout_add(1000, self._discovering_timeout)
         self.adapter_methods.StartDiscovery()
         self.mainloop.run()
 

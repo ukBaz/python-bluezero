@@ -3,9 +3,7 @@ import sys
 import unittest
 
 import dbus
-import dbus.mainloop.glib
 import dbusmock
-from gi.repository import GLib
 
 from bluezero.adapter import Adapter
 from bluezero.device import Device

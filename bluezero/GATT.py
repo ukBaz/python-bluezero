@@ -1,11 +1,14 @@
 import dbus
 import dbus.mainloop.glib
-from gi.repository import GLib
+try:
+    from gi.repository import GObject
+except ImportError:
+    import gobject as GObject
 
 from bluezero import constants
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-mainloop = GLib.MainLoop()
+mainloop = GObject.MainLoop()
 
 
 def generic_error_cb(error):
