@@ -13,9 +13,6 @@ import dbus.exceptions
 import dbus.mainloop.glib
 import dbus.service
 
-# Main eventloop import
-from gi.repository import GLib
-
 # python-bluezero imports
 from bluezero import constants
 

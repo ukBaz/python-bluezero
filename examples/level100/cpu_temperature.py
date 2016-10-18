@@ -1,8 +1,10 @@
 # Standard modules
 import os
 import dbus
-from gi.repository import GLib
-import random
+try:
+    from gi.repository import GObject
+except ImportError:
+    import gobject as GObject
 
 # Bluezero modules
 from bluezero import tools
@@ -65,7 +67,7 @@ class TemperatureChrc(localGATT.Characteristic):
             return
 
         print('Starting timer event')
-        GLib.timeout_add(500, self.temperature_cb)
+        GObject.timeout_add(500, self.temperature_cb)
 
     def ReadValue(self, options):
         return dbus.Array(
