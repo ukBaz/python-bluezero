@@ -37,7 +37,7 @@ before_script:
   # - echo $TRAVIS_PYTHON_VERSION
   # - echo $PYTHONPATH
   # If dbusmock installed from github
-  - export PATH=$PATH:$PWD/python-dbusmock-master
+  - export PATH=$PATH:$PWD/python-dbusmock-bluez_gatt
 script:
   - python -m unittest -v tests.test_url_to_hex
   - python -m unittest -v tests.test_adapter
