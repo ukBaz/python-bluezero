@@ -199,3 +199,9 @@ class TestBluezeroAdapter(dbusmock.DBusTestCase):
         # test
         dongle.nearby_discovery()
         self.assertEqual(dongle.discovering, 1)
+
+
+if __name__ == '__main__':
+    # avoid writing to stderr
+    unittest.main(testRunner=unittest.TextTestRunner(stream=sys.stdout,
+                                                     verbosity=2))
