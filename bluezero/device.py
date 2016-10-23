@@ -9,7 +9,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 import dbus
 import dbus.mainloop.glib
 try:
-    from gi.repository import GObject
+    from gi.repository import GLib as GObject
 except ImportError:
     import gobject as GObject
 

@@ -24,19 +24,25 @@ virtualenv:
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq python-dbus python3-dbus python-gi python3-gi
+  # install dbusmock from github
+  - ./install_dbusmock.sh
 install:
   # - pip install --upgrade pip
   - pip install pycodestyle
-  - pip install python-dbusmock
+  # Install released version of dbusmock
+  # - pip install python-dbusmock
 before_script:
   # - .travis/setup.sh
   # - echo "Travis Python Version ***********"
   # - echo $TRAVIS_PYTHON_VERSION
   # - echo $PYTHONPATH
+  # If dbusmock installed from github
+  - export PATH=$PATH:$PWD/python-dbusmock-master
 script:
   - python -m unittest -v tests.test_url_to_hex
   - python -m unittest -v tests.test_adapter
-  - python -m unittest -v tests.test_adapter
+  - python -m unittest -v tests.test_device
+  - python -m unittest -v tests.test_gatt
   - "pycodestyle bluezero"
   - "pycodestyle examples"
   - "pycodestyle tests"

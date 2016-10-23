@@ -1,24 +1,33 @@
 #!/usr/bin/env bash
 python -m unittest -v tests.test_url_to_hex
-test1=$?
+test11=$?
 python3 -m unittest -v tests.test_url_to_hex
-test2=$?
+test12=$?
 python -m unittest -v tests.test_adapter
-test3=$?
+test21=$?
 python3 -m unittest -v tests.test_adapter
-test4=$?
+test22=$?
 python -m unittest -v tests.test_device
-test5=$?
+test31=$?
 python3 -m unittest -v tests.test_device
-test6=$?
+test32=$?
+python -m unittest -v tests.test_gatt
+test41=$?
+python3 -m unittest -v tests.test_gatt
+test42=$?
 pycodestyle -v bluezero
-test7=$?
+test51=$?
 pycodestyle -v examples
-test8=$?
+test52=$?
 pycodestyle -v tests
-test9=$?
+test53=$?
 
-if [ $((test1 + test2 + test3 + test4 + test5 + test6 + test7 + test8 + test9)) -ne 0 ]; then
+group1=$((test11 + test12))
+group2=$((test21 + test22))
+group3=$((test31 + test32))
+group4=$((test41 + test42))
+group5=$((test51 + test52 + test53))
+if [ $((group1 + group2 + group3 + group4 + group5)) -ne 0 ]; then
    echo -e "\n\n###  A test has failed!!  ###\n"
 else
     echo -e "\n\nSuccess!!!\n"

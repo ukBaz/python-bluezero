@@ -20,7 +20,7 @@ from bluezero import constants
 
 # Main eventloop import
 try:
-    from gi.repository import GObject
+    from gi.repository import GLib as GObject
 except ImportError:
     import gobject as GObject
 
