@@ -5,7 +5,7 @@ sudo: required
 # https://docs.travis-ci.com/user/multi-os/
 python:
   - "2.7"
-  - "3.4"
+  - "3.2"
 virtualenv:
   system_site_packages: true
 # matrix:
