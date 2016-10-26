@@ -31,7 +31,10 @@ install:
   - pip install pycodestyle
   # Install released version of dbusmock
   # - pip install python-dbusmock
-  - pip install coverage
+  # Coverage >4.0 doesn't support Pyton 3.2
+  # - pip install coverage
+  - if [ "$TRAVIS_PYTHON_VERSION" == "3.2" ]; then travis_retry pip install coverage==3.7.1; fi
+  - if [ "$TRAVIS_PYTHON_VERSION" != "3.2" ]; then travis_retry pip install coverage; fi
   - pip install codeclimate-test-reporter
 before_script:
   # - .travis/setup.sh
@@ -41,10 +44,10 @@ before_script:
   # If dbusmock installed from github
   - export PYTHONPATH=$PYTHONPATH:/tmp/python-dbusmock-bluez_gatt
 script:
-  - coverage run tests/test_url_to_hex.py
-  - coverage run tests/test_adapter.py
-  - coverage run tests/test_device.py
-  - coverage run tests/test_gatt.py
+  - coverage run -m unittest -v tests.test_url_to_hex
+  - coverage run -m unittest -v tests.test_adapter
+  - coverage run -m unittest -v tests.test_device
+  - coverage run -m unittest -v tests.test_gatt
   - "pycodestyle bluezero"
   - "pycodestyle examples"
   - "pycodestyle tests"
