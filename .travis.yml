@@ -29,13 +29,13 @@ before_install:
 install:
   # - pip install --upgrade pip
   - pip install pycodestyle
+  - pip install codeclimate-test-reporter
   # Install released version of dbusmock
   # - pip install python-dbusmock
   # Coverage >4.0 doesn't support Python 3.2
   # - pip install coverage
   - if [ "$TRAVIS_PYTHON_VERSION" == "3.2" ]; then travis_retry pip install coverage==3.7.1; fi
   - if [ "$TRAVIS_PYTHON_VERSION" != "3.2" ]; then travis_retry pip install coverage; fi
-  - pip install codeclimate-test-reporter
 before_script:
   # - .travis/setup.sh
   # - echo "Travis Python Version ***********"
