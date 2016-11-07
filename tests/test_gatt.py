@@ -27,29 +27,56 @@ class TestBluezeroService(dbusmock.DBusTestCase):
         self.dbusmock = dbus.Interface(self.obj_bluez, dbusmock.MOCK_IFACE)
         self.dbusmock_bluez = dbus.Interface(self.obj_bluez, 'org.bluez.Mock')
 
-    def test_service_uuid(self):
-        """Test the service UUID."""
-        adapter_name = 'hci0'
-        address = '11:22:33:44:55:66'
-        alias = 'Peripheral Device'
+        self.adapter_name = 'hci0'
+        self.address = '11:22:33:44:55:66'
+        self.alias = 'Peripheral Device'
 
-        # Initialise an adapter and ensure that it's on the right path
-        path = self.dbusmock_bluez.AddAdapter(adapter_name, 'my-computer')
-        self.assertEqual(path, '/org/bluez/' + adapter_name)
+        # Initialise an adapter
+        self.ad_dpath = self.dbusmock_bluez.AddAdapter(self.adapter_name,
+                                                       'my-computer')
 
         # Add a mock remote device
-        self.dbusmock_bluez.AddDevice(adapter_name, address, alias)
+        self.dbusmock_bluez.AddDevice(self.adapter_name, self.address,
+                                      self.alias)
 
-        # Initialise a mock remote GATT and ensure it's on the right path
-        path = self.dbusmock_bluez.AddGATT(adapter_name, address, alias)
+        # Initialise a mock remote GATT device
+        self.svc_dpath = self.dbusmock_bluez.AddGATT(self.adapter_name,
+                                                     self.address, self.alias)
+
+    def test_paths(self):
+        """Test the adapter and service paths."""
+        # Test for the adapter path
+        self.assertEqual(self.ad_dpath, '/org/bluez/' + self.adapter_name)
+
+        # Test for the service path
         srvc_dbus_path = '/org/bluez/hci0/dev_11_22_33_44_55_66/service0001'
+        self.assertEqual(self.svc_dpath, srvc_dbus_path)
 
+    def test_service_uuid(self):
+        """Test the service UUID."""
         # Invoke the bluez GATT library to access the mock GATT service
-        test_service = GATT.Service(srvc_dbus_path)
+        test_service = GATT.Service(self.svc_dpath)
 
         # Test for the UUID
-        found_name = test_service.UUID
-        self.assertEqual(found_name, '180F')
+        self.assertEqual(test_service.UUID, '180F')
+
+    def test_service_device(self):
+        """Test the service device path."""
+        # Invoke the bluez GATT library to access the mock GATT service
+        test_service = GATT.Service(self.svc_dpath)
+
+        # Test for the device path
+        dev_underscore = self.address.replace(':', '_').upper()
+        dev_addr = '{0}/dev_{1}'.format(self.ad_dpath, dev_underscore)
+        self.assertEqual(test_service.device, dev_addr)
+
+    def test_service_primary(self):
+        """Test the service primary flag."""
+        # Invoke the bluez GATT library to access the mock GATT service
+        test_service = GATT.Service(self.svc_dpath)
+
+        # Test for the UUID
+        self.assertEqual(test_service.primary, True)
 
 
 if __name__ == '__main__':
