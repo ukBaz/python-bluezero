@@ -78,6 +78,7 @@ class TestBluezeroService(dbusmock.DBusTestCase):
         # Test for the UUID
         self.assertEqual(test_service.primary, True)
 
+
 if __name__ == '__main__':
     # avoid writing to stderr
     unittest.main(testRunner=unittest.TextTestRunner(stream=sys.stdout,
