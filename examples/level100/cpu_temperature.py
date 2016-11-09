@@ -140,6 +140,7 @@ class ble:
         # self.light.StartNotify()
         tools.start_mainloop()
 
+
 if __name__ == '__main__':
     print('CPU temperature is {}C'.format(get_cpu_temperature()))
     print(sint16(get_cpu_temperature()))
