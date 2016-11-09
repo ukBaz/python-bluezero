@@ -76,6 +76,7 @@ class ble:
         # self.light.StartNotify()
         tools.start_mainloop()
 
+
 if __name__ == '__main__':
     link = ble()
     blinkt_ble = blinkt(link)
