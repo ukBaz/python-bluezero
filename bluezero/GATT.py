@@ -1,3 +1,5 @@
+"""Classes that represent the GATT features of a remote device."""
+
 import dbus
 import dbus.mainloop.glib
 try:
@@ -12,12 +14,20 @@ mainloop = GObject.MainLoop()
 
 
 def generic_error_cb(error):
+    """Generic Error Callback function."""
     print('D-Bus call failed: ' + str(error))
     mainloop.quit()
 
 
 class Service:
+    """Remote GATT Service."""
+
     def __init__(self, service_path):
+        """
+        Remote GATT Service Initialisation.
+
+        :param service_path: dbus path to the service.
+        """
         self.service_path = service_path
         self.bus = dbus.SystemBus()
         self.service_object = self.bus.get_object(
@@ -31,7 +41,8 @@ class Service:
     @property
     def UUID(self):
         """
-        Returns value of Service UUID for this path
+        Return the value of the Service UUID for this path.
+
         :return: string for example '00001800-0000-1000-8000-00805f9b34fb'
         """
         return self.service_props.Get(
@@ -40,7 +51,8 @@ class Service:
     @property
     def device(self):
         """
-        Returns the DBus object that this service belongs to
+        Return the DBus object that this service belongs to.
+
         :return: DBus object of device
         """
         return self.service_props.Get(
@@ -49,7 +61,8 @@ class Service:
     @property
     def primary(self):
         """
-        Returns a boolean saying if this a primary service
+        Return a boolean saying if this a primary service.
+
         :return: boolean
         """
         return self.service_props.Get(
@@ -57,7 +70,14 @@ class Service:
 
 
 class Characteristic:
+    """Remote GATT Characteristic."""
+
     def __init__(self, characteristic_path):
+        """
+        Remote GATT Characteristic Initialisation.
+
+        :param characteristic_path: dbus path to the characteristic.
+        """
         self.characteristic_path = characteristic_path
         self.bus = dbus.SystemBus()
         self.characteristic_object = self.bus.get_object(
@@ -73,7 +93,8 @@ class Characteristic:
     @property
     def UUID(self):
         """
-        Returns value of Characteristic UUID for this path
+        Return the value of the Characteristic UUID for this path.
+
         :return: string example '00002a00-0000-1000-8000-00805f9b34fb'
         """
         return self.characteristic_props.Get(
@@ -82,8 +103,8 @@ class Characteristic:
     @property
     def service(self):
         """
-        Returns the DBus object for the service that this characteristic
-        belongs to
+        Return the DBus object for this characteristic's service.
+
         :return: DBus object of device
         """
         return self.characteristic_props.Get(
@@ -92,10 +113,12 @@ class Characteristic:
     @property
     def value(self):
         """
-        The cached value of the characteristic. This property
-        gets updated only after a successful read request and
-        when a notification or indication is received, upon
-        which a PropertiesChanged signal will be emitted.
+        The cached value of the characteristic.
+
+        This property gets updated only after a successful read request and
+        when a notification or indication is received, upon which a
+        PropertiesChanged signal will be emitted.
+
         :return: DBus byte array
         """
         return self.characteristic_props.Get(
@@ -104,7 +127,8 @@ class Characteristic:
     @property
     def notifying(self):
         """
-        Returns a boolean of if this characteristic has notifications enabled
+        Return whether this characteristic has notifications enabled.
+
         :return: Boolean
         """
         return self.characteristic_props.Get(
@@ -113,7 +137,8 @@ class Characteristic:
     @property
     def flags(self):
         """
-        Returns a list of how this characteristic value can be used
+        Return a list of how this characteristic's value can be used.
+
         :return: list example ['read', 'write', 'notify']
         """
         return self.characteristic_props.Get(
@@ -121,9 +146,10 @@ class Characteristic:
 
     def read_raw_value(self, flags=''):
         """
-        Return the characteristic value if allowed
+        Return this characteristic's value (if allowed).
+
         :param flags: "offset": Start offset
-                        "device": Device path (Server only)
+                      "device": Device path (Server only)
         :return:
 
         Possible Errors:    org.bluez.Error.Failed
@@ -137,7 +163,8 @@ class Characteristic:
 
     def write_value(self, value, flags=''):
         """
-        Write a new value to the characteristic
+        Write a new value to the characteristic.
+
         :param value:
         :param flags:
         :return:
@@ -145,18 +172,25 @@ class Characteristic:
         self.characteristic_methods.WriteValue(value, dbus.Array(flags))
 
     def start_notify(self):
+        """Initialise notifications for this characteristic."""
         self.characteristic_methods.StartNotify(
             reply_handler=self.start_notify_cb,
             error_handler=generic_error_cb,
             dbus_interface=constants.GATT_CHRC_IFACE)
 
     def stop_notify(self):
+        """Stop notifications for this characteristic."""
         self.characteristic_methods.StopNotify(
             reply_handler=self.stop_notify_cb,
             error_handler=generic_error_cb,
             dbus_interface=constants.GATT_CHRC_IFACE)
 
     def add_characteristic_cb(self, callback=None):
+        """
+        Add a callback for this characteristic.
+
+        :param callback: callback function to be added.
+        """
         if callback is None:
             callback = self.props_changed_cb
 
@@ -164,6 +198,13 @@ class Characteristic:
                                                     callback)
 
     def props_changed_cb(self, iface, changed_props, invalidated_props):
+        """
+        Callback indicating that properties have changed.
+
+        :param iface: Interface associated with the callback.
+        :param changed_props: Properties changed that triggered the callback.
+        :param invalidated_props: Unused.
+        """
         if iface != constants.GATT_CHRC_IFACE:
             return
 
@@ -177,14 +218,23 @@ class Characteristic:
         print('Properties changed: ', value)
 
     def start_notify_cb(self):
+        """Callback associated with enabling notifications."""
         print('Notifications enabled')
 
     def stop_notify_cb(self):
+        """Callback associated with disabling notifications."""
         print('Notifications disabled')
 
 
 class Descriptor:
+    """Remote GATT Descriptor."""
+
     def __init__(self, descriptor_path):
+        """
+        Remote GATT Descriptor Initialisation.
+
+        :param descriptor_path: dbus path to the descriptor.
+        """
         self.descriptor_path = descriptor_path
         self.bus = dbus.SystemBus()
         self.descriptor_object = self.bus.get_object(
@@ -198,28 +248,29 @@ class Descriptor:
     @property
     def UUID(self):
         """
-        Returns value of Descriptor UUID for this path
+        Return the value of the Descriptor UUID for this path.
+
         :return: string example '00002a00-0000-1000-8000-00805f9b34fb'
         """
-        return self.descriptor_props.Get(
-            constants.GATT_DESC_IFACE, 'UUID')
+        return self.descriptor_props.Get(constants.GATT_DESC_IFACE, 'UUID')
 
     @property
     def characteristic(self):
         """
-        Object path of the GATT characteristic the descriptor
-        belongs to
+        Object path of the GATT characteristic's descriptor.
+
         :return: DBus object
         """
-        return self.descriptor_props.Get(
-            constants.GATT_DESC_IFACE, 'UUID')
+        return self.descriptor_props.Get(constants.GATT_DESC_IFACE, 'UUID')
 
     @property
     def value(self):
         """
-        The cached value of the descriptor. This property
-        gets updated only after a successful read request, upon
+        The cached value of the descriptor.
+
+        This property gets updated only after a successful read request, upon
         which a PropertiesChanged signal will be emitted.
+
         :return: DBus byte array
         """
         return self.descriptor_props.Get(
@@ -228,7 +279,8 @@ class Descriptor:
     @property
     def flags(self):
         """
-        Returns a list of how this descriptor value can be used
+        Return a list of how this descriptor value can be used.
+
         :return: list example ['read', 'write']
         """
         return self.descriptor_props.Get(
@@ -236,29 +288,39 @@ class Descriptor:
 
     def read_raw_value(self, flags=''):
         """
-        Issues a request to read the value of the
-        descriptor and returns the value if the
-        operation was successful.
+        Issue a request to read the value of the descriptor.
+
+        Returns the value if the operation was successful.
 
         :param flags: "offset": Start offset
-                        "device": Device path (Server only)
+                      "device": Device path (Server only)
+
         :return: dbus byte array
         """
         return self.descriptor_methods.ReadValue(dbus.Array(flags))
 
     def write_value(self, value, flags=''):
         """
-        Issues a request to write the value of the descriptor
+        Issue a request to write the value of the descriptor.
+
         :param value: DBus byte array
         :param flags: "offset": Start offset
                       "device": Device path (Server only)
+
         :return:
         """
         self.descriptor_methods.WriteValue(value, dbus.Array(flags))
 
 
 class Profile:
+    """Remote GATT Profile."""
+
     def __init__(self, profile_path):
+        """
+        Remote GATT Profile Initialisation.
+
+        :param profile_path: dbus path to the profile.
+        """
         self.profile_path = profile_path
         self.bus = dbus.SystemBus()
         self.profile_object = self.bus.get_object(
@@ -272,6 +334,7 @@ class Profile:
 
     def release(self):
         """
+        Release the profile.
 
         :return:
         """
@@ -279,7 +342,8 @@ class Profile:
 
     @property
     def UUIDs(self):
-        """128-bit GATT service UUIDs to auto connect.
+        """
+        128-bit GATT service UUIDs to auto connect.
 
         :return: list of UUIDs
         """
@@ -287,16 +351,25 @@ class Profile:
 
 
 def register_app_cb():
+    """Application registration callback."""
     print('GATT application registered')
 
 
 def register_app_error_cb(error):
+    """Application registration error callback."""
     print('Failed to register application: ' + str(error))
     mainloop.quit()
 
 
 class GattManager:
+    """GATT Manager."""
+
     def __init__(self, manager_path):
+        """
+        GATT Manager Initialisation.
+
+        :param manager_path: dbus path to the GATT Manager.
+        """
         self.manager_path = manager_path
         self.bus = dbus.SystemBus()
         self.manager_obj = self.bus.get_object(
@@ -310,8 +383,9 @@ class GattManager:
 
     def register_application(self, application, options):
         """
+        Register an application with the GATT Manager.
 
-        :param application:
+        :param application: Application object.
         :param options:
         :return:
         """
@@ -323,8 +397,9 @@ class GattManager:
 
     def unregister_application(self, application):
         """
+        Unregister an application with the GATT Manager.
 
-        :param application:
+        :param application: Application object.
         :return:
         """
         self.manager_methods.UnregisterApplication(application)
