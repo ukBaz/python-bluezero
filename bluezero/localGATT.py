@@ -350,13 +350,13 @@ class Characteristic(dbus.service.Object):
         return self.GetAll(constants.GATT_CHRC_IFACE)['Value']
 
     @dbus.service.method(constants.GATT_CHRC_IFACE,
-                         in_signature='aya{sv}', out_signature='v')
+                         in_signature='aya{sv}', out_signature='')
     def WriteValue(self, value, options):
         """
         DBus method for setting the characteristic value
         :return: value
         """
-        return self.Set(constants.GATT_CHRC_IFACE, 'Value', value)
+        self.Set(constants.GATT_CHRC_IFACE, 'Value', value)
 
     @dbus.service.method(constants.GATT_CHRC_IFACE,
                          in_signature='', out_signature='')
