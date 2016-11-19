@@ -28,6 +28,15 @@ def bluez_version():
     return str(ver[0].decode().rstrip())
 
 
+def get_dbus_obj(iface, dbus_path):
+    bus = dbus.SystemBus()
+    return bus.get_object(iface, dbus_path)
+
+
+def get_dbus_iface(iface, dbus_obj):
+    return dbus.Interface(dbus_obj, iface)
+
+
 def get_managed_objects():
     """Return the objects currently managed by the DBus Object Manager."""
     bus = dbus.SystemBus()
@@ -42,7 +51,7 @@ def get_dbus_path(iface, prop, value):
     objects = get_managed_objects()
     for obj, ifaces in objects.items():
         if iface in ifaces.keys():
-            if ifaces[iface][prop] == value:
+            if value in ifaces[iface][prop]:
                 response.append(obj)
 
     return response
