@@ -51,8 +51,9 @@ def get_dbus_path(iface, prop, value):
     objects = get_managed_objects()
     for obj, ifaces in objects.items():
         if iface in ifaces.keys():
-            if value in ifaces[iface][prop]:
-                response.append(obj)
+            if prop in ifaces[iface]:
+                if value in ifaces[iface][prop]:
+                   response.append(obj)
 
     return response
 

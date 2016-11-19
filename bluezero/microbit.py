@@ -308,7 +308,22 @@ class Microbit:
         return self._read_button(self.btn_b_state_path)
 
     def read_accelerometer(self):
-        pass
+        """
+        Read the values of the accelerometer on the microbit
+        :return: return a list in the order of x, y & z
+        """
+        # [16, 0, 64, 0, 32, 252]
+        # x=0.16, y=0.024, z=-0.992
+        answer = [0, 0, 0]
+        accel_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME, self.accel_data_path)
+        accel_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE, accel_obj)
+
+        # Read button value
+        bytes = accel_iface.ReadValue(())
+        answer[0] = int.from_bytes(bytes[0:2], byteorder='little', signed=True) / 1000
+        answer[1] = int.from_bytes(bytes[2:4], byteorder='little', signed=True) / 1000
+        answer[2] = int.from_bytes(bytes[4:6], byteorder='little', signed=True) / 1000
+        return answer
 
     def read_magnetometer(self):
         pass
