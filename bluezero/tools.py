@@ -53,7 +53,7 @@ def get_dbus_path(iface, prop, value):
         if iface in ifaces.keys():
             if prop in ifaces[iface]:
                 if value in ifaces[iface][prop]:
-                   response.append(obj)
+                    response.append(obj)
 
     return response
 
