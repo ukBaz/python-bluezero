@@ -5,6 +5,14 @@ You will need the Bluetooth services of the micro:bit exposed.
 
 This code was developed using the 'Bluetooth Most Services, No Security'
 micro:bit hex file from:
+http://www.bittysoftware.com/downloads.html
+The hex file called "For micro:bit Blue - Main Bluetooth services,
+pairing not required" was used.
+It had a file name of:
+microbit-2-0-0-rc4-ABDEILMT-N-pwr7.hex
+
+
+The following link is a good reference for Bluetooth on the microbit
 http://bluetooth-mdw.blogspot.co.uk/p/bbc-microbit.html
 
 """
@@ -41,9 +49,20 @@ TEMP_PERIOD = 'E95D1B25-251D-470A-A062-FA1922DFA9A8'
 
 logging.basicConfig(level=logging.DEBUG)
 
-class Microbit:
 
+class Microbit:
+    """
+    Class to simplify interacting with a microbit over Bluetooth Low Energy
+    """
     def __init__(self, name=None, address=None):
+        """
+        Initialization of an instance of a remote microbit
+        :param name: Will look for a BLE device with this string in its name
+        :param address: Will look for a BLE device with this address
+         (Currently not implemented)
+        """
+        self.name = name
+        self.address = address
         self.dongle = adapter.Adapter(adapter.list_adapters()[0])
         if not self.dongle.powered:
             self.dongle.powered = True
@@ -52,7 +71,7 @@ class Microbit:
         self.dongle.nearby_discovery()
         self.ubit = device.Device(
             tools.get_dbus_path(
-                constants.DEVICE_INTERFACE, 
+                constants.DEVICE_INTERFACE,
                 'Name',
                 name)[0])
 
@@ -77,72 +96,127 @@ class Microbit:
         self.led_scroll_path = None
         self.temp_srv_path = None
         self.temp_period_path = None
-        
+
     @property
     def connected(self):
         """Indicate whether the remote device is currently connected."""
         return self.ubit.connected
 
     def connect(self):
+        """
+        Connect to the specified microbit for this instance
+        """
         self.ubit.connect()
         while not self.ubit.services_resolved:
             sleep(0.5)
         self._get_dbus_paths()
-    
+
     def _get_dbus_paths(self):
-        self.accel_srv_path = tools.uuid_dbus_path(constants.GATT_SERVICE_IFACE,
-                                                   ACCEL_SRV)[0]
-        self.accel_data_path = tools.uuid_dbus_path(constants.GATT_CHRC_IFACE,
-                                                    ACCEL_DATA)[0]
-        self.aceel_period_path = tools.uuid_dbus_path(constants.GATT_CHRC_IFACE,
-                                                      ACCEL_PERIOD)[0]
-        self.magneto_srv_path = tools.uuid_dbus_path(constants.GATT_SERVICE_IFACE,
-                                                     MAGNETO_SRV)[0]
-        self.magneto_data_path = tools.uuid_dbus_path(constants.GATT_CHRC_IFACE,
-                                                      MAGNETO_DATA)[0]
-        self.magneto_period_path = tools.uuid_dbus_path(constants.GATT_CHRC_IFACE,
-                                                        MAGNETO_PERIOD)[0]
-        self.magneto_bearing_path = tools.uuid_dbus_path(constants.GATT_CHRC_IFACE,
-                                                         MAGNETO_BEARING)[0]
-        self.btn_srv_path = tools.uuid_dbus_path(constants.GATT_SERVICE_IFACE,
-                                                 BTN_SRV)[0]
-        self.btn_a_state_path = tools.uuid_dbus_path(constants.GATT_CHRC_IFACE,
-                                                     BTN_A_STATE)[0]
-        self.btn_b_state_path = tools.uuid_dbus_path(constants.GATT_CHRC_IFACE,
-                                                     BTN_B_STATE)[0]
-        self.io_pin_srv_path = tools.uuid_dbus_path(constants.GATT_SERVICE_IFACE,
-                                                    IO_PIN_SRV)[0]
-        self.io_pin_data_path = tools.uuid_dbus_path(constants.GATT_CHRC_IFACE,
-                                                     IO_PIN_DATA)[0]
-        self.io_ad_config_path = tools.uuid_dbus_path(constants.GATT_CHRC_IFACE,
-                                                      IO_AD_CONFIG)[0]
-        self.io_pin_config_path = tools.uuid_dbus_path(constants.GATT_CHRC_IFACE,
-                                                       IO_PIN_CONFIG)[0]
-        # self.io_pin_pwm_path = tools.uuid_dbus_path(constants.GATT_CHRC_IFACE,
-        #                                             IO_PIN_PWM)[0]
-        self.led_srv_path = tools.uuid_dbus_path(constants.GATT_SERVICE_IFACE,
-                                                 LED_SRV)[0]
-        self.led_state_path = tools.uuid_dbus_path(constants.GATT_CHRC_IFACE,
-                                                   LED_STATE)[0]
-        self.led_text_path = tools.uuid_dbus_path(constants.GATT_CHRC_IFACE,
-                                                  LED_TEXT)[0]
-        self.led_scroll_path = tools.uuid_dbus_path(constants.GATT_CHRC_IFACE,
-                                                    LED_SCROLL)[0]
-        # self.temp_srv_path = tools.uuid_dbus_path(constants.GATT_SERVICE_IFACE,
-        #                                           TEMP_SRV)[0]
-        # self.temp_period_path = tools.uuid_dbus_path(constants.GATT_CHRC_IFACE,
-        #                                              TEMP_PERIOD)[0]
+        """
+        Utility function to get the paths for UUIDs
+        :return:
+        """
+        self.accel_srv_path = tools.uuid_dbus_path(
+            constants.GATT_SERVICE_IFACE,
+            ACCEL_SRV)[0]
+        self.accel_data_path = tools.uuid_dbus_path(
+            constants.GATT_CHRC_IFACE,
+            ACCEL_DATA)[0]
+        self.aceel_period_path = tools.uuid_dbus_path(
+            constants.GATT_CHRC_IFACE,
+            ACCEL_PERIOD)[0]
+        self.magneto_srv_path = tools.uuid_dbus_path(
+            constants.GATT_SERVICE_IFACE,
+            MAGNETO_SRV)[0]
+        self.magneto_data_path = tools.uuid_dbus_path(
+            constants.GATT_CHRC_IFACE,
+            MAGNETO_DATA)[0]
+        self.magneto_period_path = tools.uuid_dbus_path(
+            constants.GATT_CHRC_IFACE,
+            MAGNETO_PERIOD)[0]
+        self.magneto_bearing_path = tools.uuid_dbus_path(
+            constants.GATT_CHRC_IFACE,
+            MAGNETO_BEARING)[0]
+        self.btn_srv_path = tools.uuid_dbus_path(
+            constants.GATT_SERVICE_IFACE,
+            BTN_SRV)[0]
+        self.btn_a_state_path = tools.uuid_dbus_path(
+            constants.GATT_CHRC_IFACE,
+            BTN_A_STATE)[0]
+        self.btn_b_state_path = tools.uuid_dbus_path(
+            constants.GATT_CHRC_IFACE,
+            BTN_B_STATE)[0]
+        self.io_pin_srv_path = tools.uuid_dbus_path(
+            constants.GATT_SERVICE_IFACE,
+            IO_PIN_SRV)[0]
+        self.io_pin_data_path = tools.uuid_dbus_path(
+            constants.GATT_CHRC_IFACE,
+            IO_PIN_DATA)[0]
+        self.io_ad_config_path = tools.uuid_dbus_path(
+            constants.GATT_CHRC_IFACE,
+            IO_AD_CONFIG)[0]
+        # self.io_pin_config_path = tools.uuid_dbus_path(
+        #     constants.GATT_CHRC_IFACE,
+        #     IO_PIN_CONFIG)[0]
+        # self.io_pin_pwm_path = tools.uuid_dbus_path(
+        #     constants.GATT_CHRC_IFACE,
+        #     IO_PIN_PWM)[0]
+        self.led_srv_path = tools.uuid_dbus_path(
+            constants.GATT_SERVICE_IFACE,
+            LED_SRV)[0]
+        self.led_state_path = tools.uuid_dbus_path(
+            constants.GATT_CHRC_IFACE,
+            LED_STATE)[0]
+        self.led_text_path = tools.uuid_dbus_path(
+            constants.GATT_CHRC_IFACE,
+            LED_TEXT)[0]
+        self.led_scroll_path = tools.uuid_dbus_path(
+            constants.GATT_CHRC_IFACE,
+            LED_SCROLL)[0]
+        # self.temp_srv_path = tools.uuid_dbus_path(
+        #     constants.GATT_SERVICE_IFACE,
+        #     TEMP_SRV)[0]
+        # self.temp_period_path = tools.uuid_dbus_path(
+        #     constants.GATT_CHRC_IFACE,
+        #     TEMP_PERIOD)[0]
 
     def disconnect(self):
+        """
+        Disconnect from the microbit
+        """
         self.ubit.disconnect()
 
-    def display_scroll_delay(self):
-        pass
+    def display_scroll_delay(self, delay=None):
+        """
+        Specifies a millisecond delay to wait for in between showing each
+        character on the display.
+        :return:
+        """
+        scroll_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                        self.led_scroll_path)
+
+        scroll_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
+                                            scroll_obj)
+        if delay is None:
+            return int(scroll_iface.ReadValue(())[0])
+        else:
+            if delay < 0:
+                delay = 0
+            elif delay > 255:
+                delay = 255
+            scroll_iface.WriteValue([delay], ())
 
     def display_text(self, words):
+        """
+        Specify text to be displayed. Limit of 20 characters.
+        The content will be restricted to that number of characters.
+        :param words:
+        :return:
+        """
         led_txt_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
                                          self.led_text_path)
-        led_txt_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE, led_txt_obj)
+        led_txt_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
+                                             led_txt_obj)
         data = []
         text = ''
         if len(words) > 20:
@@ -154,19 +228,52 @@ class Microbit:
         led_txt_iface.WriteValue(data, ())
 
     def _write_pixels(self, data):
+        """
+        Utility function for the different display functions
+        :param data: list of 5 numbers in the range 0 to 255
+        (e.g. [0xff, 0x00, 0, 255, 0b10101]
+        """
         pixels_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
                                         self.led_state_path)
-        pixels_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE, pixels_obj)
+        pixels_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
+                                            pixels_obj)
         pixels_iface.WriteValue(data, ())
 
     def display_clear(self):
+        """
+        Clear the LED display on the microbit
+        """
         self._write_pixels([0x00, 0x00, 0x00, 0x00, 0x00])
 
     def display_pixels(self, row0, row1, row2, row3, row4):
+        """
+        For each row of LEDs specify which LEDs will be on.
+        e.g. 0b11111 will turn all LEDs in specified row on
+             0b10101 will turn alternate LEDs on
+             0b00000 will turn all LEDs in row off
+        :param row0: top row
+        :param row1:
+        :param row2: middle row
+        :param row3:
+        :param row4: bottom row
+        """
         self._write_pixels([row0, row1, row2, row3, row4])
 
-    def read_temperature(self):
-        pass
+    def read_pixels(self):
+        """
+        Returns a list of 5 binary numbers. Each number represents a row
+        from top to bottom
+        :return: Example [0b1110, 0b10000, 0b10000, 0b10000, 0b1110]
+        """
+        pixels_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                        self.led_state_path)
+        pixels_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
+                                            pixels_obj)
+        rows = pixels_iface.ReadValue(())
+        return [bin(i) for i in rows]
+
+    # def read_temperature(self):
+    #     pass
 
     def _read_button(self, btn_path):
         """
@@ -215,5 +322,5 @@ class Microbit:
     def read_pin_config(self):
         pass
 
-    def read_pwn_control(self):
-        pass
+    # def read_pwn_control(self):
+    #     pass
