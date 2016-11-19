@@ -136,7 +136,7 @@ class Microbit:
     def disconnect(self):
         self.ubit.disconnect()
 
-    def display_clear(self):
+    def display_scroll_delay(self):
         pass
 
     def display_text(self, words):
@@ -153,11 +153,17 @@ class Microbit:
             data.append(ord(letter))
         led_txt_iface.WriteValue(data, ())
 
-    def display_pixels(self):
-        pass
+    def _write_pixels(self, data):
+        pixels_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                        self.led_state_path)
+        pixels_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE, pixels_obj)
+        pixels_iface.WriteValue(data, ())
 
-    def display_scroll_delay(self):
-        pass
+    def display_clear(self):
+        self._write_pixels([0x00, 0x00, 0x00, 0x00, 0x00])
+
+    def display_pixels(self, row0, row1, row2, row3, row4):
+        self._write_pixels([row0, row1, row2, row3, row4])
 
     def read_temperature(self):
         pass
