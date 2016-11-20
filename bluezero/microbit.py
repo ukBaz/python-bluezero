@@ -44,7 +44,8 @@ LED_SRV = 'E95DD91D-251D-470A-A062-FA1922DFA9A8'
 LED_STATE = 'E95D7B77-251D-470A-A062-FA1922DFA9A8'
 LED_TEXT = 'E95D93EE-251D-470A-A062-FA1922DFA9A8'
 LED_SCROLL = 'E95D0D2D-251D-470A-A062-FA1922DFA9A8'
-TEMP_SRV = 'E95D9250-251D-470A-A062-FA1922DFA9A8'
+TEMP_SRV = 'E95D6100-251D-470A-A062-FA1922DFA9A8'
+TEMP_DATA = 'E95D9250-251D-470A-A062-FA1922DFA9A8'
 TEMP_PERIOD = 'E95D1B25-251D-470A-A062-FA1922DFA9A8'
 
 logging.basicConfig(level=logging.DEBUG)
@@ -95,6 +96,7 @@ class Microbit:
         self.led_text_path = None
         self.led_scroll_path = None
         self.temp_srv_path = None
+        self.temp_data_path = None
         self.temp_period_path = None
 
     @property
@@ -155,12 +157,6 @@ class Microbit:
         self.io_ad_config_path = tools.uuid_dbus_path(
             constants.GATT_CHRC_IFACE,
             IO_AD_CONFIG)[0]
-        # self.io_pin_config_path = tools.uuid_dbus_path(
-        #     constants.GATT_CHRC_IFACE,
-        #     IO_PIN_CONFIG)[0]
-        # self.io_pin_pwm_path = tools.uuid_dbus_path(
-        #     constants.GATT_CHRC_IFACE,
-        #     IO_PIN_PWM)[0]
         self.led_srv_path = tools.uuid_dbus_path(
             constants.GATT_SERVICE_IFACE,
             LED_SRV)[0]
@@ -173,12 +169,15 @@ class Microbit:
         self.led_scroll_path = tools.uuid_dbus_path(
             constants.GATT_CHRC_IFACE,
             LED_SCROLL)[0]
-        # self.temp_srv_path = tools.uuid_dbus_path(
-        #     constants.GATT_SERVICE_IFACE,
-        #     TEMP_SRV)[0]
-        # self.temp_period_path = tools.uuid_dbus_path(
-        #     constants.GATT_CHRC_IFACE,
-        #     TEMP_PERIOD)[0]
+        self.temp_srv_path = tools.uuid_dbus_path(
+            constants.GATT_SERVICE_IFACE,
+            TEMP_SRV)[0]
+        self.temp_data_path = tools.uuid_dbus_path(
+            constants.GATT_CHRC_IFACE,
+            TEMP_DATA)[0]
+        self.temp_period_path = tools.uuid_dbus_path(
+            constants.GATT_CHRC_IFACE,
+            TEMP_PERIOD)[0]
 
     def disconnect(self):
         """
@@ -198,13 +197,15 @@ class Microbit:
         scroll_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
                                             scroll_obj)
         if delay is None:
-            return int(scroll_iface.ReadValue(())[0])
+            return int.from_bytes(scroll_iface.ReadValue(()),
+                                  byteorder='little',
+                                  signed=False)
         else:
             if delay < 0:
                 delay = 0
-            elif delay > 255:
-                delay = 255
-            scroll_iface.WriteValue([delay], ())
+            elif delay > 2**16:
+                delay = 2**16
+            scroll_iface.WriteValue(tools.int_to_uint16(delay), ())
 
     def display_text(self, words):
         """
@@ -272,8 +273,14 @@ class Microbit:
         rows = pixels_iface.ReadValue(())
         return [bin(i) for i in rows]
 
-    # def read_temperature(self):
-    #     pass
+    def read_temperature(self):
+        temp_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME, self.temp_data_path)
+        temp_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE, temp_obj)
+
+        # Read button value
+        tmp_val = temp_iface.ReadValue(())
+
+        return int.from_bytes(tmp_val, byteorder='little', signed=True)
 
     def _read_button(self, btn_path):
         """

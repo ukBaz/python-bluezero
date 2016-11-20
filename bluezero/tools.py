@@ -328,3 +328,10 @@ def start_mainloop():
 
 def stop_mainloop():
     mainloop.quit()
+
+
+def int_to_uint16(value_in):
+    bin_string = '{:016b}'.format(value_in)
+    big_byte = int(bin_string[0:8], 2)
+    little_byte = int(bin_string[8:16], 2)
+    return [little_byte, big_byte]
