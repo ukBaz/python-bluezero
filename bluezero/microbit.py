@@ -274,7 +274,8 @@ class Microbit:
         return [bin(i) for i in rows]
 
     def read_temperature(self):
-        temp_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME, self.temp_data_path)
+        temp_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                      self.temp_data_path)
         temp_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE, temp_obj)
 
         # Read button value

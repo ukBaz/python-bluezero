@@ -5,7 +5,11 @@ ubit = microbit.Microbit(name='puteg')
 
 ubit.connect()
 
-assert ubit.read_pixels() == ['0b1110', '0b10000', '0b10000', '0b10000', '0b1110']
+assert ubit.read_pixels() == ['0b1110',
+                              '0b10000',
+                              '0b10000',
+                              '0b10000',
+                              '0b1110']
 
 ubit.display_scroll_delay(20)
 delay = ubit.display_scroll_delay()
