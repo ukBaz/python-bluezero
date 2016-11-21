@@ -286,8 +286,7 @@ class Microbit:
     def _read_button(self, btn_path):
         """
         Read the button characteristic on the micro:bit and return value
-        :param bus_obj: Object of bus connected to (System Bus)
-        :param bluez_path: The Bluez path to the button characteristic
+        :param btn_path: The Bluez path to the button characteristic
         :return: integer representing button value
         """
 
@@ -322,7 +321,6 @@ class Microbit:
         """
         # [16, 0, 64, 0, 32, 252]
         # x=0.16, y=0.024, z=-0.992
-        answer = [0, 0, 0]
         accel_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
                                        self.accel_data_path)
         accel_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
@@ -330,19 +328,27 @@ class Microbit:
 
         # Read button value
         bytes = accel_iface.ReadValue(())
-        answer[0] = int.from_bytes(bytes[0:2],
-                                   byteorder='little', signed=True) / 1000
-        answer[1] = int.from_bytes(bytes[2:4],
-                                   byteorder='little', signed=True) / 1000
-        answer[2] = int.from_bytes(bytes[4:6],
-                                   byteorder='little', signed=True) / 1000
-        return answer
+
+        return tools.bytes_to_xyz(bytes)
 
     def read_magnetometer(self):
-        pass
+        mag_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME, self.magneto_data_path)
+        mag_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE, mag_obj)
+
+        bytes = mag_iface.ReadValue(())
+
+        return tools.bytes_to_xyz(bytes)
 
     def read_bearing(self):
-        pass
+        mag_bear_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                          self.magneto_bearing_path)
+        mag_bear_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
+                                              mag_bear_obj)
+
+        mag_bear_val = mag_bear_iface.ReadValue(())
+
+        return int.from_bytes(mag_bear_val,
+                              byteorder='little', signed=False)
 
     def read_pin_states(self):
         pass
@@ -350,5 +356,5 @@ class Microbit:
     def read_pin_config(self):
         pass
 
-    # def read_pwn_control(self):
-    #     pass
+    def read_pwn_control(self):
+        pass

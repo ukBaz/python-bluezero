@@ -335,3 +335,15 @@ def int_to_uint16(value_in):
     big_byte = int(bin_string[0:8], 2)
     little_byte = int(bin_string[8:16], 2)
     return [little_byte, big_byte]
+
+
+def sint16_to_int(bytes):
+    return int.from_bytes(bytes, byteorder='little', signed=True)
+
+
+def bytes_to_xyz(bytes):
+    x = sint16_to_int(bytes[0:2]) / 1000
+    y = sint16_to_int(bytes[2:4]) / 1000
+    z = sint16_to_int(bytes[4:6]) / 1000
+
+    return [x, y, z]
