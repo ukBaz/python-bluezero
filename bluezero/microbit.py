@@ -154,6 +154,9 @@ class Microbit:
         self.io_pin_data_path = tools.uuid_dbus_path(
             constants.GATT_CHRC_IFACE,
             IO_PIN_DATA)[0]
+        self.io_pin_config_path = tools.uuid_dbus_path(
+            constants.GATT_CHRC_IFACE,
+            IO_PIN_CONFIG)[0]
         self.io_ad_config_path = tools.uuid_dbus_path(
             constants.GATT_CHRC_IFACE,
             IO_AD_CONFIG)[0]
@@ -354,7 +357,13 @@ class Microbit:
         pass
 
     def read_pin_config(self):
-        pass
+        pin_conf_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                          self.io_pin_config_path)
+
+        pin_conf_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
+                                              pin_conf_obj)
+
+        return pin_conf_iface.ReadValue(())
 
     def read_pwn_control(self):
         pass
