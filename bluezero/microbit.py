@@ -353,10 +353,7 @@ class Microbit:
         return int.from_bytes(mag_bear_val,
                               byteorder='little', signed=False)
 
-    def read_pin_states(self):
-        pass
-
-    def read_pin_config(self):
+    def _pin_config(self):
         pin_conf_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
                                           self.io_pin_config_path)
 
@@ -365,5 +362,29 @@ class Microbit:
 
         return pin_conf_iface.ReadValue(())
 
-    def read_pwn_control(self):
-        pass
+    def _pin_ad_config(self):
+        pin_ad_conf_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                             self.io_ad_config_path)
+
+        pin_ad_conf_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
+                                                 pin_ad_conf_obj)
+
+        return pin_ad_conf_iface.ReadValue(())
+
+    def _pin_states(self):
+        pin_states_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                            self.io_pin_data_path)
+
+        pin_states_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
+                                                pin_states_obj)
+
+        return pin_states_iface.ReadValue(())
+
+    def _pin_pwn_control(self, pin, value, period):
+        pin_pwm_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                         self.io_pin_pwm_path)
+
+        pin_pwm_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
+                                             pin_pwm_obj)
+
+        return pin_pwm_iface.ReadValue(())
