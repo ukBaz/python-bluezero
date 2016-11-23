@@ -116,7 +116,6 @@ class Microbit:
     def _get_dbus_paths(self):
         """
         Utility function to get the paths for UUIDs
-        :return:
         """
         self.accel_srv_path = tools.uuid_dbus_path(
             constants.GATT_SERVICE_IFACE,
@@ -192,7 +191,6 @@ class Microbit:
         """
         Specifies a millisecond delay to wait for in between showing each
         character on the display.
-        :return:
         """
         scroll_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
                                         self.led_scroll_path)
@@ -215,7 +213,6 @@ class Microbit:
         Specify text to be displayed. Limit of 20 characters.
         The content will be restricted to that number of characters.
         :param words:
-        :return:
         """
         led_txt_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
                                          self.led_text_path)
@@ -277,6 +274,10 @@ class Microbit:
         return [bin(i) for i in rows]
 
     def read_temperature(self):
+        """
+        Temperature from sensors in micro:bit processors
+        :return: Integer of temperature in Celsius
+        """
         temp_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
                                       self.temp_data_path)
         temp_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE, temp_obj)
@@ -289,6 +290,8 @@ class Microbit:
     def _read_button(self, btn_path):
         """
         Read the button characteristic on the micro:bit and return value
+        3 button states are defined and represented by a simple numeric
+        enumeration:  0 = not pressed, 1 = pressed, 2 = long press.
         :param btn_path: The Bluez path to the button characteristic
         :return: integer representing button value
         """
@@ -306,6 +309,8 @@ class Microbit:
     def read_button_a(self):
         """
         Read the state of button A on a micro:bit
+        3 button states are defined and represented by a simple numeric
+        enumeration:  0 = not pressed, 1 = pressed, 2 = long press.
         :return: integer representing button value
         """
         return self._read_button(self.btn_a_state_path)
@@ -313,6 +318,8 @@ class Microbit:
     def read_button_b(self):
         """
         Read the state of button B on a micro:bit
+        3 button states are defined and represented by a simple numeric
+        enumeration:  0 = not pressed, 1 = pressed, 2 = long press.
         :return: integer representing button value
         """
         return self._read_button(self.btn_b_state_path)
@@ -335,7 +342,14 @@ class Microbit:
         return tools.bytes_to_xyz(bytes)
 
     def read_magnetometer(self):
-        mag_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME, self.magneto_data_path)
+        """
+        Exposes magnetometer data.
+        A magnetometer measures a magnetic field such
+        as the earth's magnetic field in 3 axes.
+        :return: List of x, y & z value
+        """
+        mag_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                     self.magneto_data_path)
         mag_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE, mag_obj)
 
         bytes = mag_iface.ReadValue(())
@@ -343,6 +357,10 @@ class Microbit:
         return tools.bytes_to_xyz(bytes)
 
     def read_bearing(self):
+        """
+        Compass bearing in degrees from North.
+        :return: degrees in integer
+        """
         mag_bear_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
                                           self.magneto_bearing_path)
         mag_bear_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
@@ -354,6 +372,11 @@ class Microbit:
                               byteorder='little', signed=False)
 
     def _pin_config(self):
+        """
+        A bit mask (32 bit) which defines which inputs will be read.
+        A value of 0 means configured for output and 1 means configured
+        for input.
+        """
         pin_conf_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
                                           self.io_pin_config_path)
 
@@ -363,6 +386,11 @@ class Microbit:
         return pin_conf_iface.ReadValue(())
 
     def _pin_ad_config(self):
+        """
+        A bit mask (32 bit) which allows each pin to be configured for
+        analogue or digital use.
+        A value of 0 means digital and 1 means analogue.
+        """
         pin_ad_conf_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
                                              self.io_ad_config_path)
 
@@ -372,6 +400,10 @@ class Microbit:
         return pin_ad_conf_iface.ReadValue(())
 
     def _pin_states(self):
+        """
+
+        :return:
+        """
         pin_states_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
                                             self.io_pin_data_path)
 
@@ -381,10 +413,18 @@ class Microbit:
         return pin_states_iface.ReadValue(())
 
     def _pin_pwn_control(self, pin, value, period):
+        """
+        Write only method to set the PWM control data
+        :param pin: pin number [range 0-19]
+        :param value: Value is in the range 0 to 1024, per the current DAL API
+            (e.g. setAnalogValue). 0 means OFF.
+        :param period: Period is in microseconds and is an unsigned integer
+        :return:
+        """
         pin_pwm_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
                                          self.io_pin_pwm_path)
 
         pin_pwm_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
                                              pin_pwm_obj)
 
-        return pin_pwm_iface.ReadValue(())
+        return pin_pwm_iface.WriteValue([pin, value, period], ())

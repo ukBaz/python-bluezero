@@ -14,7 +14,7 @@ for x in range(10):
     leds.clear_all()
 
 
-for x in range(180):
+for y in range(180):
     pix = randrange(1, 8)
     red = randrange(0, 255)
     green = randrange(0, 255)
