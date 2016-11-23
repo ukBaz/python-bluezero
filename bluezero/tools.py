@@ -28,6 +28,15 @@ def bluez_version():
     return str(ver[0].decode().rstrip())
 
 
+def get_dbus_obj(iface, dbus_path):
+    bus = dbus.SystemBus()
+    return bus.get_object(iface, dbus_path)
+
+
+def get_dbus_iface(iface, dbus_obj):
+    return dbus.Interface(dbus_obj, iface)
+
+
 def get_managed_objects():
     """Return the objects currently managed by the DBus Object Manager."""
     bus = dbus.SystemBus()
@@ -42,8 +51,9 @@ def get_dbus_path(iface, prop, value):
     objects = get_managed_objects()
     for obj, ifaces in objects.items():
         if iface in ifaces.keys():
-            if ifaces[iface][prop] == value:
-                response.append(obj)
+            if prop in ifaces[iface]:
+                if value in ifaces[iface][prop]:
+                    response.append(obj)
 
     return response
 
@@ -318,3 +328,22 @@ def start_mainloop():
 
 def stop_mainloop():
     mainloop.quit()
+
+
+def int_to_uint16(value_in):
+    bin_string = '{:016b}'.format(value_in)
+    big_byte = int(bin_string[0:8], 2)
+    little_byte = int(bin_string[8:16], 2)
+    return [little_byte, big_byte]
+
+
+def sint16_to_int(bytes):
+    return int.from_bytes(bytes, byteorder='little', signed=True)
+
+
+def bytes_to_xyz(bytes):
+    x = sint16_to_int(bytes[0:2]) / 1000
+    y = sint16_to_int(bytes[2:4]) / 1000
+    z = sint16_to_int(bytes[4:6]) / 1000
+
+    return [x, y, z]
