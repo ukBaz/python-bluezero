@@ -11,6 +11,7 @@ assert ubit.read_pixels() == ['0b1110',
                               '0b10000',
                               '0b1110']
 
+ubit.play_beep(0.25)
 ubit.display_scroll_delay(20)
 delay = ubit.display_scroll_delay()
 ubit.display_text('Scroll speed {}'.format(delay))

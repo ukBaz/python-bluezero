@@ -347,3 +347,13 @@ def bytes_to_xyz(bytes):
     z = sint16_to_int(bytes[4:6]) / 1000
 
     return [x, y, z]
+
+
+def int_to_uint32(value_in):
+    bin_string = '{0:032b}'.format(value_in)
+    octet0 = int(bin_string[25:32], 2)
+    octet1 = int(bin_string[17:24], 2)
+    octet2 = int(bin_string[9:16], 2)
+    octet3 = int(bin_string[0:8], 2)
+
+    return [octet0, octet1, octet2,  octet3]
