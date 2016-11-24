@@ -156,6 +156,9 @@ class Microbit:
         self.io_pin_config_path = tools.uuid_dbus_path(
             constants.GATT_CHRC_IFACE,
             IO_PIN_CONFIG)[0]
+        self.io_pin_pwm_path = tools.uuid_dbus_path(
+            constants.GATT_CHRC_IFACE,
+            IO_PIN_PWM)[0]
         self.io_ad_config_path = tools.uuid_dbus_path(
             constants.GATT_CHRC_IFACE,
             IO_AD_CONFIG)[0]
@@ -371,7 +374,7 @@ class Microbit:
         return int.from_bytes(mag_bear_val,
                               byteorder='little', signed=False)
 
-    def _pin_config(self):
+    def _pin_config(self, states=None):
         """
         A bit mask (32 bit) which defines which inputs will be read.
         A value of 0 means configured for output and 1 means configured
@@ -383,34 +386,43 @@ class Microbit:
         pin_conf_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
                                               pin_conf_obj)
 
-        return pin_conf_iface.ReadValue(())
+        if states is None:
+            return pin_conf_iface.ReadValue(())
+        else:
+            pin_conf_iface.WriteValue([states], ())
 
-    def _pin_ad_config(self):
+    def _pin_ad_config(self, states=None):
         """
         A bit mask (32 bit) which allows each pin to be configured for
         analogue or digital use.
         A value of 0 means digital and 1 means analogue.
+        If no states are specified then the current state is returned
         """
         pin_ad_conf_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
                                              self.io_ad_config_path)
 
         pin_ad_conf_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
                                                  pin_ad_conf_obj)
+        if states is None:
+            return pin_ad_conf_iface.ReadValue(())
+        else:
+            pin_ad_conf_iface.WriteValue([states], ())
 
-        return pin_ad_conf_iface.ReadValue(())
-
-    def _pin_states(self):
+    def _pin_states(self, pin_value_pairs):
         """
-
-        :return:
+        Contains data relating to zero or more pins.
+        Structured as a variable length list of up to 19 Pin
+        Number / Value pairs.
         """
         pin_states_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
                                             self.io_pin_data_path)
 
         pin_states_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
                                                 pin_states_obj)
-
-        return pin_states_iface.ReadValue(())
+        if states is None:
+            return pin_states_iface.ReadValue(())
+        else:
+            pin_states_iface.WriteValue([pin_value_pairs], ())
 
     def _pin_pwn_control(self, pin, value, period):
         """
@@ -426,5 +438,24 @@ class Microbit:
 
         pin_pwm_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
                                              pin_pwm_obj)
+        byte_value = tools.int_to_uint16(value)
+        byte_period = tools.int_to_uint32(period)
+        pin_pwm_iface.WriteValue([pin,
+                                  byte_value[0],
+                                  byte_value[1],
+                                  byte_period[0],
+                                  byte_period[1],
+                                  byte_period[2],
+                                  byte_period[3]
+                                  ], ())
 
-        return pin_pwm_iface.WriteValue([pin, value, period], ())
+    def play_beep(self, duration):
+        """
+        If a buzzer is attached to pin 0 then a beep will be played
+        :param duration: time in seconds
+        """
+        self._pin_config(0)
+        self._pin_ad_config(1)
+        self._pin_pwn_control(0, 512, 2094)
+        sleep(duration)
+        self._pin_pwn_control(0, 0, 0)

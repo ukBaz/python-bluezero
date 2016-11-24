@@ -29,5 +29,15 @@ class PostSuffix(unittest.TestCase):
              0x00, 0x61, 0x62, 0x6f, 0x75, 0x74])
 
 
+class IntToUint32(unittest.TestCase):
+    def test_with_zeros(self):
+        little_endian = tools.int_to_uint32(2094)
+        self.assertListEqual(little_endian, [0x2E, 0x08, 0x00, 0x00])
+
+    def test_all_full(self):
+        little_endian = tools.int_to_uint32(305419896)
+        self.assertListEqual(little_endian, [0x78, 0x56, 0x34, 0x12])
+
+
 if __name__ == '__main__':
     unittest.main()

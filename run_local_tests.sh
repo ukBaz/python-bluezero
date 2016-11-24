@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-python -m unittest -v tests.test_url_to_hex
+python -m unittest -v tests.test_tools
 test11=$?
-python3 -m unittest -v tests.test_url_to_hex
+python3 -m unittest -v tests.test_tools
 test12=$?
 python -m unittest -v tests.test_adapter
 test21=$?
