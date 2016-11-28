@@ -60,10 +60,14 @@ read_sensortag_CC2650.py
 ************************
 This is a simple example of how to read the Ti Sensortag CC2650
 
-microbit_button.py
-******************
-This example simply reads the button values from the micro:bit and displays them on
-LEDs attached to the hardware
+microbit_poll.py
+****************
+This example uses the micro:bit API that has been written in bluezero.
+You will need a buzzer attached to pin 0 to get play_beep to work.
+
+blinkt_central.py
+*****************
+This example is the other end of the radio link to blinkt_ble.py example.
 
 Beacon
 ------

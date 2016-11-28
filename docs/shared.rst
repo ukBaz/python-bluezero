@@ -18,5 +18,3 @@ Constants
 
 .. automodule:: bluezero.constants
     :members:
-
-.. autodata::
