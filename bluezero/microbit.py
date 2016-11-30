@@ -1,5 +1,5 @@
 """
-This is a simple example of how to read data from a micro:bit.
+This is a simple API for reading data from a micro:bit.
 
 You will need the Bluetooth services of the micro:bit exposed.
 
@@ -8,13 +8,9 @@ micro:bit hex file from:
 http://www.bittysoftware.com/downloads.html
 The hex file called "For micro:bit Blue - Main Bluetooth services,
 pairing not required" was used.
-It had a file name of:
-microbit-2-0-0-rc4-ABDEILMT-N-pwr7.hex
-
 
 The following link is a good reference for Bluetooth on the microbit
 http://bluetooth-mdw.blogspot.co.uk/p/bbc-microbit.html
-
 """
 from time import sleep
 import logging
@@ -252,9 +248,10 @@ class Microbit:
     def display_pixels(self, row0, row1, row2, row3, row4):
         """
         For each row of LEDs specify which LEDs will be on.
-        e.g. 0b11111 will turn all LEDs in specified row on
-             0b10101 will turn alternate LEDs on
-             0b00000 will turn all LEDs in row off
+        :example:
+        0b11111 will turn all LEDs in specified row on
+        0b10101 will turn alternate LEDs on
+        0b00000 will turn all LEDs in row off
         :param row0: top row
         :param row1:
         :param row2: middle row

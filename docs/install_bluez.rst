@@ -6,7 +6,7 @@ Overview
 --------
 
 Bluezero relies on the dbus interface of Bluez.  This library requires the
-features provided by Bluez version **5.42** and later.  As this is as recent
+features provided by Bluez version **5.43** and later.  As this is as recent
 build,  it is unlikely that the Linux version you have installed will have the
 correct version. These instructions are intended to jump start the switching to
 a newer version of Bluez which will need to be built from source.
@@ -58,11 +58,11 @@ Getting newer versions of Bluez source
 
 Download the User Space BlueZ Package from http://www.bluez.org/download/ ::
 
-    wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.42.tar.xz
-    tar xf bluez-5.42.tar.xz
-    cd bluez-5.42
+    wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.43.tar.xz
+    tar xf bluez-5.43.tar.xz
+    cd bluez-5.43
 
-How to config and compile Bluez 5.42 and later
+How to config and compile Bluez 5.43 and later
 ----------------------------------------------
 To configure run::
 
@@ -72,6 +72,12 @@ To configure run::
                 --localstatedir=/var \
                 --enable-experimental \
                 --enable-maintainer-mode
+
+.. note::
+    On the Raspberry Pi 3 installing the latest version of BlueZ breaks the connection
+    to the controller. See Bluezero GitHub repository `issue 30
+    <https://github.com/ukBaz/python-bluezero/issues/30#issuecomment-250594754>`_
+    on how to patch BlueZ to use with a Raspberry Pi 3
 
 To compile and install run::
 
@@ -102,7 +108,7 @@ To check the version use bluetoothctl and type version::
 
     $ bluetoothctl
     [bluetooth]# version
-    Version 5.42
+    Version 5.43
 
 Switch controller to Bluetooth Low Energy only
 ----------------------------------------------
