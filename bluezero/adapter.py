@@ -214,6 +214,7 @@ class Adapter:
         if self._nearby_count > self._nearby_timeout:
             self.stop_discovery()
             self.mainloop.quit()
+            return False
         return True
 
     def nearby_discovery(self, timeout=10):

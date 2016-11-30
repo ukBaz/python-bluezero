@@ -38,11 +38,19 @@ class BLE_blinkt:
         logging.debug('Adapter powered')
         logging.debug('Start discovery')
         self.dongle.nearby_discovery()
-        self.ubit = device.Device(
-            tools.get_dbus_path(
+        device_path = None
+        if name is not None:
+            device_path = tools.get_dbus_path(
                 constants.DEVICE_INTERFACE,
                 'Name',
-                name)[0])
+                name)
+        elif address is not None:
+            device_path = tools.get_dbus_path(
+                constants.DEVICE_INTERFACE,
+                'Address',
+                address)
+
+        self.blnkt = device.Device(device_path[0])
 
         self.blinkt_srv_path = None
         self.blinkt_chrc_path = None
@@ -50,14 +58,14 @@ class BLE_blinkt:
     @property
     def connected(self):
         """Indicate whether the remote device is currently connected."""
-        return self.ubit.connected
+        return self.blnkt.connected
 
     def connect(self):
         """
         Connect to the specified Blinkt BLE for this instance
         """
-        self.ubit.connect()
-        while not self.ubit.services_resolved:
+        self.blnkt.connect()
+        while not self.blnkt.services_resolved:
             sleep(0.5)
         self._get_dbus_paths()
 
@@ -82,7 +90,7 @@ class BLE_blinkt:
         """
         Disconnect from the Blinkt BLE device
         """
-        self.ubit.disconnect()
+        self.blnkt.disconnect()
 
     def _set_all(self, red, green, blue):
         """
