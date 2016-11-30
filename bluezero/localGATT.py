@@ -13,11 +13,23 @@ import dbus.exceptions
 import dbus.mainloop.glib
 import dbus.service
 
+import logging
+try:  # Python 2.7+
+    from logging import NullHandler
+except ImportError:
+    class NullHandler(logging.Handler):
+        def emit(self, record):
+            pass
+
 # python-bluezero imports
 from bluezero import constants
 
 # Initialise the mainloop
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
+logger.addHandler(NullHandler())
 
 
 ########################################
@@ -206,7 +218,8 @@ class Service(dbus.service.Object):
         This signal is registered with the D-Bus at
         ``org.freedesktop.DBus.Properties``.
         """
-        print('Service properties changed: ', interface, changed, invalidated)
+        logger.debug('Service properties changed: ',
+                     interface, changed, invalidated)
 
 
 class Characteristic(dbus.service.Object):
@@ -338,7 +351,7 @@ class Characteristic(dbus.service.Object):
         This signal is registered with the D-Bus at
         ``org.freedesktop.DBus.Properties``.
         """
-        print('Char Prop Changed')
+        logger.debug('Char Prop Changed')
 
     @dbus.service.method(constants.GATT_CHRC_IFACE,
                          in_signature='a{sv}', out_signature='ay')
@@ -366,7 +379,7 @@ class Characteristic(dbus.service.Object):
         :return: value
         """
         if not self.props[constants.GATT_CHRC_IFACE]['Notifying'] is True:
-            print('Notifying already, nothing to do')
+            logger.info('Notifying already, nothing to do')
             return
 
         self.Set(constants.GATT_CHRC_IFACE,
@@ -381,7 +394,7 @@ class Characteristic(dbus.service.Object):
         :return: value
         """
         if self.props[constants.GATT_CHRC_IFACE]['Notifying'] is False:
-            print('Not Notifying, nothing to do')
+            logger.info('Not Notifying, nothing to do')
             return
 
         self.Set(constants.GATT_CHRC_IFACE,

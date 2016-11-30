@@ -24,9 +24,21 @@ try:
 except ImportError:
     import gobject as GObject
 
+import logging
+try:  # Python 2.7+
+    from logging import NullHandler
+except ImportError:
+    class NullHandler(logging.Handler):
+        def emit(self, record):
+            pass
+
 
 # Initialise the mainloop
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
+logger.addHandler(NullHandler())
 
 
 def list_adapters():
@@ -48,12 +60,17 @@ def list_adapters():
 
 def interfaces_added(path, interfaces):
     if constants.DEVICE_INTERFACE in interfaces:
-        print('Device added at {}'.format(path))
+        logger.debug('Device added at {}'.format(path))
 
 
 def properties_changed(interface, changed, invalidated, path):
     if constants.DEVICE_INTERFACE in interface:
-        print('Property changed {}'.format(changed.keys()))
+        for prop in changed:
+            logger.debug(
+                '{}:{} Property {} new value {}'.format(interface,
+                                                        path,
+                                                        prop,
+                                                        changed[prop]))
 
 
 class AdapterError(Exception):

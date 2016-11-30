@@ -13,7 +13,20 @@ try:
 except ImportError:
     import gobject as GObject
 
+import logging
+try:  # Python 2.7+
+    from logging import NullHandler
+except ImportError:
+    class NullHandler(logging.Handler):
+        def emit(self, record):
+            pass
+
 from bluezero import constants
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
+logger.addHandler(NullHandler())
 
 
 class Device:

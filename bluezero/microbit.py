@@ -13,13 +13,19 @@ The following link is a good reference for Bluetooth on the microbit
 http://bluetooth-mdw.blogspot.co.uk/p/bbc-microbit.html
 """
 from time import sleep
-import logging
 
 from bluezero import constants
 from bluezero import tools
 from bluezero import adapter
 from bluezero import device
 
+import logging
+try:  # Python 2.7+
+    from logging import NullHandler
+except ImportError:
+    class NullHandler(logging.Handler):
+        def emit(self, record):
+            pass
 
 ACCEL_SRV = 'E95D0753-251D-470A-A062-FA1922DFA9A8'
 ACCEL_DATA = 'E95DCA4B-251D-470A-A062-FA1922DFA9A8'
@@ -44,7 +50,9 @@ TEMP_SRV = 'E95D6100-251D-470A-A062-FA1922DFA9A8'
 TEMP_DATA = 'E95D9250-251D-470A-A062-FA1922DFA9A8'
 TEMP_PERIOD = 'E95D1B25-251D-470A-A062-FA1922DFA9A8'
 
-logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
+logger.addHandler(NullHandler())
 
 
 class Microbit:
@@ -63,8 +71,8 @@ class Microbit:
         self.dongle = adapter.Adapter(adapter.list_adapters()[0])
         if not self.dongle.powered:
             self.dongle.powered = True
-        logging.debug('Adapter powered')
-        logging.debug('Start discovery')
+        logger.debug('Adapter powered')
+        logger.debug('Start discovery')
         self.dongle.nearby_discovery()
         self.ubit = device.Device(
             tools.get_dbus_path(

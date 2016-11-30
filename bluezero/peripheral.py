@@ -23,6 +23,14 @@ from bluezero import constants
 # array import
 import array
 
+import logging
+try:  # Python 2.7+
+    from logging import NullHandler
+except ImportError:
+    class NullHandler(logging.Handler):
+        def emit(self, record):
+            pass
+
 # Main eventloop import
 try:
     from gi.repository import GObject
@@ -30,11 +38,14 @@ except ImportError:
     import gobject as GObject
 
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
+logger.addHandler(NullHandler())
+
+
 ########################################
 # Exception classes
 #######################################
-
-
 class InvalidArgsException(dbus.exceptions.DBusException):
     """This is a D-Bus exception class for Invalid Arguments.
 
@@ -148,7 +159,7 @@ class Application(dbus.service.Object):
         primary_uuid = None
         for service in self.services:
             if service.primary:
-                print(service.uuid)
+                logger.debug(service.uuid)
                 primary_uuid = service.uuid
         return primary_uuid
 

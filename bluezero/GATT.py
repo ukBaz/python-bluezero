@@ -7,15 +7,27 @@ try:
 except ImportError:
     import gobject as GObject
 
+import logging
+try:  # Python 2.7+
+    from logging import NullHandler
+except ImportError:
+    class NullHandler(logging.Handler):
+        def emit(self, record):
+            pass
+
 from bluezero import constants
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 mainloop = GObject.MainLoop()
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
+logger.addHandler(NullHandler())
+
 
 def generic_error_cb(error):
     """Generic Error Callback function."""
-    print('D-Bus call failed: ' + str(error))
+    logger.error('D-Bus call failed: ' + str(error))
     mainloop.quit()
 
 
@@ -215,15 +227,15 @@ class Characteristic:
         if not value:
             return
 
-        print('Properties changed: ', value)
+        logger.debug('Properties changed: ', value)
 
     def start_notify_cb(self):
         """Callback associated with enabling notifications."""
-        print('Notifications enabled')
+        logger.info('Notifications enabled')
 
     def stop_notify_cb(self):
         """Callback associated with disabling notifications."""
-        print('Notifications disabled')
+        logger.info('Notifications disabled')
 
 
 class Descriptor:
@@ -352,12 +364,12 @@ class Profile:
 
 def register_app_cb():
     """Application registration callback."""
-    print('GATT application registered')
+    logger.info('GATT application registered')
 
 
 def register_app_error_cb(error):
     """Application registration error callback."""
-    print('Failed to register application: ' + str(error))
+    logger.warning('Failed to register application: ' + str(error))
     mainloop.quit()
 
 

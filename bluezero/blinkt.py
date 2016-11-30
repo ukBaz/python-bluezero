@@ -6,6 +6,12 @@ examples/level100/blinkt_ble.py
 """
 from time import sleep
 import logging
+try:  # Python 2.7+
+    from logging import NullHandler
+except ImportError:
+    class NullHandler(logging.Handler):
+        def emit(self, record):
+            pass
 
 from bluezero import constants
 from bluezero import tools
@@ -16,7 +22,9 @@ from bluezero import device
 BLINKT_SRV = '0000FFF0-0000-1000-8000-00805F9B34FB'
 BLINKT_CHRC = '0000FFF3-0000-1000-8000-00805F9B34FB'
 
-logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
+logger.addHandler(NullHandler())
 
 
 class BLE_blinkt:
@@ -35,8 +43,8 @@ class BLE_blinkt:
         self.dongle = adapter.Adapter(adapter.list_adapters()[0])
         if not self.dongle.powered:
             self.dongle.powered = True
-        logging.debug('Adapter powered')
-        logging.debug('Start discovery')
+        logger.debug('Adapter powered')
+        logger.debug('Start discovery')
         self.dongle.nearby_discovery()
         device_path = None
         if name is not None:
