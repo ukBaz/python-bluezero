@@ -429,7 +429,7 @@ class Microbit:
         else:
             pin_states_iface.WriteValue([pin_value_pairs], ())
 
-    def _pin_pwn_control(self, pin, value, period):
+    def _pin_pwm_control(self, pin, value, period):
         """
         Write only method to set the PWM control data
         :param pin: pin number [range 0-19]
