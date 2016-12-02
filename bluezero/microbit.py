@@ -461,6 +461,6 @@ class Microbit:
         """
         self._pin_config(0)
         self._pin_ad_config(1)
-        self._pin_pwn_control(0, 512, 2094)
+        self._pin_pwm_control(0, 512, 2094)
         sleep(duration)
-        self._pin_pwn_control(0, 0, 0)
+        self._pin_pwm_control(0, 0, 0)
