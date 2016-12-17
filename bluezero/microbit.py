@@ -74,11 +74,19 @@ class Microbit:
         logger.debug('Adapter powered')
         logger.debug('Start discovery')
         self.dongle.nearby_discovery()
-        self.ubit = device.Device(
-            tools.get_dbus_path(
+        device_path = None
+        if name is not None:
+            device_path = tools.get_dbus_path(
                 constants.DEVICE_INTERFACE,
                 'Name',
-                name)[0])
+                name)
+        elif address is not None:
+            device_path = tools.get_dbus_path(
+                constants.DEVICE_INTERFACE,
+                'Address',
+                address)
+
+        self.ubit = device.Device(device_path[0])
 
         self.accel_srv_path = None
         self.accel_data_path = None
@@ -424,10 +432,10 @@ class Microbit:
 
         pin_states_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
                                                 pin_states_obj)
-        if states is None:
+        if pin_value_pairs is None:
             return pin_states_iface.ReadValue(())
         else:
-            pin_states_iface.WriteValue([pin_value_pairs], ())
+            pin_states_iface.WriteValue(pin_value_pairs, ())
 
     def _pin_pwm_control(self, pin, value, period):
         """
@@ -464,3 +472,29 @@ class Microbit:
         self._pin_pwm_control(0, 512, 2094)
         sleep(duration)
         self._pin_pwm_control(0, 0, 0)
+
+
+class BitBot(Microbit):
+    def __init__(self, name=None, address=None):
+        Microbit.__init__(self, name, address)
+
+    def stop(self):
+        self._pin_states([0x01, 0x00, 0x0C, 0x00, 0x00, 0x00, 0x08, 0x00])
+
+    def spin_right(self):
+        self._pin_states([0x01, 0x01, 0x0C, 0x00, 0x00, 0x00, 0x08, 0x01])
+
+    def spin_left(self):
+        self._pin_states([0x01, 0x00, 0x0C, 0x01, 0x00, 0x01, 0x08, 0x00])
+
+    def forward(self):
+        self._pin_states([0x01, 0x01, 0x0C, 0x00, 0x00, 0x01, 0x08, 0x00])
+
+    def reverse(self):
+        self._pin_states([0x01, 0x00, 0x0C, 0x01, 0x00, 0x00, 0x08, 0x01])
+
+    def buzzer_on(self):
+        self._pin_states([0x0E, 0x01])
+
+    def buzzer_off(self):
+        self._pin_states([0x0E, 0x00])
