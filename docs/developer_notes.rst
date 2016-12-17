@@ -2,6 +2,17 @@
 Notes For Developers
 ====================
 
+Release Checklist
+=================
+
+* Check Travis-tests are passing
+* Update version info in setup.py
+* Build and publish pypi package
+* Check pypi page for obvious errors
+* Update version in docs/conf.py
+* Build and publish project documentation
+* Check read the docs page
+* `git tag` with version number
 
 
 Build pypi package
