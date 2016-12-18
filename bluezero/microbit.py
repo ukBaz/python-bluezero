@@ -476,7 +476,8 @@ class Microbit:
 
 class BitBot(Microbit):
     """
-    Class to simplify interacting with a microbit attached to a bit:bot over Bluetooth Low Energy
+    Class to simplify interacting with a microbit attached to a bit:bot
+    over Bluetooth Low Energy
     """
     def __init__(self, name=None, address=None):
         """
