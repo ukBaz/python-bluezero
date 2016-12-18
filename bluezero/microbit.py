@@ -475,26 +475,55 @@ class Microbit:
 
 
 class BitBot(Microbit):
+    """
+    Class to simplify interacting with a microbit attached to a bit:bot over Bluetooth Low Energy
+    """
     def __init__(self, name=None, address=None):
+        """
+        Initialization of an instance of a remote bit:bot
+        :param name: Will look for a BLE device with this string in its name
+        :param address: Will look for a BLE device with this address
+        """
         Microbit.__init__(self, name, address)
 
     def stop(self):
+        """
+        Stop both wheels of the bit:bot
+        """
         self._pin_states([0x01, 0x00, 0x0C, 0x00, 0x00, 0x00, 0x08, 0x00])
 
     def spin_right(self):
+        """
+        Spin right wheel forward and left wheel backwards so bit:bot spins
+        """
         self._pin_states([0x01, 0x01, 0x0C, 0x00, 0x00, 0x00, 0x08, 0x01])
 
     def spin_left(self):
+        """
+        Spin left wheel forward and right wheel backwards so bit:bot spins
+        """
         self._pin_states([0x01, 0x00, 0x0C, 0x01, 0x00, 0x01, 0x08, 0x00])
 
     def forward(self):
+        """
+        Spin both wheels forward
+        """
         self._pin_states([0x01, 0x01, 0x0C, 0x00, 0x00, 0x01, 0x08, 0x00])
 
     def reverse(self):
+        """
+        Spin both wheels backwards
+        """
         self._pin_states([0x01, 0x00, 0x0C, 0x01, 0x00, 0x00, 0x08, 0x01])
 
     def buzzer_on(self):
+        """
+        Play the buzzer
+        """
         self._pin_states([0x0E, 0x01])
 
     def buzzer_off(self):
+        """
+        Stop the buzzer
+        """
         self._pin_states([0x0E, 0x00])
