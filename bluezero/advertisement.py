@@ -151,7 +151,7 @@ class Advertisement(dbus.service.Object):
 
     @include_tx_power.setter
     def include_tx_power(self, state):
-        return self.set(constants.LE_ADVERTISEMENT_IFACE,
+        return self.Set(constants.LE_ADVERTISEMENT_IFACE,
                         'IncludeTxPower', state)
 
     @dbus.service.method(constants.DBUS_PROP_IFACE,
