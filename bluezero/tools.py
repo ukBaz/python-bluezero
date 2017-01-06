@@ -330,6 +330,11 @@ def stop_mainloop():
     mainloop.quit()
 
 
+def generic_error_cb(error):
+    print('D-Bus call failed: ' + str(error))
+    mainloop.quit()
+
+
 def int_to_uint16(value_in):
     bin_string = '{:016b}'.format(value_in)
     big_byte = int(bin_string[0:8], 2)

@@ -420,6 +420,35 @@ class Microbit:
 
         return int.from_bytes(btn_val, byteorder='little', signed=False)
 
+    def _button_notify_cb(self):
+        print('Button subscribed!!!')
+        return 1
+
+    def _button_prop_cb(self, iface, changed_props, invalidated_props):
+        print(iface, changed_props, invalidated_props)
+
+    def subscribe_button_a(self, user_callback):
+        btn_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                     self.btn_a_state_path)
+        btn_iface = tools.get_dbus_iface(constants.DBUS_PROP_IFACE,
+                                         btn_obj)
+        btn_iface.connect_to_signal('PropertiesChanged',
+                                    user_callback)
+        btn_obj.StartNotify(reply_handler=self._button_notify_cb,
+                            error_handler=tools.generic_error_cb,
+                            dbus_interface=constants.GATT_CHRC_IFACE)
+
+    def subscribe_button_b(self, user_callback):
+        btn_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                     self.btn_b_state_path)
+        btn_iface = tools.get_dbus_iface(constants.DBUS_PROP_IFACE,
+                                         btn_obj)
+        btn_iface.connect_to_signal('PropertiesChanged',
+                                    user_callback)
+        btn_obj.StartNotify(reply_handler=self._button_notify_cb,
+                            error_handler=tools.generic_error_cb,
+                            dbus_interface=constants.GATT_CHRC_IFACE)
+
     def read_accelerometer(self):
         """
         Read the values of the accelerometer on the microbit
