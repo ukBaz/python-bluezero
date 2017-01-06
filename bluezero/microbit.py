@@ -88,6 +88,7 @@ class Microbit:
 
         self.ubit = device.Device(device_path[0])
 
+        # dbus paths
         self.accel_srv_path = None
         self.accel_data_path = None
         self.aceel_period_path = None
@@ -111,19 +112,20 @@ class Microbit:
         self.temp_data_path = None
         self.temp_period_path = None
 
-    @property
-    def connected(self):
-        """Indicate whether the remote device is currently connected."""
-        return self.ubit.connected
-
-    def connect(self):
-        """
-        Connect to the specified microbit for this instance
-        """
-        self.ubit.connect()
-        while not self.ubit.services_resolved:
-            sleep(0.5)
-        self._get_dbus_paths()
+        # dbus interfaces()
+        self.scroll_iface = None
+        self.led_txt_iface = None
+        self.pixels_iface = None
+        self.temp_iface = None
+        self.btn_a_iface = None
+        self.btn_b_iface = None
+        self.accel_iface = None
+        self.mag_iface = None
+        self.mag_bear_iface = None
+        self.pin_conf_iface = None
+        self.pin_ad_iface = None
+        self.pin_states_iface = None
+        self.pin_pwm_iface = None
 
     def _get_dbus_paths(self):
         """
@@ -196,6 +198,119 @@ class Microbit:
             constants.GATT_CHRC_IFACE,
             TEMP_PERIOD)[0]
 
+    def _config_dbus_ifaces(self):
+        self._config_scroll_iface()
+        self._config_led_txt_iface()
+        self._config_pixels_iface()
+        self._config_temp_iface()
+        self._config_btn_a_iface()
+        self._config_btn_b_iface()
+        self._config_accel_iface()
+        self._config_mag_iface()
+        self._config_mag_bear_iface()
+        self._config_pin_conf_iface()
+        self._config_pin_ad_iface()
+        self._config_pin_states_iface()
+        self._config_pin_pwm_iface()
+
+    def _config_scroll_iface(self):
+        scroll_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                        self.led_scroll_path)
+        self.scroll_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
+                                                 scroll_obj)
+
+    def _config_led_txt_iface(self):
+        led_txt_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                         self.led_text_path)
+        self.led_txt_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
+                                                  led_txt_obj)
+
+    def _config_pixels_iface(self):
+        pixels_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                        self.led_state_path)
+        self.pixels_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
+                                                 pixels_obj)
+
+    def _config_temp_iface(self):
+        temp_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                      self.temp_data_path)
+        self.temp_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
+                                               temp_obj)
+
+    def _config_btn_a_iface(self):
+        btn_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                     self.btn_a_state_path)
+        self.btn_a_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
+                                                btn_obj)
+
+    def _config_btn_b_iface(self):
+        btn_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                     self.btn_b_state_path)
+        self.btn_a_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
+                                                btn_obj)
+
+    def _config_accel_iface(self):
+        accel_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                       self.accel_data_path)
+        self.accel_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
+                                                accel_obj)
+
+    def _config_mag_iface(self):
+        mag_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                     self.magneto_data_path)
+        self.mag_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
+                                              mag_obj)
+
+    def _config_mag_bear_iface(self):
+        mag_bear_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                          self.magneto_bearing_path)
+        self.mag_bear_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
+                                                   mag_bear_obj)
+
+    def _config_pin_conf_iface(self):
+        pin_conf_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                          self.io_pin_config_path)
+
+        self.pin_conf_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
+                                                   pin_conf_obj)
+
+    def _config_pin_ad_iface(self):
+        pin_ad_conf_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                             self.io_ad_config_path)
+        self.pin_ad_conf_iface = tools.get_dbus_iface(
+            constants.GATT_CHRC_IFACE,
+            pin_ad_conf_obj)
+
+    def _config_pin_states_iface(self):
+        pin_states_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                            self.io_pin_data_path)
+
+        self.pin_states_iface = tools.get_dbus_iface(
+            constants.GATT_CHRC_IFACE,
+            pin_states_obj)
+
+    def _config_pin_pwm_iface(self):
+        pin_pwm_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                         self.io_pin_pwm_path)
+
+        self.pin_pwm_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
+                                                  pin_pwm_obj)
+
+    @property
+    def connected(self):
+        """Indicate whether the remote device is currently connected."""
+        return self.ubit.connected
+
+    def connect(self):
+        """
+        Connect to the specified microbit for this instance
+        """
+        self.ubit.connect()
+        while not self.ubit.services_resolved:
+            sleep(0.5)
+        self._get_dbus_paths()
+        self._config_dbus_ifaces()
+
     def disconnect(self):
         """
         Disconnect from the microbit
@@ -207,13 +322,9 @@ class Microbit:
         Specifies a millisecond delay to wait for in between showing each
         character on the display.
         """
-        scroll_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                        self.led_scroll_path)
 
-        scroll_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                            scroll_obj)
         if delay is None:
-            return int.from_bytes(scroll_iface.ReadValue(()),
+            return int.from_bytes(self.scroll_iface.ReadValue(()),
                                   byteorder='little',
                                   signed=False)
         else:
@@ -221,7 +332,7 @@ class Microbit:
                 delay = 0
             elif delay > 2**16:
                 delay = 2**16
-            scroll_iface.WriteValue(tools.int_to_uint16(delay), ())
+            self.scroll_iface.WriteValue(tools.int_to_uint16(delay), ())
 
     def display_text(self, words):
         """
@@ -229,10 +340,7 @@ class Microbit:
         The content will be restricted to that number of characters.
         :param words:
         """
-        led_txt_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                         self.led_text_path)
-        led_txt_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                             led_txt_obj)
+
         data = []
         text = ''
         if len(words) > 20:
@@ -241,7 +349,7 @@ class Microbit:
             text = words
         for letter in text:
             data.append(ord(letter))
-        led_txt_iface.WriteValue(data, ())
+        self.led_txt_iface.WriteValue(data, ())
 
     def _write_pixels(self, data):
         """
@@ -249,11 +357,7 @@ class Microbit:
         :param data: list of 5 numbers in the range 0 to 255
         (e.g. [0xff, 0x00, 0, 255, 0b10101]
         """
-        pixels_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                        self.led_state_path)
-        pixels_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                            pixels_obj)
-        pixels_iface.WriteValue(data, ())
+        self.pixels_iface.WriteValue(data, ())
 
     def display_clear(self):
         """
@@ -282,11 +386,7 @@ class Microbit:
         from top to bottom
         :return: Example [0b1110, 0b10000, 0b10000, 0b10000, 0b1110]
         """
-        pixels_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                        self.led_state_path)
-        pixels_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                            pixels_obj)
-        rows = pixels_iface.ReadValue(())
+        rows = self.pixels_iface.ReadValue(())
         return [bin(i) for i in rows]
 
     def read_temperature(self):
@@ -294,33 +394,9 @@ class Microbit:
         Temperature from sensors in micro:bit processors
         :return: Integer of temperature in Celsius
         """
-        temp_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                      self.temp_data_path)
-        temp_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE, temp_obj)
-
-        # Read button value
-        tmp_val = temp_iface.ReadValue(())
+        tmp_val = self.temp_iface.ReadValue(())
 
         return int.from_bytes(tmp_val, byteorder='little', signed=True)
-
-    def _read_button(self, btn_path):
-        """
-        Read the button characteristic on the micro:bit and return value
-        3 button states are defined and represented by a simple numeric
-        enumeration:  0 = not pressed, 1 = pressed, 2 = long press.
-        :param btn_path: The Bluez path to the button characteristic
-        :return: integer representing button value
-        """
-
-        # Get characteristic interface for data
-        btn_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME, btn_path)
-        btn_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE, btn_obj)
-
-        # Read button value
-        btn_val = btn_iface.ReadValue(())
-
-        answer = int.from_bytes(btn_val, byteorder='little', signed=False)
-        return answer
 
     def read_button_a(self):
         """
@@ -329,7 +405,9 @@ class Microbit:
         enumeration:  0 = not pressed, 1 = pressed, 2 = long press.
         :return: integer representing button value
         """
-        return self._read_button(self.btn_a_state_path)
+        btn_val = self.btn_a_iface.ReadValue(())
+
+        return int.from_bytes(btn_val, byteorder='little', signed=False)
 
     def read_button_b(self):
         """
@@ -338,7 +416,38 @@ class Microbit:
         enumeration:  0 = not pressed, 1 = pressed, 2 = long press.
         :return: integer representing button value
         """
-        return self._read_button(self.btn_b_state_path)
+        btn_val = self.btn_b_iface.ReadValue(())
+
+        return int.from_bytes(btn_val, byteorder='little', signed=False)
+
+    def _button_notify_cb(self):
+        print('Button subscribed!!!')
+        return 1
+
+    def _button_prop_cb(self, iface, changed_props, invalidated_props):
+        print(iface, changed_props, invalidated_props)
+
+    def subscribe_button_a(self, user_callback):
+        btn_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                     self.btn_a_state_path)
+        btn_iface = tools.get_dbus_iface(constants.DBUS_PROP_IFACE,
+                                         btn_obj)
+        btn_iface.connect_to_signal('PropertiesChanged',
+                                    user_callback)
+        btn_obj.StartNotify(reply_handler=self._button_notify_cb,
+                            error_handler=tools.generic_error_cb,
+                            dbus_interface=constants.GATT_CHRC_IFACE)
+
+    def subscribe_button_b(self, user_callback):
+        btn_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
+                                     self.btn_b_state_path)
+        btn_iface = tools.get_dbus_iface(constants.DBUS_PROP_IFACE,
+                                         btn_obj)
+        btn_iface.connect_to_signal('PropertiesChanged',
+                                    user_callback)
+        btn_obj.StartNotify(reply_handler=self._button_notify_cb,
+                            error_handler=tools.generic_error_cb,
+                            dbus_interface=constants.GATT_CHRC_IFACE)
 
     def read_accelerometer(self):
         """
@@ -347,15 +456,9 @@ class Microbit:
         """
         # [16, 0, 64, 0, 32, 252]
         # x=0.16, y=0.024, z=-0.992
-        accel_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                       self.accel_data_path)
-        accel_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                           accel_obj)
+        accel_bytes = self.accel_iface.ReadValue(())
 
-        # Read button value
-        bytes = accel_iface.ReadValue(())
-
-        return tools.bytes_to_xyz(bytes)
+        return tools.bytes_to_xyz(accel_bytes)
 
     def read_magnetometer(self):
         """
@@ -364,25 +467,16 @@ class Microbit:
         as the earth's magnetic field in 3 axes.
         :return: List of x, y & z value
         """
-        mag_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                     self.magneto_data_path)
-        mag_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE, mag_obj)
+        mag_bytes = self.mag_iface.ReadValue(())
 
-        bytes = mag_iface.ReadValue(())
-
-        return tools.bytes_to_xyz(bytes)
+        return tools.bytes_to_xyz(mag_bytes)
 
     def read_bearing(self):
         """
         Compass bearing in degrees from North.
         :return: degrees in integer
         """
-        mag_bear_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                          self.magneto_bearing_path)
-        mag_bear_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                              mag_bear_obj)
-
-        mag_bear_val = mag_bear_iface.ReadValue(())
+        mag_bear_val = self.mag_bear_iface.ReadValue(())
 
         return int.from_bytes(mag_bear_val,
                               byteorder='little', signed=False)
@@ -393,16 +487,10 @@ class Microbit:
         A value of 0 means configured for output and 1 means configured
         for input.
         """
-        pin_conf_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                          self.io_pin_config_path)
-
-        pin_conf_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                              pin_conf_obj)
-
         if states is None:
-            return pin_conf_iface.ReadValue(())
+            return self.pin_conf_iface.ReadValue(())
         else:
-            pin_conf_iface.WriteValue([states], ())
+            self.pin_conf_iface.WriteValue(states, ())
 
     def _pin_ad_config(self, states=None):
         """
@@ -411,31 +499,22 @@ class Microbit:
         A value of 0 means digital and 1 means analogue.
         If no states are specified then the current state is returned
         """
-        pin_ad_conf_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                             self.io_ad_config_path)
 
-        pin_ad_conf_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                                 pin_ad_conf_obj)
         if states is None:
-            return pin_ad_conf_iface.ReadValue(())
+            return self.pin_ad_conf_iface.ReadValue(())
         else:
-            pin_ad_conf_iface.WriteValue([states], ())
+            self.pin_ad_conf_iface.WriteValue(states, ())
 
-    def _pin_states(self, pin_value_pairs):
+    def _pin_states(self, pin_value_pairs=None):
         """
         Contains data relating to zero or more pins.
         Structured as a variable length list of up to 19 Pin
         Number / Value pairs.
         """
-        pin_states_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                            self.io_pin_data_path)
-
-        pin_states_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                                pin_states_obj)
         if pin_value_pairs is None:
-            return pin_states_iface.ReadValue(())
+            return self.pin_states_iface.ReadValue(())
         else:
-            pin_states_iface.WriteValue(pin_value_pairs, ())
+            self.pin_states_iface.WriteValue(pin_value_pairs, ())
 
     def _pin_pwm_control(self, pin, value, period):
         """
@@ -446,29 +525,22 @@ class Microbit:
         :param period: Period is in microseconds and is an unsigned integer
         :return:
         """
-        pin_pwm_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                         self.io_pin_pwm_path)
-
-        pin_pwm_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                             pin_pwm_obj)
         byte_value = tools.int_to_uint16(value)
         byte_period = tools.int_to_uint32(period)
-        pin_pwm_iface.WriteValue([pin,
-                                  byte_value[0],
-                                  byte_value[1],
-                                  byte_period[0],
-                                  byte_period[1],
-                                  byte_period[2],
-                                  byte_period[3]
-                                  ], ())
+        self.pin_pwm_iface.WriteValue([pin,
+                                       byte_value[0],
+                                       byte_value[1],
+                                       byte_period[0],
+                                       byte_period[1],
+                                       byte_period[2],
+                                       byte_period[3]
+                                       ], ())
 
     def play_beep(self, duration):
         """
         If a buzzer is attached to pin 0 then a beep will be played
         :param duration: time in seconds
         """
-        self._pin_config(0)
-        self._pin_ad_config(1)
         self._pin_pwm_control(0, 512, 2094)
         sleep(duration)
         self._pin_pwm_control(0, 0, 0)
@@ -485,6 +557,8 @@ class BitBot(Microbit):
         :param name: Will look for a BLE device with this string in its name
         :param address: Will look for a BLE device with this address
         """
+        self.inputs_configured = False
+        self.left_light = False
         Microbit.__init__(self, name, address)
 
     def stop(self):
@@ -517,6 +591,69 @@ class BitBot(Microbit):
         """
         self._pin_states([0x01, 0x00, 0x0C, 0x01, 0x00, 0x00, 0x08, 0x01])
 
+    def _left_motor(self, pwm_value, reverse=False):
+        if not reverse:
+            self._pin_states([0x08, 0x00])
+        else:
+            self._pin_states([0x08, 0x01])
+        self._pin_pwm_control(0, pwm_value, 20000)
+
+    def _right_motor(self, pwm_value, reverse=False):
+        if not reverse:
+            self._pin_states([0x0C, 0x00])
+        else:
+            self._pin_states([0x0C, 0x01])
+        self._pin_pwm_control(1, pwm_value, 20000)
+
+    def _update_motors(self, left_val, right_val,
+                       left_rev, right_rev,
+                       pwm_period=20000):
+        period = tools.int_to_uint32(pwm_period)
+        left_pwm = tools.int_to_uint16(left_val)
+        right_pwm = tools.int_to_uint16(right_val)
+        self.pin_pwm_iface.WriteValue([0,
+                                       left_pwm[0],
+                                       left_pwm[1],
+                                       period[0],
+                                       period[1],
+                                       period[2],
+                                       period[3],
+                                       1,
+                                       right_pwm[0],
+                                       right_pwm[1],
+                                       period[0],
+                                       period[1],
+                                       period[2],
+                                       period[3]
+                                       ], ())
+        self._pin_states([0x08, left_rev, 0x0C, right_rev])
+
+    def drive(self, left=100, right=100):
+        """
+
+        :param left:
+        :param right:
+        """
+        left_direction = 0
+        left_motor = self._percentage_to_pwm(left)
+
+        right_direction = 0
+        right_motor = self._percentage_to_pwm(right)
+
+        if left < 0:
+            left_direction = 1
+
+        if right < 0:
+            right_direction = 1
+
+        self._update_motors(left_motor, right_motor,
+                            left_direction, right_direction)
+
+    def _percentage_to_pwm(self, percent):
+        if percent < 0:
+            percent += 100
+        return int(10.23 * percent)
+
     def buzzer_on(self):
         """
         Play the buzzer
@@ -528,3 +665,52 @@ class BitBot(Microbit):
         Stop the buzzer
         """
         self._pin_states([0x0E, 0x00])
+
+    def read_left_line(self):
+        """
+        Read the left line sensor
+        :return: False = No line  True = Line
+        """
+        return bool(self._get_pin_value(11))
+
+    def read_right_line(self):
+        """
+        Read the right line sensor
+        :return: False = No line  True = Line
+        """
+        return bool(self._get_pin_value(5))
+
+    def read_lines(self):
+        if not self.inputs_configured:
+            self._config_inputs()
+            self.inputs_configured = True
+        pins = self._pin_states()
+        return bool(pins[3]), bool(pins[5])
+
+    def read_left_light(self):
+        self._pin_states([0x10, 0x00])
+        return int(self._get_pin_value(2))
+
+    def read_right_light(self):
+        self._pin_states([0x10, 0x01])
+        return int(self._get_pin_value(2))
+
+    def _config_inputs(self):
+        self._pin_config([0x24, 0x08, 0x00, 0x00])
+        self._pin_ad_config([0x04, 0x00, 0x00, 0x00])
+
+    def _build_pin_value_pairs(self, pin_states):
+        val_dict = {}
+        if len(pin_states) > 0:
+            val_dict = dict(zip(pin_states[::2], pin_states[1::2]))
+        return val_dict
+
+    def _get_pin_value(self, pin):
+        if not self.inputs_configured:
+            self._config_inputs()
+            self.inputs_configured = True
+        pin_value_pairs = self._build_pin_value_pairs(self._pin_states())
+        if pin in pin_value_pairs.keys():
+            return pin_value_pairs[pin]
+        else:
+            return None
