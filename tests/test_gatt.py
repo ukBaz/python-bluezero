@@ -7,7 +7,7 @@ import unittest
 import dbus
 import dbusmock
 
-from bluezero import GATT
+from bluezero import ngatt
 
 
 class TestBluezeroService(dbusmock.DBusTestCase):
@@ -39,9 +39,16 @@ class TestBluezeroService(dbusmock.DBusTestCase):
         self.dbusmock_bluez.AddDevice(self.adapter_name, self.address,
                                       self.alias)
 
-        # Initialise a mock remote GATT device
-        self.svc_dpath = self.dbusmock_bluez.AddGATT(self.adapter_name,
-                                                     self.address, self.alias)
+        # Initialise a mock remote GATT service
+        self.uuid = '190f'
+        self.primary = False
+        self.svc_dpath = self.dbusmock_bluez.AddGATTService(
+            self.adapter_name, self.address, self.alias, self.uuid,
+            self.primary)
+
+        # Initialise a mock remote GATT characteristic
+        self.chr_dpath = self.dbusmock_bluez.AddGATTCharacteristic(
+            self.adapter_name, self.address, self.alias, self.svc_dpath)
 
     def test_paths(self):
         """Test the adapter and service paths."""
@@ -55,29 +62,34 @@ class TestBluezeroService(dbusmock.DBusTestCase):
     def test_service_uuid(self):
         """Test the service UUID."""
         # Invoke the bluez GATT library to access the mock GATT service
-        test_service = GATT.Service(self.svc_dpath)
+        test_service = ngatt.Service(self.svc_dpath)
 
         # Test for the UUID
-        self.assertEqual(test_service.UUID, '180F')
+        self.assertEqual(test_service.UUID, self.uuid)
 
-    def test_service_device(self):
-        """Test the service device path."""
+    def test_service_parent(self):
+        """Test the service parent (device) path."""
         # Invoke the bluez GATT library to access the mock GATT service
-        test_service = GATT.Service(self.svc_dpath)
+        test_service = ngatt.Service(self.svc_dpath)
 
         # Test for the device path
         dev_underscore = self.address.replace(':', '_').upper()
         dev_addr = '{0}/dev_{1}'.format(self.ad_dpath, dev_underscore)
-        self.assertEqual(test_service.device, dev_addr)
+        self.assertEqual(test_service.parent, dev_addr)
 
     def test_service_primary(self):
         """Test the service primary flag."""
         # Invoke the bluez GATT library to access the mock GATT service
-        test_service = GATT.Service(self.svc_dpath)
+        test_service = ngatt.Service(self.svc_dpath)
 
         # Test for the UUID
-        self.assertEqual(test_service.primary, True)
+        self.assertEqual(test_service.primary, self.primary)
 
+    def test_chr_value_read(self):
+        """Test the characteristic read value function."""
+        test_chr = ngatt.Characteristic(self.chr_dpath)
+
+        self.assertEqual(test_chr.value, dbus.Array([0x01]))
 
 if __name__ == '__main__':
     # avoid writing to stderr
