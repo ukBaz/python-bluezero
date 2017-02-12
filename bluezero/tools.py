@@ -18,9 +18,34 @@ dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 mainloop = GObject.MainLoop()
 
 
+class DBusObject:
+    """Parent class for all DBus Classes providing common initialisation."""
+
+    def __init__(self, obj_path, meth_iface):
+        """
+        GATT Class Initialisation.
+
+        Initialises the object methods and properties through the dbus.
+
+        :param obj_path: dbus path to the object (service, characteristic,
+        etc.)
+        :param meth_iface: interface to look for methods on (adapter,
+        characteristic, etc.)
+        :type obj_path: string (dbus path)
+        :type meth_iface: string (DBus interface descriptor)
+        """
+        self.obj_path = obj_path
+        self.bus = dbus.SystemBus()
+        self.obj = self.bus.get_object(constants.BLUEZ_SERVICE_NAME,
+                                       self.obj_path)
+        self.obj_methods = dbus.Interface(self.obj, meth_iface)
+        self.obj_props = dbus.Interface(self.obj, dbus.PROPERTIES_IFACE)
+
+
 def bluez_version():
     """
-    get the version of the BlueZ daemon being used on the system
+    get the version of the BlueZ daemon being used on the system.
+
     :return: String of BlueZ version
     """
     p = subprocess.Popen(['bluetoothctl', '-v'], stdout=subprocess.PIPE)
