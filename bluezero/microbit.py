@@ -18,7 +18,7 @@ from bluezero import constants
 from bluezero import tools
 from bluezero import adapter
 from bluezero import device
-from bluezero import ngatt
+from bluezero import GATT
 
 # For flattening lists
 import itertools
@@ -36,28 +36,30 @@ except ImportError:
             pass
 
 # Microbit UUIDs
-ACCEL_SRV = 'E95D0753-251D-470A-A062-FA1922DFA9A8'
 ACCEL_DATA = 'E95DCA4B-251D-470A-A062-FA1922DFA9A8'
-ACCEL_PERIOD = 'E95DFB24-251D-470A-A062-FA1922DFA9A8'
-MAGNETO_SRV = 'E95DF2D8-251D-470A-A062-FA1922DFA9A8'
 MAGNETO_DATA = 'E95DFB11-251D-470A-A062-FA1922DFA9A8'
-MAGNETO_PERIOD = 'E95D386C-251D-470A-A062-FA1922DFA9A8'
 MAGNETO_BEARING = 'E95D9715-251D-470A-A062-FA1922DFA9A8'
-BTN_SRV = 'E95D9882-251D-470A-A062-FA1922DFA9A8'
 BTN_A_STATE = 'E95DDA90-251D-470A-A062-FA1922DFA9A8'
 BTN_B_STATE = 'E95DDA91-251D-470A-A062-FA1922DFA9A8'
-IO_PIN_SRV = 'E95D127B-251D-470A-A062-FA1922DFA9A8'
 IO_PIN_DATA = 'E95D8D00-251D-470A-A062-FA1922DFA9A8'
 IO_AD_CONFIG = 'E95D5899-251D-470A-A062-FA1922DFA9A8'
 IO_PIN_CONFIG = 'E95DB9FE-251D-470A-A062-FA1922DFA9A8'
 IO_PIN_PWM = 'E95DD822-251D-470A-A062-FA1922DFA9A8'
-LED_SRV = 'E95DD91D-251D-470A-A062-FA1922DFA9A8'
 LED_STATE = 'E95D7B77-251D-470A-A062-FA1922DFA9A8'
 LED_TEXT = 'E95D93EE-251D-470A-A062-FA1922DFA9A8'
 LED_SCROLL = 'E95D0D2D-251D-470A-A062-FA1922DFA9A8'
-TEMP_SRV = 'E95D6100-251D-470A-A062-FA1922DFA9A8'
 TEMP_DATA = 'E95D9250-251D-470A-A062-FA1922DFA9A8'
-TEMP_PERIOD = 'E95D1B25-251D-470A-A062-FA1922DFA9A8'
+
+# Unused Microbit UUIDs
+# ACCEL_SRV = 'E95D0753-251D-470A-A062-FA1922DFA9A8'
+# ACCEL_PERIOD = 'E95DFB24-251D-470A-A062-FA1922DFA9A8'
+# MAGNETO_SRV = 'E95DF2D8-251D-470A-A062-FA1922DFA9A8'
+# MAGNETO_PERIOD = 'E95D386C-251D-470A-A062-FA1922DFA9A8'
+# BTN_SRV = 'E95D9882-251D-470A-A062-FA1922DFA9A8'
+# IO_PIN_SRV = 'E95D127B-251D-470A-A062-FA1922DFA9A8'
+# LED_SRV = 'E95DD91D-251D-470A-A062-FA1922DFA9A8'
+# TEMP_SRV = 'E95D6100-251D-470A-A062-FA1922DFA9A8'
+# TEMP_PERIOD = 'E95D1B25-251D-470A-A062-FA1922DFA9A8'
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -103,30 +105,32 @@ class Microbit:
         self.ubit = device.Device(device_path[0])
 
         # dbus paths
-        self.accel_srv = None
-        self.accel_data = None
-        self.aceel_period = None
-        self.magneto_srv = None
-        self.magneto_data = None
-        self.magneto_period = None
-        self.magneto_bearing = None
-        self.btn_srv = None
-        self.btn_a_state = None
+        self._magneto_data = None
+        self._magneto_bearing = None
+        self._btn_a_state = None
         self._btn_a_cb = None
-        self.btn_b_state = None
+        self._btn_b_state = None
         self._btn_b_cb = None
-        self.io_pin_srv = None
-        self.io_pin_data = None
-        self.io_ad_config = None
-        self.io_pin_config = None
-        self.io_pin_pwm = None
-        self.led_srv = None
-        self.led_state = None
-        self.led_text = None
-        self.led_scroll = None
-        self.temp_srv = None
-        self.temp_data = None
-        self.temp_period = None
+        self._io_pin_data = None
+        self._io_ad_config = None
+        self._io_pin_config = None
+        self._io_pin_pwm = None
+        self._led_state = None
+        self._led_text = None
+        self._led_scroll = None
+        self._temp_data = None
+
+        # Unused dbus paths
+        # self.accel_srv = None
+        # self.aceel_period = None
+        # self.magneto_srv = None
+        # self.magneto_period = None
+        # self.btn_srv = None
+        # self._accel_data = None
+        # self.io_pin_srv = None
+        # self.led_srv = None
+        # self.temp_srv = None
+        # self.temp_period = None
 
     def _unsigned_int_from_bytes(self, byteval):
         """Convert a DBus Byte Array from the Microbit to an unsigned int."""
@@ -138,30 +142,30 @@ class Microbit:
 
     def _initialise_BLE(self):
         """Utility function to initialise the BLE interfaces."""
-        self.led_scroll = ngatt.Characteristic(LED_SCROLL)
-        self.led_text = ngatt.Characteristic(LED_TEXT)
-        self.led_state = ngatt.Characteristic(LED_STATE)
-        self.temp_data = ngatt.Characteristic(TEMP_DATA)
-        self.btn_a_state = ngatt.Characteristic(BTN_A_STATE)
-        self.btn_b_state = ngatt.Characteristic(BTN_B_STATE)
-        self.accel_data = ngatt.Characteristic(ACCEL_DATA)
-        self.magneto_data = ngatt.Characteristic(MAGNETO_DATA)
-        self.magneto_bearing = ngatt.Characteristic(MAGNETO_BEARING)
-        self.io_pin_config = ngatt.Characteristic(IO_PIN_CONFIG)
-        self.io_ad_config = ngatt.Characteristic(IO_AD_CONFIG)
-        self.io_pin_pwm = ngatt.Characteristic(IO_PIN_PWM)
-        self.io_pin_data = ngatt.Characteristic(IO_PIN_DATA)
+        self._led_scroll = GATT.Characteristic(LED_SCROLL)
+        self._led_text = GATT.Characteristic(LED_TEXT)
+        self._led_state = GATT.Characteristic(LED_STATE)
+        self._temp_data = GATT.Characteristic(TEMP_DATA)
+        self._btn_a_state = GATT.Characteristic(BTN_A_STATE)
+        self._btn_b_state = GATT.Characteristic(BTN_B_STATE)
+        self._accel_data = GATT.Characteristic(ACCEL_DATA)
+        self._magneto_data = GATT.Characteristic(MAGNETO_DATA)
+        self._magneto_bearing = GATT.Characteristic(MAGNETO_BEARING)
+        self._io_pin_config = GATT.Characteristic(IO_PIN_CONFIG)
+        self._io_ad_config = GATT.Characteristic(IO_AD_CONFIG)
+        self._io_pin_pwm = GATT.Characteristic(IO_PIN_PWM)
+        self._io_pin_data = GATT.Characteristic(IO_PIN_DATA)
 
         # Unused UUIDs, inherited from previous implementation
-        # self.accel_srv = ngatt.Service(ACCEL_SRV)
-        # self.accel_period = ngatt.Characteristic(ACCEL_PERIOD)
-        # self.magneto_srv = ngatt.Service(MAGNETO_SRV)
-        # self.magneto_period = ngatt.Characteristic(MAGNETO_PERIOD)
-        # self.btn_srv = ngatt.Service(BTN_SRV)
-        # self.io_pin_srv = ngatt.Service(IO_PIN_SRV)
-        # self.led_srv = ngatt.Service(LED_SRV)
-        # self.temp_srv = ngatt.Service(TEMP_SRV)
-        # self.temp_period = ngatt.Characteristic(TEMP_PERIOD)
+        # self.accel_srv = GATT.Service(ACCEL_SRV)
+        # self.accel_period = GATT.Characteristic(ACCEL_PERIOD)
+        # self.magneto_srv = GATT.Service(MAGNETO_SRV)
+        # self.magneto_period = GATT.Characteristic(MAGNETO_PERIOD)
+        # self.btn_srv = GATT.Service(BTN_SRV)
+        # self.io_pin_srv = GATT.Service(IO_PIN_SRV)
+        # self.led_srv = GATT.Service(LED_SRV)
+        # self.temp_srv = GATT.Service(TEMP_SRV)
+        # self.temp_period = GATT.Characteristic(TEMP_PERIOD)
 
     def _test_property_is_valid(self, prop_name):
         """
@@ -199,8 +203,8 @@ class Microbit:
         Specifies a millisecond delay to wait for in between showing each
         character on the display.
         """
-        self._test_property_is_valid('led_scroll')
-        return self._unsigned_int_from_bytes(self.led_scroll.value)
+        self._test_property_is_valid('_led_scroll')
+        return self._unsigned_int_from_bytes(self._led_scroll.value)
 
     @display_scroll_delay.setter
     def display_scroll_delay(self, delay):
@@ -210,12 +214,12 @@ class Microbit:
         Specifies a millisecond delay to wait for in between showing each
         character on the display.
         """
-        self._test_property_is_valid('led_scroll')
+        self._test_property_is_valid('_led_scroll')
         if delay < 0:
             delay = 0
         elif delay > 2**16:
             delay = 2**16
-        self.led_scroll.value = tools.int_to_uint16(delay)
+        self._led_scroll.value = tools.int_to_uint16(delay)
 
     def set_display_text(self, words):
         """
@@ -228,7 +232,7 @@ class Microbit:
         :type words: string
         """
         text = len(words) <= 20 and words or words[:19]
-        self.led_text.value = [ord(letter) for letter in text]
+        self._led_text.value = [ord(letter) for letter in text]
 
     @property
     def display(self):
@@ -254,14 +258,14 @@ class Microbit:
 
         :return: Example [0b1110, 0b10000, 0b10000, 0b10000, 0b1110]
         """
-        return [bin(i) for i in self.led_state.value]
+        return [bin(i) for i in self._led_state.value]
 
     @display.setter
     def display(self, pixarray):
         if type(pixarray) is int and not pixarray:
-            self.led_state.value = [0x00, 0x00, 0x00, 0x00, 0x00]
+            self._led_state.value = [0x00, 0x00, 0x00, 0x00, 0x00]
         elif len(pixarray) == 5:
-            self.led_state.value = pixarray
+            self._led_state.value = pixarray
         else:
             raise ValueError('LED display requires a pixel list of 5x 5-bit '
                              'values.  The array passed had {} values.'
@@ -274,8 +278,8 @@ class Microbit:
 
         :return: Integer of temperature in Celsius
         """
-        self._test_property_is_valid('temp_data')
-        return self._signed_int_from_bytes(self.temp_data.value)
+        self._test_property_is_valid('_temp_data')
+        return self._signed_int_from_bytes(self._temp_data.value)
 
     @property
     def button_a(self):
@@ -286,7 +290,7 @@ class Microbit:
         enumeration:  0 = not pressed, 1 = pressed, 2 = long press.
         :return: integer representing button value
         """
-        return self._unsigned_int_from_bytes(self.btn_a_state.value)
+        return self._unsigned_int_from_bytes(self._btn_a_state.value)
 
     @property
     def button_b(self):
@@ -297,7 +301,7 @@ class Microbit:
         enumeration:  0 = not pressed, 1 = pressed, 2 = long press.
         :return: integer representing button value
         """
-        return self._unsigned_int_from_bytes(self.btn_b_state.value)
+        return self._unsigned_int_from_bytes(self._btn_b_state.value)
 
     def _button_prop_cb(self, value):
         """
@@ -319,8 +323,8 @@ class Microbit:
         """
         if callback is None:
             callback = self._button_prop_cb
-        self.btn_a_state.notify_cb = callback
-        self.btn_a_state.notifying = True
+        self._btn_a_state.notify_cb = callback
+        self._btn_a_state.notifying = True
 
     def subscribe_button_b(self, callback=None):
         """Subscribe to notifications on Button B.
@@ -330,8 +334,8 @@ class Microbit:
         """
         if callback is None:
             callback = self._button_prop_cb
-        self.btn_b_state.notify_cb = callback
-        self.btn_b_state.notifying = True
+        self._btn_b_state.notify_cb = callback
+        self._btn_b_state.notifying = True
 
     @property
     def accelerometer(self):
@@ -341,7 +345,7 @@ class Microbit:
         :return: return a list in the order of x, y & z
         :rtype: list
         """
-        return tools.bytes_to_xyz(self.accel_data.value)
+        return tools.bytes_to_xyz(self._accel_data.value)
 
     @property
     def magnetometer(self):
@@ -352,7 +356,7 @@ class Microbit:
         as the earth's magnetic field in 3 axes.
         :return: List of x, y & z value
         """
-        return tools.bytes_to_xyz(self.magneto_data.value)
+        return tools.bytes_to_xyz(self._magneto_data.value)
 
     @property
     def bearing(self):
@@ -361,7 +365,7 @@ class Microbit:
 
         :return: degrees in integer
         """
-        return self._unsigned_int_from_bytes(self.magneto_bearing.value)
+        return self._unsigned_int_from_bytes(self._magneto_bearing.value)
 
     @property
     def pin_io_config(self):
@@ -371,7 +375,7 @@ class Microbit:
         A value of 0 means configured for output and 1 means configured
         for input.
         """
-        return self.io_pin_config.value
+        return self._io_pin_config.value
 
     @pin_io_config.setter
     def pin_io_config(self, states):
@@ -381,7 +385,7 @@ class Microbit:
         A value of 0 means configured for output and 1 means configured
         for input.
         """
-        self.io_pin_config.value = states
+        self._io_pin_config.value = states
 
     @property
     def pin_ad_config(self):
@@ -392,7 +396,7 @@ class Microbit:
         analogue or digital use.
         A value of 0 means digital and 1 means analogue.
         """
-        return self.io_ad_config.value
+        return self._io_ad_config.value
 
     @pin_ad_config.setter
     def _pin_ad_config(self, states):
@@ -403,7 +407,7 @@ class Microbit:
         analogue or digital use.
         A value of 0 means digital and 1 means analogue.
         """
-        self.io_ad_config.value = states
+        self._io_ad_config.value = states
 
     @property
     def pin_states(self):
@@ -415,7 +419,7 @@ class Microbit:
         Structured as a variable length list of up to 19 Pin
         Number / Value pairs.
         """
-        return self.io_pin_data.value
+        return self._io_pin_data.value
 
     @pin_states.setter
     def pin_states(self, pin_value_pairs):
@@ -427,7 +431,7 @@ class Microbit:
         Structured as a variable length list of up to 19 Pin
         Number / Value pairs.
         """
-        self.io_pin_data.value = pin_value_pairs
+        self._io_pin_data.value = pin_value_pairs
 
     @property
     def pin_pwm_control(self):
@@ -440,7 +444,7 @@ class Microbit:
         :param period: Period is in microseconds and is an unsigned integer
         :return:
         """
-        return self.io_pin_pwm.value
+        return self._io_pin_pwm.value
 
     @pin_pwm_control.setter
     def pin_pwm_control(self, pwm_data):
@@ -457,7 +461,7 @@ class Microbit:
         byte_value = tools.int_to_uint16(pwm_data[1])
         byte_period = tools.int_to_uint32(pwm_data[2])
         pwm_value = [[pwm_data[0]], byte_value, byte_period]
-        self.io_pin_pwm.value = list(itertools.chain.from_iterable(pwm_value))
+        self._io_pin_pwm.value = list(itertools.chain.from_iterable(pwm_value))
 
     def play_beep(self, duration):
         """
@@ -558,7 +562,7 @@ class BitBot(Microbit):
         left_pwm = tools.int_to_uint16(left_val)
         right_pwm = tools.int_to_uint16(right_val)
         pwm_value = [[0], left_pwm, period, [1], right_pwm, period]
-        self.io_pin_pwm.value = list(itertools.chain.from_iterable(pwm_value))
+        self._io_pin_pwm.value = list(itertools.chain.from_iterable(pwm_value))
         self.pin_states = [0x08, left_rev, 0x0C, right_rev]
 
     def drive(self, left=100, right=100):
