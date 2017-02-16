@@ -7,7 +7,7 @@ import unittest
 import dbus
 import dbusmock
 
-from bluezero import ngatt
+from bluezero import GATT
 
 
 class TestBluezeroService(dbusmock.DBusTestCase):
@@ -62,7 +62,7 @@ class TestBluezeroService(dbusmock.DBusTestCase):
     def test_service_uuid(self):
         """Test the service UUID."""
         # Invoke the bluez GATT library to access the mock GATT service
-        test_service = ngatt.Service(self.svc_dpath)
+        test_service = GATT.Service(self.svc_dpath)
 
         # Test for the UUID
         self.assertEqual(test_service.UUID, self.uuid)
@@ -70,7 +70,7 @@ class TestBluezeroService(dbusmock.DBusTestCase):
     def test_service_parent(self):
         """Test the service parent (device) path."""
         # Invoke the bluez GATT library to access the mock GATT service
-        test_service = ngatt.Service(self.svc_dpath)
+        test_service = GATT.Service(self.svc_dpath)
 
         # Test for the device path
         dev_underscore = self.address.replace(':', '_').upper()
@@ -80,14 +80,14 @@ class TestBluezeroService(dbusmock.DBusTestCase):
     def test_service_primary(self):
         """Test the service primary flag."""
         # Invoke the bluez GATT library to access the mock GATT service
-        test_service = ngatt.Service(self.svc_dpath)
+        test_service = GATT.Service(self.svc_dpath)
 
         # Test for the UUID
         self.assertEqual(test_service.primary, self.primary)
 
     def test_chr_value_read(self):
         """Test the characteristic read value function."""
-        test_chr = ngatt.Characteristic(self.chr_dpath)
+        test_chr = GATT.Characteristic(self.chr_dpath)
 
         self.assertEqual(test_chr.value, dbus.Array([0x01]))
 
