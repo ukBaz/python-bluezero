@@ -36,19 +36,25 @@ class TestBluezeroService(dbusmock.DBusTestCase):
                                                        'my-computer')
 
         # Add a mock remote device
-        self.dbusmock_bluez.AddDevice(self.adapter_name, self.address,
-                                      self.alias)
+        self.dev_path = self.dbusmock_bluez.AddDevice(self.adapter_name,
+                                                      self.address, self.alias)
 
         # Initialise a mock remote GATT service
         self.uuid = '190f'
         self.primary = False
+        self.svc_num = 1
         self.svc_dpath = self.dbusmock_bluez.AddGATTService(
-            self.adapter_name, self.address, self.alias, self.uuid,
-            self.primary)
+            self.dev_path, self.svc_num, self.uuid, self.primary)
 
         # Initialise a mock remote GATT characteristic
+        self.chr_num = 1
+        self.chr_uuid = '200f'
+        self.chr_flags = ['read', 'write', 'notify']
+        self.chr_value = 1
+        self.chr_notifying = False
         self.chr_dpath = self.dbusmock_bluez.AddGATTCharacteristic(
-            self.adapter_name, self.address, self.alias, self.svc_dpath)
+            self.svc_dpath, self.chr_num, self.chr_uuid, self.chr_flags,
+            self.chr_value, self.chr_notifying)
 
     def test_paths(self):
         """Test the adapter and service paths."""
@@ -89,7 +95,7 @@ class TestBluezeroService(dbusmock.DBusTestCase):
         """Test the characteristic read value function."""
         test_chr = GATT.Characteristic(self.chr_dpath)
 
-        self.assertEqual(test_chr.value, dbus.Array([0x01]))
+        self.assertEqual(test_chr.value, dbus.Array([self.chr_value]))
 
 if __name__ == '__main__':
     # avoid writing to stderr
