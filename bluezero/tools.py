@@ -18,7 +18,7 @@ dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 mainloop = GObject.MainLoop()
 
 
-class DBusObject:
+class DBusObject(object):
     """Parent class for all DBus Classes providing common initialisation."""
 
     def __init__(self, obj_path, meth_iface):
