@@ -4,10 +4,14 @@ to extend a light switch to be switchable by both a switch and bluetooth.
 An honourable mention to the Authors of Make:Bluetooth for the idea.
 In particular Alasdair Allan that did a great demo at OSCON 2015.
 """
+import logging
 from gpiozero import LED
 from gpiozero import Button
 
 from bluezero import peripheral
+
+logging.getLogger('bluezero.adapter').setLevel(logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 # Hardware
 # Ryanteck Traffic Hat
@@ -93,7 +97,7 @@ for mngd_objcs in light_service.GetManagedObjects():
     print('Managed Objects: ', mngd_objcs)
 
 # Add application [new in 5.38]
-app = peripheral.Application()
+app = peripheral.Application('/org/bluez/hci0')
 app.add_service(light_service)
 
 app.add_device_name('BluezeroLight')
