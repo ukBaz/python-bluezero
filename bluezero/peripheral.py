@@ -191,7 +191,7 @@ class Application(dbus.service.Object):
 
         :param device_name: a string to be used as the name
         """
-        self.dongle.alias(device_name)
+        self.dongle.alias = device_name
 
     def start(self):
         """Start the application.
@@ -219,7 +219,7 @@ class Application(dbus.service.Object):
         ``try-except-finally`` block to enable keyboard interrupts.
         """
         # Register the Bluetooth adapter
-        self.dongle.powered('on')
+        self.dongle.powered = True
 
         # Setup the advertising manager
         print('setup ad_manager')
