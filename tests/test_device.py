@@ -1,61 +1,69 @@
-import subprocess
-import sys
 import unittest
+from unittest.mock import MagicMock
+from unittest.mock import patch
+import tests.obj_data
+from bluezero import constants
 
-import dbus
-import dbusmock
-
-from bluezero.adapter import Adapter
-from bluezero.device import Device
+adapter_props = tests.obj_data.full_ubits
 
 
-class TestBluezeroDevice(dbusmock.DBusTestCase):
+def mock_get(iface, prop):
+    return tests.obj_data.full_ubits['/org/bluez/hci0/dev_D4_AE_95_4C_3E_A4'][iface][prop]
 
-    @classmethod
-    def setUpClass(klass):
-        klass.start_system_bus()
-        klass.dbus_con = klass.get_dbus(True)
-        (klass.p_mock, klass.obj_bluez) = klass.spawn_server_template(
-            'bluez5', {}, stdout=subprocess.PIPE)
+
+def mock_set(iface, prop, value):
+    tests.obj_data.full_ubits['/org/bluez/hci0/dev_D4_AE_95_4C_3E_A4'][iface][prop] = value
+
+
+class TestBluezeroDevice(unittest.TestCase):
 
     def setUp(self):
-        self.obj_bluez.Reset()
-        self.dbusmock = dbus.Interface(self.obj_bluez, dbusmock.MOCK_IFACE)
-        self.dbusmock_bluez = dbus.Interface(self.obj_bluez, 'org.bluez.Mock')
+        """
+        Patch the DBus module
+        :return:
+        """
+        self.dbus_mock = MagicMock()
+        self.mainloop_mock = MagicMock()
+        self.gobject_mock = MagicMock()
 
-        self.adapter_name = 'hci0'
-        self.address = '22:22:33:44:55:66'
-        self.alias = 'Peripheral Device'
-
-        self.adapter_path = self.dbusmock_bluez.AddAdapter(self.adapter_name,
-                                                           'my-computer')
-        self.assertEqual(self.adapter_path, '/org/bluez/' + self.adapter_name)
-        dongle = Adapter('/org/bluez/hci0')
-
-        self.device_path = self.dbusmock_bluez.AddDevice(self.adapter_name,
-                                                         self.address,
-                                                         self.alias)
-        self.assertEqual(self.device_path,
-                         '/org/bluez/' + self.adapter_name + '/dev_' +
-                         self.address.replace(':', '_'))
-        self.ble_dev = Device('/org/bluez/hci0/dev_22_22_33_44_55_66')
+        modules = {
+            'dbus': self.dbus_mock,
+            'dbus.mainloop.glib': self.mainloop_mock,
+            'gi.repository': self.gobject_mock,
+        }
+        self.dbus_mock.Interface.return_value.GetManagedObjects.return_value = tests.obj_data.full_ubits
+        self.dbus_mock.Interface.return_value.Get = mock_get
+        self.dbus_mock.Interface.return_value.Set = mock_set
+        self.module_patcher = patch.dict('sys.modules', modules)
+        self.module_patcher.start()
+        from bluezero import device
+        self.module_under_test = device
+        self.path = '/org/bluez/hci0/dev_D4_AE_95_4C_3E_A4'
+        self.adapter_path = '/org/bluez/hci0'
+        self.dev_name = 'BBC micro:bit [zezet]'
+        self.address = 'D4:AE:95:4C:3E:A4'
 
     def test_device_name(self):
-        self.assertEqual(self.ble_dev.name, self.alias)
+        ble_dev = self.module_under_test.Device(self.path)
+        self.assertEqual(ble_dev.name, self.dev_name)
 
     def test_connected(self):
-        conn_state = self.ble_dev.connected
+        ble_dev = self.module_under_test.Device(self.path)
+        conn_state = ble_dev.connected
         self.assertEqual(conn_state, False)
+        """
         self.dbusmock_bluez.ConnectDevice(self.adapter_name,
                                           self.address)
         conn_state = self.ble_dev.connected
         self.assertEqual(conn_state, True)
-
+    """
     def test_address(self):
-        self.assertEqual(self.ble_dev.address, self.address)
+        ble_dev = self.module_under_test.Device(self.path)
+        self.assertEqual(ble_dev.address, self.address)
 
     def test_name(self):
-        self.assertEqual(self.ble_dev.name, self.alias)
+        ble_dev = self.module_under_test.Device(self.path)
+        self.assertEqual(ble_dev.name, self.dev_name)
 
     @unittest.skip('Do not know value to use for icon')
     def test_icon(self):
@@ -66,41 +74,59 @@ class TestBluezeroDevice(dbusmock.DBusTestCase):
         pass
 
     def test_appearance(self):
-        self.assertEqual(self.ble_dev.appearance, 0x0200)
+        ble_dev = self.module_under_test.Device(self.path)
+        self.assertEqual(ble_dev.appearance, 0x0200)
 
     def test_uuids(self):
-        self.assertEqual(self.ble_dev.uuids,
+        ble_dev = self.module_under_test.Device(self.path)
+        self.assertEqual(ble_dev.uuids,
                          ['00001800-0000-1000-8000-00805f9b34fb',
                           '00001801-0000-1000-8000-00805f9b34fb',
-                          '0000180a-0000-1000-8000-00805f9b34fb'])
+                          '0000180a-0000-1000-8000-00805f9b34fb',
+                          'e95d0753-251d-470a-a062-fa1922dfa9a8',
+                          'e95d127b-251d-470a-a062-fa1922dfa9a8',
+                          'e95d6100-251d-470a-a062-fa1922dfa9a8',
+                          'e95d9882-251d-470a-a062-fa1922dfa9a8',
+                          'e95dd91d-251d-470a-a062-fa1922dfa9a8',
+                          'e95df2d8-251d-470a-a062-fa1922dfa9a8'])
 
     def test_paired(self):
-        self.assertEqual(self.ble_dev.paired, False)
+        ble_dev = self.module_under_test.Device(self.path)
+        self.assertEqual(ble_dev.paired, False)
 
     def test_trusted(self):
-        self.assertEqual(self.ble_dev.trusted, False)
+        ble_dev = self.module_under_test.Device(self.path)
+        self.assertEqual(ble_dev.trusted, False)
 
     def test_blocked(self):
-        self.assertEqual(self.ble_dev.blocked, False)
+        ble_dev = self.module_under_test.Device(self.path)
+        self.assertEqual(ble_dev.blocked, False)
 
     def test_alias(self):
-        self.assertEqual(self.ble_dev.alias, self.alias)
+        ble_dev = self.module_under_test.Device(self.path)
+        self.assertEqual(ble_dev.alias, self.dev_name)
 
     def test_adapter(self):
-        self.assertEqual(self.ble_dev.adapter, self.adapter_path)
+        ble_dev = self.module_under_test.Device(self.path)
+        self.assertEqual(ble_dev.adapter, self.adapter_path)
 
     def test_legacy_pairing(self):
-        self.assertEqual(self.ble_dev.legacy_pairing, False)
+        ble_dev = self.module_under_test.Device(self.path)
+        self.assertEqual(ble_dev.legacy_pairing, False)
 
     @unittest.skip('Do not know value to use for modalias')
     def test_modalias(self):
         pass
 
+    @unittest.skip('No value from BlueZ for RSSI')
     def test_rssi(self):
-        self.assertEqual(self.ble_dev.RSSI, -79)
+        ble_dev = self.module_under_test.Device(self.path)
+        self.assertEqual(ble_dev.RSSI, -79)
 
+    @unittest.skip('No value from BlueZ for Tx Power')
     def test_txpower(self):
-        self.assertEqual(self.ble_dev.tx_power, 0)
+        ble_dev = self.module_under_test.Device(self.path)
+        self.assertEqual(ble_dev.tx_power, 0)
 
     @unittest.skip('Do not know value to use for manufacturer data')
     def test_manufacturer_data(self):
@@ -111,12 +137,12 @@ class TestBluezeroDevice(dbusmock.DBusTestCase):
         pass
 
     def test_services_resolved(self):
-        self.assertEqual(self.ble_dev.services_resolved, False)
+        ble_dev = self.module_under_test.Device(self.path)
+        self.assertEqual(ble_dev.services_resolved, False)
 
     @unittest.skip('Not in BlueZ 5.42')
     def test_adverting_flags(self):
         pass
-
 
 if __name__ == '__main__':
     # avoid writing to stderr

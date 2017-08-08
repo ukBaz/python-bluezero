@@ -38,7 +38,6 @@ class TestBluezeroAdapter(unittest.TestCase):
         self.module_patcher.start()
         from bluezero import adapter
         self.module_under_test = adapter
-        self.dbus_mock.Interface.return_value.Get
         self.adapter_device = 'hci0'
         self.adapter_name = 'linaro-alip'
         self.path = '/org/bluez/hci0'
