@@ -28,7 +28,7 @@ before_install:
 install:
   # - pip install --upgrade pip
   - pip install pycodestyle
-  - pip install coverage >4.0,<4.4
+  - pip install 'coverage>4.0,<4.4'
   - pip install codeclimate-test-reporter
   # Install released version of dbusmock
   # - pip install python-dbusmock
