@@ -23,7 +23,7 @@ if __name__ == '__main__':
     try:
         print('Light follow...')
         light_follow(bitbot, 80)
-    except:
+    except KeyboardInterrupt:
         print('Exception so stop')
         bitbot.stop()
         bitbot.disconnect()
