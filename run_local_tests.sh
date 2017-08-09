@@ -1,27 +1,28 @@
 #!/usr/bin/env bash
-python -m unittest -v tests.test_tools
-test11=$?
-python3 -m unittest -v tests.test_tools
+# python -m unittest -v tests.test_tools
+# test11=$?
+coverage run -m unittest -v tests.test_tools
 test12=$?
-python -m unittest -v tests.test_adapter
-test21=$?
-python3 -m unittest -v tests.test_adapter
+# python -m unittest -v tests.test_adapter
+# test21=$?
+coverage run --append -m unittest -v tests.test_adapter
 test22=$?
-python -m unittest -v tests.test_device
-test31=$?
-python3 -m unittest -v tests.test_device
+# python -m unittest -v tests.test_device
+# test31=$?
+coverage run --append -m unittest -v tests.test_device
 test32=$?
-python -m unittest -v tests.test_gatt
-test41=$?
-python3 -m unittest -v tests.test_gatt
+# python -m unittest -v tests.test_gatt
+# test41=$?
+coverage run --append -m unittest -v tests.test_gatt
 test42=$?
 pycodestyle -v bluezero
 test51=$?
 pycodestyle -v examples
 test52=$?
-pycodestyle -v tests
-test53=$?
+# pycodestyle -v tests
+# test53=$?
 
+coverage report
 group1=$((test11 + test12))
 group2=$((test21 + test22))
 group3=$((test31 + test32))
@@ -32,3 +33,4 @@ if [ $((group1 + group2 + group3 + group4 + group5)) -ne 0 ]; then
 else
     echo -e "\n\nSuccess!!!\n"
 fi
+
