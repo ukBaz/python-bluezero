@@ -45,7 +45,7 @@ script:
   - coverage run --append -m unittest -v tests.test_gatt
   - "pycodestyle bluezero"
   - "pycodestyle examples"
-  - "pycodestyle tests"
+  # - "pycodestyle tests"
 after_success:
   #
   - CODECLIMATE_REPO_TOKEN=<token> codeclimate-test-reporter
