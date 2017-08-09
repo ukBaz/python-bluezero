@@ -4,10 +4,9 @@ sudo: required
 # look at https://github.com/pypa/pip for examples?
 # https://docs.travis-ci.com/user/multi-os/
 python:
-  - "2.7"
-  - "3.2"
-virtualenv:
-  system_site_packages: true
+  - "3.6"
+# virtualenv:
+  # system_site_packages: true
 # matrix:
   # include:
     # - python: 2.7
@@ -22,13 +21,15 @@ virtualenv:
 #       - python-gi
 #       - python3-gi
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq python-dbus python3-dbus python-gi python3-gi
+  # sudo apt-get update -qq
+  # sudo apt-get install -qq python-dbus python3-dbus python-gi python3-gi
   # install dbusmock from github
-  - ./install_dbusmock.sh
+  # ./install_dbusmock.sh
 install:
   # - pip install --upgrade pip
   - pip install pycodestyle
+  - pip install 'coverage>4.0,<4.4'
+  - pip install codeclimate-test-reporter
   # Install released version of dbusmock
   # - pip install python-dbusmock
 before_script:
@@ -39,12 +40,13 @@ before_script:
   # If dbusmock installed from github
   - export PYTHONPATH=$PYTHONPATH:/tmp/python-dbusmock-bluez_gatt
 script:
-  - python -m unittest -v tests.test_tools
-  - python -m unittest -v tests.test_adapter
-  - python -m unittest -v tests.test_device
-  - python -m unittest -v tests.test_gatt
+  - coverage run -m unittest -v tests.test_tools
+  - coverage run --append -m unittest -v tests.test_adapter
+  - coverage run --append -m unittest -v tests.test_device
+  - coverage run --append -m unittest -v tests.test_gatt
   - "pycodestyle bluezero"
   - "pycodestyle examples"
-  - "pycodestyle tests"
+  # - "pycodestyle tests"
 after_success:
   #
+  - codeclimate-test-reporter

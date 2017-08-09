@@ -47,7 +47,7 @@ if __name__ == '__main__':
     try:
         print('Line follow...')
         line_follow(bitbot, 18)
-    except:
+    except KeyboardInterrupt:
         print('Exception so stop')
         bitbot.stop()
         bitbot.disconnect()

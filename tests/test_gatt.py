@@ -1,79 +1,70 @@
-"""Automated testing of GATT functionality using dbusmock."""
-
-import subprocess
+"""Automated testing of GATT functionality using unittest.mock."""
 import sys
 import unittest
+from unittest.mock import MagicMock
+from unittest.mock import patch
+import tests.obj_data
+from bluezero import constants
 
-import dbus
-import dbusmock
-
-from bluezero import GATT
+adapter_props = tests.obj_data.full_ubits
 
 
-class TestBluezeroService(dbusmock.DBusTestCase):
+def mock_get(iface, prop):
+    return tests.obj_data.full_ubits['/org/bluez/hci0/dev_E4_43_33_7E_54_1C/service002a'][iface][prop]
+
+
+def mock_set(iface, prop, value):
+    tests.obj_data.full_ubits['/org/bluez/hci0/dev_E4_43_33_7E_54_1C/service002a'][iface][prop] = value
+
+
+class TestBluezeroService(unittest.TestCase):
     """Test class to exercise (remote) GATT Service Features."""
-
-    @classmethod
-    def setUpClass(klass):
-        """Initiate mock Bluez on a mock dbus."""
-        klass.start_system_bus()
-        klass.dbus_con = klass.get_dbus(True)
-        (klass.p_mock, klass.obj_bluez) = klass.spawn_server_template(
-            'bluez5', {}, stdout=subprocess.PIPE)
 
     def setUp(self):
         """Initialise the class for the tests."""
-        self.obj_bluez.Reset()
-        self.dbusmock = dbus.Interface(self.obj_bluez, dbusmock.MOCK_IFACE)
-        self.dbusmock_bluez = dbus.Interface(self.obj_bluez, 'org.bluez.Mock')
+        self.dbus_mock = MagicMock()
+        self.mainloop_mock = MagicMock()
+        self.gobject_mock = MagicMock()
 
-        self.adapter_name = 'hci0'
-        self.address = '11:22:33:44:55:66'
-        self.alias = 'Peripheral Device'
-
-        # Initialise an adapter
-        self.ad_dpath = self.dbusmock_bluez.AddAdapter(self.adapter_name,
-                                                       'my-computer')
-
-        # Add a mock remote device
-        self.dbusmock_bluez.AddDevice(self.adapter_name, self.address,
-                                      self.alias)
-
-        # Initialise a mock remote GATT device
-        self.svc_dpath = self.dbusmock_bluez.AddGATT(self.adapter_name,
-                                                     self.address, self.alias)
-
-    def test_paths(self):
-        """Test the adapter and service paths."""
-        # Test for the adapter path
-        self.assertEqual(self.ad_dpath, '/org/bluez/' + self.adapter_name)
-
-        # Test for the service path
-        srvc_dbus_path = '/org/bluez/hci0/dev_11_22_33_44_55_66/service0001'
-        self.assertEqual(self.svc_dpath, srvc_dbus_path)
+        modules = {
+            'dbus': self.dbus_mock,
+            'dbus.mainloop.glib': self.mainloop_mock,
+            'gi.repository': self.gobject_mock,
+        }
+        self.dbus_mock.Interface.return_value.GetManagedObjects.return_value = tests.obj_data.full_ubits
+        self.dbus_mock.Interface.return_value.Get = mock_get
+        self.dbus_mock.Interface.return_value.Set = mock_set
+        self.module_patcher = patch.dict('sys.modules', modules)
+        self.module_patcher.start()
+        from bluezero import GATT
+        self.module_under_test = GATT
+        self.path = '/org/bluez/hci0/dev_E4_43_33_7E_54_1C/service002a'
+        self.adapter_path = '/org/bluez/hci0'
+        self.dev_name = 'BBC micro:bit [zezet]'
+        self.address = 'E4:43:33:7E:54:1C'
 
     def test_service_uuid(self):
         """Test the service UUID."""
         # Invoke the bluez GATT library to access the mock GATT service
-        test_service = GATT.Service(self.svc_dpath)
+        test_service = self.module_under_test.Service(self.path)
 
         # Test for the UUID
-        self.assertEqual(test_service.UUID, '180F')
+        self.assertEqual(test_service.UUID, 'e95dd91d-251d-470a-a062-fa1922dfa9a8')
 
     def test_service_device(self):
         """Test the service device path."""
         # Invoke the bluez GATT library to access the mock GATT service
-        test_service = GATT.Service(self.svc_dpath)
+        test_service = self.module_under_test.Service(self.path)
 
         # Test for the device path
         dev_underscore = self.address.replace(':', '_').upper()
-        dev_addr = '{0}/dev_{1}'.format(self.ad_dpath, dev_underscore)
+        dev_addr = '{0}/dev_{1}'.format(self.adapter_path, dev_underscore)
         self.assertEqual(test_service.device, dev_addr)
 
     def test_service_primary(self):
         """Test the service primary flag."""
         # Invoke the bluez GATT library to access the mock GATT service
-        test_service = GATT.Service(self.svc_dpath)
+        test_service = self.module_under_test.Service(self.path)
 
         # Test for the UUID
         self.assertEqual(test_service.primary, True)
