@@ -29,6 +29,7 @@ install:
   # - pip install --upgrade pip
   - pip install pycodestyle
   - pip install coverage
+  - pip install codeclimate-test-reporter
   # Install released version of dbusmock
   # - pip install python-dbusmock
 before_script:
@@ -48,4 +49,4 @@ script:
   # - "pycodestyle tests"
 after_success:
   #
-  - CODECLIMATE_REPO_TOKEN=<token> codeclimate-test-reporter
+  - codeclimate-test-reporter
