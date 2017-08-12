@@ -4,8 +4,6 @@ from unittest.mock import patch
 import tests.obj_data
 from bluezero import constants
 
-adapter_props = tests.obj_data.full_ubits
-
 
 def mock_get(iface, prop):
     return tests.obj_data.full_ubits['/org/bluez/hci0/dev_D4_AE_95_4C_3E_A4'][iface][prop]
@@ -42,6 +40,9 @@ class TestBluezeroDevice(unittest.TestCase):
         self.adapter_path = '/org/bluez/hci0'
         self.dev_name = 'BBC micro:bit [zezet]'
         self.address = 'D4:AE:95:4C:3E:A4'
+
+    def tearDown(self):
+        self.module_patcher.stop()
 
     def test_device_name(self):
         ble_dev = self.module_under_test.Device(self.path)
