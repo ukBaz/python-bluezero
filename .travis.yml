@@ -38,12 +38,26 @@ before_script:
   # - echo $TRAVIS_PYTHON_VERSION
   # - echo $PYTHONPATH
   # If dbusmock installed from github
-  - export PYTHONPATH=$PYTHONPATH:/tmp/python-dbusmock-bluez_gatt
+  # - export PYTHONPATH=$PYTHONPATH:/tmp/python-dbusmock-bluez_gatt
 script:
+  # Shared
   - coverage run -m unittest -v tests.test_tools
+  # Level 100
   - coverage run --append -m unittest -v tests.test_adapter
+  - coverage run --append -m unittest -v tests.test_advertisement
   - coverage run --append -m unittest -v tests.test_device
   - coverage run --append -m unittest -v tests.test_gatt
+  # Level 10
+  - coverage run --append -m unittest -v tests.test_broadcaster
+  - coverage run --append -m unittest -v tests.test_peripheral
+  # Level 1
+  - coverage run --append -m unittest -v tests.test_blinkt
+  - coverage run --append -m unittest -v tests.test_eddystone
+  - coverage run --append -m unittest -v tests.test_microbit
+  # Examples (Level 1)
+  - coverage run --append -m unittest -v tests.test_adapter_example
+
+
   - "pycodestyle bluezero"
   - "pycodestyle examples"
   # - "pycodestyle tests"

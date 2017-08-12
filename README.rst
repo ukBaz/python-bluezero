@@ -8,14 +8,19 @@ python-bluezero
 .. image:: https://codeclimate.com/github/ukBaz/python-bluezero/badges/gpa.svg
    :target: https://codeclimate.com/github/ukBaz/python-bluezero
    :alt: Code Climate
-   
-.. image:: https://codeclimate.com/github/ukBaz/python-bluezero/badges/coverage.svg
-   :target: https://codeclimate.com/github/ukBaz/python-bluezero/coverage
-   :alt: Test Coverage
 
-.. image:: https://codeclimate.com/github/ukBaz/python-bluezero/badges/issue_count.svg
-   :target: https://codeclimate.com/github/ukBaz/python-bluezero
-   :alt: Issue Count
+.. image:: https://img.shields.io/codecov/c/github/ukBaz/python-bluezero/master.svg?maxAge=2592000
+    :target: https://codecov.io/github/ukBaz/python-bluezero
+    :alt: Code Coverage
+
+.. image:: https://img.shields.io/pypi/v/bluezero.svg
+   :target: https://pypi.python.org/pypi/bluezero/
+   :alt: PyPI Version
+
+.. image:: https://img.shields.io/pypi/l/bluezero.svg
+   :target: https://github.com/ukBaz/python-bluezero/blob/master/LICENSE
+   :alt: MIT License
+
 
 
 A simple Python interface to BlueZ stack

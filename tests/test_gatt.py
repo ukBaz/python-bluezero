@@ -43,6 +43,9 @@ class TestBluezeroService(unittest.TestCase):
         self.dev_name = 'BBC micro:bit [zezet]'
         self.address = 'E4:43:33:7E:54:1C'
 
+    def tearDown(self):
+        self.module_patcher.stop()
+
     def test_service_uuid(self):
         """Test the service UUID."""
         # Invoke the bluez GATT library to access the mock GATT service

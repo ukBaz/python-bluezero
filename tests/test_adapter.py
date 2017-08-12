@@ -45,6 +45,10 @@ class TestBluezeroAdapter(unittest.TestCase):
     def tearDown(self):
         self.module_patcher.stop()
 
+    def test_list_adapters(self):
+        adapters = self.module_under_test.list_adapters()
+        self.assertListEqual(['/org/bluez/hci0'], adapters)
+
     def test_adapter_address(self):
         dongle = self.module_under_test.Adapter(self.path)
         self.assertEqual(dongle.address, '00:00:00:00:5A:AD')
