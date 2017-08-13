@@ -17,6 +17,7 @@ import dbus.mainloop.glib
 
 # python-bluezero imports
 from bluezero import constants
+from bluezero import dbus_tools
 
 # Main eventloop import
 try:
@@ -41,6 +42,10 @@ logger.setLevel(logging.WARNING)
 logger.addHandler(NullHandler())
 
 
+class AdapterError(Exception):
+    pass
+
+
 def list_adapters():
     """List adapters that are available on the D-Bus."""
     paths = []
@@ -58,25 +63,6 @@ def list_adapters():
         return paths
 
 
-def interfaces_added(path, interfaces):
-    if constants.DEVICE_INTERFACE in interfaces:
-        logger.debug('Device added at {}'.format(path))
-
-
-def properties_changed(interface, changed, invalidated, path):
-    if constants.DEVICE_INTERFACE in interface:
-        for prop in changed:
-            logger.debug(
-                '{}:{} Property {} new value {}'.format(interface,
-                                                        path,
-                                                        prop,
-                                                        changed[prop]))
-
-
-class AdapterError(Exception):
-    pass
-
-
 class Adapter:
     """Bluetooth Adapter Class.
 
@@ -86,12 +72,12 @@ class Adapter:
     :Example:
 
     >>> from bluezero import adapter
-    >>> dongle = adapter.Adapter('/org/bluez/hci0')
+    >>> dongle = adapter.Adapter()
     >>> dongle.powered = True
 
     """
 
-    def __init__(self, adapter_path):
+    def __init__(self, adapter_addr=None):
         """Default initialiser.
 
         Creates the D-Bus interface to the specified local Bluetooth
@@ -102,7 +88,12 @@ class Adapter:
         """
         self.bus = dbus.SystemBus()
 
-        self.path = adapter_path
+        if adapter_addr is None:
+            adapters = dbus_tools.list_adapters()
+            if len(adapters) > 0:
+                adapter_addr = adapters[0]
+
+        self.path = dbus_tools.get_dbus_path(adapter=adapter_addr)
         self.adapter_object = self.bus.get_object(
             constants.BLUEZ_SERVICE_NAME,
             self.path)
@@ -116,11 +107,11 @@ class Adapter:
         self._nearby_count = 0
         self.mainloop = GObject.MainLoop()
 
-        self.bus.add_signal_receiver(interfaces_added,
+        self.bus.add_signal_receiver(dbus_tools.interfaces_added,
                                      dbus_interface=constants.DBUS_OM_IFACE,
                                      signal_name='InterfacesAdded')
 
-        self.bus.add_signal_receiver(properties_changed,
+        self.bus.add_signal_receiver(dbus_tools.properties_changed,
                                      dbus_interface=dbus.PROPERTIES_IFACE,
                                      signal_name='PropertiesChanged',
                                      arg0=constants.DEVICE_INTERFACE,

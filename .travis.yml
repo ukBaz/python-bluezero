@@ -42,6 +42,7 @@ before_script:
 script:
   # Shared
   - coverage run -m unittest -v tests.test_tools
+  - coverage run -m unittest -v tests.test_dbus_tools
   # Level 100
   - coverage run --append -m unittest -v tests.test_adapter
   - coverage run --append -m unittest -v tests.test_advertisement
@@ -49,6 +50,7 @@ script:
   - coverage run --append -m unittest -v tests.test_gatt
   # Level 10
   - coverage run --append -m unittest -v tests.test_broadcaster
+  - coverage run --append -m unittest -v tests.test_central
   - coverage run --append -m unittest -v tests.test_peripheral
   # Level 1
   - coverage run --append -m unittest -v tests.test_blinkt

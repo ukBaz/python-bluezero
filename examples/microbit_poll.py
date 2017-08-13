@@ -1,7 +1,8 @@
 import time
 from bluezero import microbit
 
-ubit = microbit.Microbit(name='puteg')
+ubit = microbit.Microbit(adapter_addr='00:02:5B:03:44:07',
+                         device_addr='D4:AE:95:4C:3E:A4')
 
 ubit.connect()
 

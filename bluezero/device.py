@@ -22,6 +22,7 @@ except ImportError:
             pass
 
 from bluezero import constants
+from bluezero import dbus_tools
 
 
 logger = logging.getLogger(__name__)
@@ -36,17 +37,19 @@ class Device:
     Bluetooth device via the D-Bus.
     """
 
-    def __init__(self, device_path):
+    def __init__(self, adapter_addr, device_addr):
         """Default initialiser.
 
-        Creates the D-Bus interface to the specified remote Bluetooth device.
-        The DBus path must be specified.
+        Creates object for the specified remote Bluetooth device.
+        This is on the specified adapter specified.
 
         :param device_path: DBus path to the remote Bluetooth device.
         """
         self.bus = dbus.SystemBus()
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         self.mainloop = GObject.MainLoop()
+
+        device_path = dbus_tools.get_dbus_path(adapter_addr, device_addr)
 
         self.remote_device_path = device_path
         self.remote_device_obj = self.bus.get_object(
@@ -236,11 +239,10 @@ class Device:
             constants.DEVICE_INTERFACE,
             'ServicesResolved')
 
-    def connect(self, address=None, profile=None):
+    def connect(self, profile=None):
         """
         Initiate a connection to the remote device.
 
-        :param address: unused
         :param profile: (optional) profile to use for the connection.
         """
         if profile is None:

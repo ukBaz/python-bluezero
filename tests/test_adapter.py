@@ -4,8 +4,6 @@ from unittest.mock import patch
 import tests.obj_data
 from bluezero import constants
 
-adapter_props = tests.obj_data.full_ubits
-
 
 def mock_get(iface, prop):
     return tests.obj_data.full_ubits['/org/bluez/hci0'][iface][prop]

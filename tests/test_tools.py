@@ -61,14 +61,5 @@ class TestDbusModuleCalls(unittest.TestCase):
         little_endian = self.module_under_test.int_to_uint32(305419896)
         self.assertListEqual(little_endian, [0x78, 0x56, 0x34, 0x12])
 
-    def test_uuid_path_gatt(self):
-        dbus_gatt_path = self.module_under_test.uuid_dbus_path(constants.GATT_SERVICE_IFACE,
-                                                               'e95dd91d-251d-470a-a062-fa1922dfa9a8')
-        expected_result = ['/org/bluez/hci0/dev_FD_6B_11_CD_4A_9B/service002a',
-                           '/org/bluez/hci0/dev_F7_17_E4_09_C0_C6/service002a',
-                           '/org/bluez/hci0/dev_EB_F6_95_27_84_A0/service002a',
-                           '/org/bluez/hci0/dev_E4_43_33_7E_54_1C/service002a']
-        self.assertCountEqual(dbus_gatt_path, expected_result)
-
 if __name__ == '__main__':
     unittest.main()

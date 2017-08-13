@@ -16,12 +16,14 @@ except ImportError:
             pass
 
 from bluezero import constants
+from bluezero import dbus_tools
+from bluezero import device
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 mainloop = GObject.MainLoop()
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.INFO)
 logger.addHandler(NullHandler())
 
 
@@ -34,21 +36,32 @@ def generic_error_cb(error):
 class Service:
     """Remote GATT Service."""
 
-    def __init__(self, service_path):
+    def __init__(self, adapter_addr, device_addr, srv_uuid):
         """
         Remote GATT Service Initialisation.
 
-        :param service_path: dbus path to the service.
+        :param adapter_addr: Adapter address.
+        :param device_addr: device address.
+        :param srv_uuid: Service UUID.
         """
-        self.service_path = service_path
-        self.bus = dbus.SystemBus()
-        self.service_object = self.bus.get_object(
-            constants.BLUEZ_SERVICE_NAME,
-            self.service_path)
-        self.service_methods = dbus.Interface(self.service_object,
-                                              constants.ADAPTER_INTERFACE)
-        self.service_props = dbus.Interface(self.service_object,
-                                            dbus.PROPERTIES_IFACE)
+        self.adapter_addr = adapter_addr
+        self.device_addr = device_addr
+        self.srv_uuid = srv_uuid
+        self.rmt_device = device.Device(adapter_addr, device_addr)
+        self.service_methods = None
+        self.service_props = None
+
+        if self.rmt_device.services_resolved:
+            self.resolve_gatt()
+
+    def resolve_gatt(self):
+        if self.rmt_device.services_resolved:
+            self.service_methods = dbus_tools.get_methods(self.adapter_addr,
+                                                          self.device_addr,
+                                                          self.srv_uuid)
+            self.service_props = dbus_tools.get_props(self.adapter_addr,
+                                                      self.device_addr,
+                                                      self.srv_uuid)
 
     @property
     def UUID(self):
@@ -84,23 +97,39 @@ class Service:
 class Characteristic:
     """Remote GATT Characteristic."""
 
-    def __init__(self, characteristic_path):
+    def __init__(self, adapter_addr, device_addr, srv_uuid, chrc_uuid):
         """
         Remote GATT Characteristic Initialisation.
 
-        :param characteristic_path: dbus path to the characteristic.
+        :param adapter_addr: Adapter address.
+        :param device_addr: device address.
+        :param srv_uuid: Service UUID.
+        :param chrc_uuid: Characteristic UUID.
         """
-        self.characteristic_path = characteristic_path
-        self.bus = dbus.SystemBus()
-        self.characteristic_object = self.bus.get_object(
-            constants.BLUEZ_SERVICE_NAME,
-            self.characteristic_path)
-        self.characteristic_methods = dbus.Interface(
-            self.characteristic_object,
-            constants.GATT_CHRC_IFACE)
-        self.characteristic_props = dbus.Interface(
-            self.characteristic_object,
-            dbus.PROPERTIES_IFACE)
+        self.adapter_addr = adapter_addr
+        self.device_addr = device_addr
+        self.rmt_device = device.Device(adapter_addr, device_addr)
+        self.srv_uuid = srv_uuid
+        self.chrc_uuid = chrc_uuid
+        self.characteristic_methods = None
+        self.characteristic_props = None
+
+    def resolve_gatt(self):
+        logger.info('Resolving GATT database for {}'.format(self.chrc_uuid))
+        if self.rmt_device.services_resolved:
+            self.characteristic_methods = dbus_tools.get_methods(
+                self.adapter_addr,
+                self.device_addr,
+                self.srv_uuid,
+                self.chrc_uuid)
+            self.characteristic_props = dbus_tools.get_props(
+                self.adapter_addr,
+                self.device_addr,
+                self.srv_uuid,
+                self.chrc_uuid)
+            return True
+        else:
+            return False
 
     @property
     def UUID(self):
@@ -133,8 +162,13 @@ class Characteristic:
 
         :return: DBus byte array
         """
-        return self.characteristic_props.Get(
-            constants.GATT_CHRC_IFACE, 'Value')
+        return self.read_raw_value()
+
+    @value.setter
+    def value(self, new_value):
+        if type(new_value) is not list:
+            new_value = [new_value]
+        self.write_value(new_value)
 
     @property
     def notifying(self):
@@ -241,21 +275,39 @@ class Characteristic:
 class Descriptor:
     """Remote GATT Descriptor."""
 
-    def __init__(self, descriptor_path):
+    def __init__(self, adapter_addr, device_addr,
+                 srv_uuid, chrc_uuid, dscr_uuid):
         """
         Remote GATT Descriptor Initialisation.
 
-        :param descriptor_path: dbus path to the descriptor.
+        :param adapter_addr: Adapter address.
+        :param device_addr: device address.
+        :param srv_uuid: Service UUID.
+        :param chrc_uuid: Characteristic UUID.
+        :param dscr_uuid: Descriptor UUID.
         """
-        self.descriptor_path = descriptor_path
-        self.bus = dbus.SystemBus()
-        self.descriptor_object = self.bus.get_object(
-            constants.BLUEZ_SERVICE_NAME,
-            self.descriptor_path)
-        self.descriptor_methods = dbus.Interface(self.descriptor_object,
-                                                 constants.GATT_DESC_IFACE)
-        self.descriptor_props = dbus.Interface(self.descriptor_object,
-                                               dbus.PROPERTIES_IFACE)
+        self.adapter_addr = adapter_addr
+        self.device_addr = device_addr
+        self.rmt_device = device.Device(adapter_addr, device_addr)
+        self.srv_uuid = srv_uuid
+        self.chrc_uuid = chrc_uuid
+        self.dscr_uuid = dscr_uuid
+        self.descriptor_methods = None
+        self.descriptor_props = None
+
+        if self.rmt_device.services_resolved:
+            self.resolve_gatt()
+
+    def resolve_gatt(self):
+        if self.device_props.services_resolved:
+            self.descriptor_methods = dbus_tools.get_methods(self.adapter_addr,
+                                                             self.device_addr,
+                                                             self.srv_uuid,
+                                                             self.dscr_uuid)
+            self.descriptor_props = dbus_tools.get_props(self.adapter_addr,
+                                                         self.device_addr,
+                                                         self.srv_uuid,
+                                                         self.dscr_uuid)
 
     @property
     def UUID(self):
@@ -327,13 +379,15 @@ class Descriptor:
 class Profile:
     """Remote GATT Profile."""
 
-    def __init__(self, profile_path):
+    def __init__(self, adapter_addr, device_addr, profile_uuid):
         """
         Remote GATT Profile Initialisation.
 
         :param profile_path: dbus path to the profile.
         """
-        self.profile_path = profile_path
+        self.profile_path = dbus_tools.get_profile_path(adapter_addr,
+                                                        device_addr,
+                                                        profile_uuid)
         self.bus = dbus.SystemBus()
         self.profile_object = self.bus.get_object(
             constants.BLUEZ_SERVICE_NAME,
@@ -376,13 +430,13 @@ def register_app_error_cb(error):
 class GattManager:
     """GATT Manager."""
 
-    def __init__(self, manager_path):
+    def __init__(self, adapter_addr):
         """
         GATT Manager Initialisation.
 
         :param manager_path: dbus path to the GATT Manager.
         """
-        self.manager_path = manager_path
+        self.manager_path = dbus_tools.get_dbus_path(adapter_addr)
         self.bus = dbus.SystemBus()
         self.manager_obj = self.bus.get_object(
             constants.BLUEZ_SERVICE_NAME,

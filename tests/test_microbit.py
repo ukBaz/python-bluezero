@@ -6,7 +6,12 @@ from bluezero import constants
 
 
 def mock_get(iface, prop):
-    return tests.obj_data.full_ubits['/org/bluez/hci0'][iface][prop]
+    if iface == 'org.bluez.Device1':
+        return tests.obj_data.full_ubits['/org/bluez/hci0/dev_E4_43_33_7E_54_1C'][iface][prop]
+    elif iface == 'org.bluez.Adapter1':
+        return tests.obj_data.full_ubits['/org/bluez/hci0'][iface][prop]
+    elif iface == 'org.bluez.Characteristic1':
+        return tests.obj_data.full_ubits['/org/bluez/hci0/dev_E4_43_33_7E_54_B1/service0031/char0035'][iface][prop]
 
 
 def mock_set(iface, prop, value):
@@ -46,4 +51,5 @@ class TestBluezeroMicrobit(unittest.TestCase):
         self.module_patcher.stop()
 
     def test_load(self):
-        my_blinkt = self.module_under_test.Microbit(name='BBC micro:bit [puteg]')
+        ubit = self.module_under_test.Microbit(adapter_addr='00:00:00:00:5A:AD',
+                                               device_addr='E4:43:33:7E:54:1C')

@@ -39,17 +39,18 @@ class TestBluezeroDevice(unittest.TestCase):
         self.path = '/org/bluez/hci0/dev_D4_AE_95_4C_3E_A4'
         self.adapter_path = '/org/bluez/hci0'
         self.dev_name = 'BBC micro:bit [zezet]'
-        self.address = 'D4:AE:95:4C:3E:A4'
+        self.adapter_addr = '00:00:00:00:5A:AD'
+        self.device_addr = 'D4:AE:95:4C:3E:A4'
 
     def tearDown(self):
         self.module_patcher.stop()
 
     def test_device_name(self):
-        ble_dev = self.module_under_test.Device(self.path)
+        ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
         self.assertEqual(ble_dev.name, self.dev_name)
 
     def test_connected(self):
-        ble_dev = self.module_under_test.Device(self.path)
+        ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
         conn_state = ble_dev.connected
         self.assertEqual(conn_state, False)
         """
@@ -59,11 +60,11 @@ class TestBluezeroDevice(unittest.TestCase):
         self.assertEqual(conn_state, True)
     """
     def test_address(self):
-        ble_dev = self.module_under_test.Device(self.path)
-        self.assertEqual(ble_dev.address, self.address)
+        ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
+        self.assertEqual(ble_dev.address, self.device_addr)
 
     def test_name(self):
-        ble_dev = self.module_under_test.Device(self.path)
+        ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
         self.assertEqual(ble_dev.name, self.dev_name)
 
     @unittest.skip('Do not know value to use for icon')
@@ -75,11 +76,11 @@ class TestBluezeroDevice(unittest.TestCase):
         pass
 
     def test_appearance(self):
-        ble_dev = self.module_under_test.Device(self.path)
+        ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
         self.assertEqual(ble_dev.appearance, 0x0200)
 
     def test_uuids(self):
-        ble_dev = self.module_under_test.Device(self.path)
+        ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
         self.assertEqual(ble_dev.uuids,
                          ['00001800-0000-1000-8000-00805f9b34fb',
                           '00001801-0000-1000-8000-00805f9b34fb',
@@ -92,27 +93,27 @@ class TestBluezeroDevice(unittest.TestCase):
                           'e95df2d8-251d-470a-a062-fa1922dfa9a8'])
 
     def test_paired(self):
-        ble_dev = self.module_under_test.Device(self.path)
+        ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
         self.assertEqual(ble_dev.paired, False)
 
     def test_trusted(self):
-        ble_dev = self.module_under_test.Device(self.path)
+        ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
         self.assertEqual(ble_dev.trusted, False)
 
     def test_blocked(self):
-        ble_dev = self.module_under_test.Device(self.path)
+        ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
         self.assertEqual(ble_dev.blocked, False)
 
     def test_alias(self):
-        ble_dev = self.module_under_test.Device(self.path)
+        ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
         self.assertEqual(ble_dev.alias, self.dev_name)
 
     def test_adapter(self):
-        ble_dev = self.module_under_test.Device(self.path)
+        ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
         self.assertEqual(ble_dev.adapter, self.adapter_path)
 
     def test_legacy_pairing(self):
-        ble_dev = self.module_under_test.Device(self.path)
+        ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
         self.assertEqual(ble_dev.legacy_pairing, False)
 
     @unittest.skip('Do not know value to use for modalias')
@@ -121,12 +122,12 @@ class TestBluezeroDevice(unittest.TestCase):
 
     @unittest.skip('No value from BlueZ for RSSI')
     def test_rssi(self):
-        ble_dev = self.module_under_test.Device(self.path)
+        ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
         self.assertEqual(ble_dev.RSSI, -79)
 
     @unittest.skip('No value from BlueZ for Tx Power')
     def test_txpower(self):
-        ble_dev = self.module_under_test.Device(self.path)
+        ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
         self.assertEqual(ble_dev.tx_power, 0)
 
     @unittest.skip('Do not know value to use for manufacturer data')
@@ -138,7 +139,7 @@ class TestBluezeroDevice(unittest.TestCase):
         pass
 
     def test_services_resolved(self):
-        ble_dev = self.module_under_test.Device(self.path)
+        ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
         self.assertEqual(ble_dev.services_resolved, False)
 
     @unittest.skip('Not in BlueZ 5.42')
