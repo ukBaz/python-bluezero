@@ -61,5 +61,18 @@ class TestDbusModuleCalls(unittest.TestCase):
         little_endian = self.module_under_test.int_to_uint32(305419896)
         self.assertListEqual(little_endian, [0x78, 0x56, 0x34, 0x12])
 
+    def test_IntToUint16(self):
+        little_endian = self.module_under_test.int_to_uint16(43733)
+        self.assertListEqual(little_endian, [0xD5, 0xAA])
+
+    def test_Sint16ToInt(self):
+        result = self.module_under_test.int_to_uint16(0b1111111011101111)
+        self.assertEqual(result, [0xEF, 0xFE])
+
+    def test_bytes_to_xyz(self):
+        # result = self.module_under_test.bytes_to_xyz([32, 176, 40,239, 96, 84])
+        result = self.module_under_test.bytes_to_xyz([0x20, 0x00, 0xD0, 0x00, 0x20, 0xFC])
+        self.assertEqual(result, [0.032, 0.208, -0.992])
+
 if __name__ == '__main__':
     unittest.main()

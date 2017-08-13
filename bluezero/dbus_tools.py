@@ -72,68 +72,9 @@ def get_managed_objects():
     return manager.GetManagedObjects()
 
 
-def get_dbus_path(iface, prop, value):
-    response = []
-    objects = get_managed_objects()
-    for obj, ifaces in objects.items():
-        if iface in ifaces.keys():
-            if prop in ifaces[iface]:
-                if value in ifaces[iface][prop]:
-                    response.append(obj)
-
-    return response
-
-
-def uuid_dbus_path(iface, UUID):
-    """
-    Return the DBus object path currently managed by the DBus Object Manager
-    for a given UUID.
-
-    :param iface: BlueZ interface of interest
-    :param UUID: 128-bit UUID
-    :return: list of DBus object paths that match given UUID
-
-    >>> from bluezero import tools
-    >>> from bluezero import constants
-    >>> tools.uuid_dbus_path(constants.GATT_SERVICE_IFACE,
-                             'e95dd91d-251d-470a-a062-fa1922dfa9a8')
-    """
-    response = []
-    objects = get_managed_objects()
-    for obj, ifaces in objects.items():
-        if iface in ifaces.keys():
-            if ifaces[iface]['UUID'] == UUID.lower():
-                response.append(obj)
-
-    return response
-
-
-def device_dbus_path(iface, search_value):
-    """
-    Return the DBus object path currently managed by the DBus Object Manager
-    for a given Device. It looks at the device name containing the substring
-
-    :param iface: BlueZ interface of interest
-    :param search_value: sub-string to find
-    :return: list of DBus object paths that match given device name
-
-    >>> from bluezero import tools
-    >>> from bluezero import constants
-    >>> devices = tools.device_dbus_path(constants.DEVICE_INTERFACE, 'puteg')
-    """
-    response = []
-    objects = get_managed_objects()
-    for obj, ifaces in objects.items():
-        if iface in ifaces.keys():
-            if search_value in ifaces[iface]['Name']:
-                response.append(obj)
-
-    return response
-
-
 def _get_dbus_path2(objects, parent_path, iface_in, prop, value):
     if parent_path is None:
-        raise InvalidSearch
+        raise ValueError('Bad combination of inputs: found nothing')
     for path, iface in objects.items():
         props = iface.get(iface_in)
         if props is None:
@@ -220,7 +161,7 @@ def get_profile_path(adapter,
     if profile is not None:
         _dbus_obj_path = _get_dbus_path2(mngd_objs,
                                          _dbus_obj_path,
-                                         constants.GATT_SERVICE_IFACE,
+                                         constants.GATT_PROFILE_IFACE,
                                          'UUID',
                                          profile)
     return _dbus_obj_path
