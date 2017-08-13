@@ -48,9 +48,9 @@ class TestBluezeroAdvertisement(unittest.TestCase):
         self.module_patcher = patch.dict('sys.modules', modules)
         self.module_patcher.start()
         from bluezero import advertisement
-        from bluezero import tools
+        from bluezero import dbus_tools
         self.module_under_test = advertisement
-        self.module_tools = tools
+        self.module_tools = dbus_tools
 
     def tearDown(self):
         self.module_patcher.stop()
