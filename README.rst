@@ -5,10 +5,6 @@ python-bluezero
     :target: https://travis-ci.org/ukBaz/python-bluezero
     :alt: Build Status
 
-.. image:: https://codeclimate.com/github/ukBaz/python-bluezero/badges/gpa.svg
-   :target: https://codeclimate.com/github/ukBaz/python-bluezero
-   :alt: Code Climate
-
 .. image:: https://img.shields.io/codecov/c/github/ukBaz/python-bluezero/master.svg?maxAge=2592000
     :target: https://codecov.io/github/ukBaz/python-bluezero
     :alt: Code Coverage

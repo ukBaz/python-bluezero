@@ -1,7 +1,7 @@
 """
 The level 10 file for creating beacons
 """
-from bluezero import tools
+from bluezero import dbus_tools
 from bluezero import adapter
 from bluezero import constants
 from bluezero import advertisement
@@ -71,9 +71,9 @@ class Beacon:
         ad_manager.register_advertisement(self.broadcaster, {})
 
         try:
-            tools.start_mainloop()
+            dbus_tools.start_mainloop()
         except KeyboardInterrupt:
-            tools.stop_mainloop()
+            dbus_tools.stop_mainloop()
             ad_manager.unregister_advertisement(self.broadcaster)
         finally:
             pass

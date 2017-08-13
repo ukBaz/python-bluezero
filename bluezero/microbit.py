@@ -14,10 +14,8 @@ http://bluetooth-mdw.blogspot.co.uk/p/bbc-microbit.html
 """
 from time import sleep
 
-from bluezero import constants
+from bluezero import central
 from bluezero import tools
-from bluezero import adapter
-from bluezero import device
 
 import logging
 try:  # Python 2.7+
@@ -59,242 +57,49 @@ class Microbit:
     """
     Class to simplify interacting with a microbit over Bluetooth Low Energy
     """
-    def __init__(self, name=None, address=None):
+    def __init__(self, device_addr, adapter_addr=None):
         """
         Initialization of an instance of a remote microbit
-        :param name: Will look for a BLE device with this string in its name
-        :param address: Will look for a BLE device with this address
-         (Currently not implemented)
+        :param device_addr: Will look for a BLE device with this address
+        :param adapter_addr: Optional unless you have more than one adapter
+                             on your machine
         """
-        self.name = name
-        self.address = address
-        self.dongle = adapter.Adapter(adapter.list_adapters()[0])
-        if not self.dongle.powered:
-            self.dongle.powered = True
-        logger.debug('Adapter powered')
-        logger.debug('Start discovery')
-        self.dongle.nearby_discovery()
-        device_path = None
-        if name is not None:
-            device_path = tools.get_dbus_path(
-                constants.DEVICE_INTERFACE,
-                'Name',
-                name)
-        elif address is not None:
-            device_path = tools.get_dbus_path(
-                constants.DEVICE_INTERFACE,
-                'Address',
-                address)
+        self.ubit = central.Central(adapter_addr=adapter_addr,
+                                    device_addr=device_addr)
 
-        self.ubit = device.Device(device_path[0])
-
-        # dbus paths
-        self.accel_srv_path = None
-        self.accel_data_path = None
-        self.aceel_period_path = None
-        self.magneto_srv_path = None
-        self.magneto_data_path = None
-        self.magneto_period_path = None
-        self.magneto_bearing_path = None
-        self.btn_srv_path = None
-        self.btn_a_state_path = None
-        self.btn_b_state_path = None
-        self.io_pin_srv_path = None
-        self.io_pin_data_path = None
-        self.io_ad_config_path = None
-        self.io_pin_config_path = None
-        self.io_pin_pwm_path = None
-        self.led_srv_path = None
-        self.led_state_path = None
-        self.led_text_path = None
-        self.led_scroll_path = None
-        self.temp_srv_path = None
-        self.temp_data_path = None
-        self.temp_period_path = None
-
-        # dbus interfaces()
-        self.scroll_iface = None
-        self.led_txt_iface = None
-        self.pixels_iface = None
-        self.temp_iface = None
-        self.btn_a_iface = None
-        self.btn_b_iface = None
-        self.accel_iface = None
-        self.mag_iface = None
-        self.mag_bear_iface = None
-        self.pin_conf_iface = None
-        self.pin_ad_iface = None
-        self.pin_states_iface = None
-        self.pin_pwm_iface = None
-
-    def _get_dbus_paths(self):
-        """
-        Utility function to get the paths for UUIDs
-        """
-        self.accel_srv_path = tools.uuid_dbus_path(
-            constants.GATT_SERVICE_IFACE,
-            ACCEL_SRV)[0]
-        self.accel_data_path = tools.uuid_dbus_path(
-            constants.GATT_CHRC_IFACE,
-            ACCEL_DATA)[0]
-        self.aceel_period_path = tools.uuid_dbus_path(
-            constants.GATT_CHRC_IFACE,
-            ACCEL_PERIOD)[0]
-        self.magneto_srv_path = tools.uuid_dbus_path(
-            constants.GATT_SERVICE_IFACE,
-            MAGNETO_SRV)[0]
-        self.magneto_data_path = tools.uuid_dbus_path(
-            constants.GATT_CHRC_IFACE,
-            MAGNETO_DATA)[0]
-        self.magneto_period_path = tools.uuid_dbus_path(
-            constants.GATT_CHRC_IFACE,
-            MAGNETO_PERIOD)[0]
-        self.magneto_bearing_path = tools.uuid_dbus_path(
-            constants.GATT_CHRC_IFACE,
-            MAGNETO_BEARING)[0]
-        self.btn_srv_path = tools.uuid_dbus_path(
-            constants.GATT_SERVICE_IFACE,
-            BTN_SRV)[0]
-        self.btn_a_state_path = tools.uuid_dbus_path(
-            constants.GATT_CHRC_IFACE,
-            BTN_A_STATE)[0]
-        self.btn_b_state_path = tools.uuid_dbus_path(
-            constants.GATT_CHRC_IFACE,
-            BTN_B_STATE)[0]
-        self.io_pin_srv_path = tools.uuid_dbus_path(
-            constants.GATT_SERVICE_IFACE,
-            IO_PIN_SRV)[0]
-        self.io_pin_data_path = tools.uuid_dbus_path(
-            constants.GATT_CHRC_IFACE,
-            IO_PIN_DATA)[0]
-        self.io_pin_config_path = tools.uuid_dbus_path(
-            constants.GATT_CHRC_IFACE,
-            IO_PIN_CONFIG)[0]
-        self.io_pin_pwm_path = tools.uuid_dbus_path(
-            constants.GATT_CHRC_IFACE,
-            IO_PIN_PWM)[0]
-        self.io_ad_config_path = tools.uuid_dbus_path(
-            constants.GATT_CHRC_IFACE,
-            IO_AD_CONFIG)[0]
-        self.led_srv_path = tools.uuid_dbus_path(
-            constants.GATT_SERVICE_IFACE,
-            LED_SRV)[0]
-        self.led_state_path = tools.uuid_dbus_path(
-            constants.GATT_CHRC_IFACE,
-            LED_STATE)[0]
-        self.led_text_path = tools.uuid_dbus_path(
-            constants.GATT_CHRC_IFACE,
-            LED_TEXT)[0]
-        self.led_scroll_path = tools.uuid_dbus_path(
-            constants.GATT_CHRC_IFACE,
-            LED_SCROLL)[0]
-        self.temp_srv_path = tools.uuid_dbus_path(
-            constants.GATT_SERVICE_IFACE,
-            TEMP_SRV)[0]
-        self.temp_data_path = tools.uuid_dbus_path(
-            constants.GATT_CHRC_IFACE,
-            TEMP_DATA)[0]
-        self.temp_period_path = tools.uuid_dbus_path(
-            constants.GATT_CHRC_IFACE,
-            TEMP_PERIOD)[0]
-
-    def _config_dbus_ifaces(self):
-        self._config_scroll_iface()
-        self._config_led_txt_iface()
-        self._config_pixels_iface()
-        self._config_temp_iface()
-        self._config_btn_a_iface()
-        self._config_btn_b_iface()
-        self._config_accel_iface()
-        self._config_mag_iface()
-        self._config_mag_bear_iface()
-        self._config_pin_conf_iface()
-        self._config_pin_ad_iface()
-        self._config_pin_states_iface()
-        self._config_pin_pwm_iface()
-
-    def _config_scroll_iface(self):
-        scroll_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                        self.led_scroll_path)
-        self.scroll_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                                 scroll_obj)
-
-    def _config_led_txt_iface(self):
-        led_txt_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                         self.led_text_path)
-        self.led_txt_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                                  led_txt_obj)
-
-    def _config_pixels_iface(self):
-        pixels_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                        self.led_state_path)
-        self.pixels_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                                 pixels_obj)
-
-    def _config_temp_iface(self):
-        temp_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                      self.temp_data_path)
-        self.temp_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                               temp_obj)
-
-    def _config_btn_a_iface(self):
-        btn_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                     self.btn_a_state_path)
-        self.btn_a_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                                btn_obj)
-
-    def _config_btn_b_iface(self):
-        btn_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                     self.btn_b_state_path)
-        self.btn_a_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                                btn_obj)
-
-    def _config_accel_iface(self):
-        accel_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                       self.accel_data_path)
-        self.accel_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                                accel_obj)
-
-    def _config_mag_iface(self):
-        mag_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                     self.magneto_data_path)
-        self.mag_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                              mag_obj)
-
-    def _config_mag_bear_iface(self):
-        mag_bear_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                          self.magneto_bearing_path)
-        self.mag_bear_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                                   mag_bear_obj)
-
-    def _config_pin_conf_iface(self):
-        pin_conf_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                          self.io_pin_config_path)
-
-        self.pin_conf_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                                   pin_conf_obj)
-
-    def _config_pin_ad_iface(self):
-        pin_ad_conf_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                             self.io_ad_config_path)
-        self.pin_ad_conf_iface = tools.get_dbus_iface(
-            constants.GATT_CHRC_IFACE,
-            pin_ad_conf_obj)
-
-    def _config_pin_states_iface(self):
-        pin_states_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                            self.io_pin_data_path)
-
-        self.pin_states_iface = tools.get_dbus_iface(
-            constants.GATT_CHRC_IFACE,
-            pin_states_obj)
-
-    def _config_pin_pwm_iface(self):
-        pin_pwm_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                         self.io_pin_pwm_path)
-
-        self.pin_pwm_iface = tools.get_dbus_iface(constants.GATT_CHRC_IFACE,
-                                                  pin_pwm_obj)
+        # Micro:bit Characteristics
+        self.accel_data = self.ubit.add_characteristic(ACCEL_SRV,
+                                                       ACCEL_DATA)
+        self.aceel_period = self.ubit.add_characteristic(ACCEL_SRV,
+                                                         ACCEL_PERIOD)
+        self.magneto_data = self.ubit.add_characteristic(MAGNETO_SRV,
+                                                         MAGNETO_DATA)
+        self.magneto_period = self.ubit.add_characteristic(MAGNETO_SRV,
+                                                           MAGNETO_PERIOD)
+        self.magneto_bearing = self.ubit.add_characteristic(MAGNETO_SRV,
+                                                            MAGNETO_BEARING)
+        self.btn_a_state = self.ubit.add_characteristic(BTN_SRV,
+                                                        BTN_A_STATE)
+        self.btn_b_state = self.ubit.add_characteristic(BTN_SRV,
+                                                        BTN_B_STATE)
+        self.io_pin_data = self.ubit.add_characteristic(IO_PIN_SRV,
+                                                        IO_PIN_DATA)
+        self.io_ad_config = self.ubit.add_characteristic(IO_PIN_SRV,
+                                                         IO_AD_CONFIG)
+        self.io_pin_config = self.ubit.add_characteristic(IO_PIN_SRV,
+                                                          IO_PIN_CONFIG)
+        self.io_pin_pwm = self.ubit.add_characteristic(IO_PIN_SRV,
+                                                       IO_PIN_PWM)
+        self.led_state = self.ubit.add_characteristic(LED_SRV,
+                                                      LED_STATE)
+        self.led_text = self.ubit.add_characteristic(LED_SRV,
+                                                     LED_TEXT)
+        self.led_scroll = self.ubit.add_characteristic(LED_SRV,
+                                                       LED_SCROLL)
+        self.temp_data = self.ubit.add_characteristic(TEMP_SRV,
+                                                      TEMP_DATA)
+        self.temp_period = self.ubit.add_characteristic(TEMP_SRV,
+                                                        TEMP_PERIOD)
 
     @property
     def connected(self):
@@ -308,8 +113,7 @@ class Microbit:
         self.ubit.connect()
         while not self.ubit.services_resolved:
             sleep(0.5)
-        self._get_dbus_paths()
-        self._config_dbus_ifaces()
+        self.ubit.load_gatt()
 
     def disconnect(self):
         """
@@ -324,7 +128,7 @@ class Microbit:
         """
 
         if delay is None:
-            return int.from_bytes(self.scroll_iface.ReadValue(()),
+            return int.from_bytes(self.led_scroll.value,
                                   byteorder='little',
                                   signed=False)
         else:
@@ -332,7 +136,7 @@ class Microbit:
                 delay = 0
             elif delay > 2**16:
                 delay = 2**16
-            self.scroll_iface.WriteValue(tools.int_to_uint16(delay), ())
+            self.led_scroll.value = tools.int_to_uint16(delay)
 
     def display_text(self, words):
         """
@@ -349,7 +153,7 @@ class Microbit:
             text = words
         for letter in text:
             data.append(ord(letter))
-        self.led_txt_iface.WriteValue(data, ())
+        self.led_text.value = data
 
     def _write_pixels(self, data):
         """
@@ -357,7 +161,7 @@ class Microbit:
         :param data: list of 5 numbers in the range 0 to 255
         (e.g. [0xff, 0x00, 0, 255, 0b10101]
         """
-        self.pixels_iface.WriteValue(data, ())
+        self.led_state.value = data
 
     def display_clear(self):
         """
@@ -386,7 +190,7 @@ class Microbit:
         from top to bottom
         :return: Example [0b1110, 0b10000, 0b10000, 0b10000, 0b1110]
         """
-        rows = self.pixels_iface.ReadValue(())
+        rows = self.led_state.value
         return [bin(i) for i in rows]
 
     def read_temperature(self):
@@ -394,7 +198,7 @@ class Microbit:
         Temperature from sensors in micro:bit processors
         :return: Integer of temperature in Celsius
         """
-        tmp_val = self.temp_iface.ReadValue(())
+        tmp_val = self.temp_data.value
 
         return int.from_bytes(tmp_val, byteorder='little', signed=True)
 
@@ -405,7 +209,7 @@ class Microbit:
         enumeration:  0 = not pressed, 1 = pressed, 2 = long press.
         :return: integer representing button value
         """
-        btn_val = self.btn_a_iface.ReadValue(())
+        btn_val = self.btn_a_state.value
 
         return int.from_bytes(btn_val, byteorder='little', signed=False)
 
@@ -416,38 +220,17 @@ class Microbit:
         enumeration:  0 = not pressed, 1 = pressed, 2 = long press.
         :return: integer representing button value
         """
-        btn_val = self.btn_b_iface.ReadValue(())
+        btn_val = self.btn_b_state.value
 
         return int.from_bytes(btn_val, byteorder='little', signed=False)
 
-    def _button_notify_cb(self):
-        print('Button subscribed!!!')
-        return 1
-
-    def _button_prop_cb(self, iface, changed_props, invalidated_props):
-        print(iface, changed_props, invalidated_props)
-
     def subscribe_button_a(self, user_callback):
-        btn_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                     self.btn_a_state_path)
-        btn_iface = tools.get_dbus_iface(constants.DBUS_PROP_IFACE,
-                                         btn_obj)
-        btn_iface.connect_to_signal('PropertiesChanged',
-                                    user_callback)
-        btn_obj.StartNotify(reply_handler=self._button_notify_cb,
-                            error_handler=tools.generic_error_cb,
-                            dbus_interface=constants.GATT_CHRC_IFACE)
+        self.btn_a_state.add_characteristic_cb(user_callback)
+        self.btn_a_state.start_notify()
 
     def subscribe_button_b(self, user_callback):
-        btn_obj = tools.get_dbus_obj(constants.BLUEZ_SERVICE_NAME,
-                                     self.btn_b_state_path)
-        btn_iface = tools.get_dbus_iface(constants.DBUS_PROP_IFACE,
-                                         btn_obj)
-        btn_iface.connect_to_signal('PropertiesChanged',
-                                    user_callback)
-        btn_obj.StartNotify(reply_handler=self._button_notify_cb,
-                            error_handler=tools.generic_error_cb,
-                            dbus_interface=constants.GATT_CHRC_IFACE)
+        self.btn_a_state.add_characteristic_cb(user_callback)
+        self.btn_a_state.start_notify()
 
     def read_accelerometer(self):
         """
@@ -456,7 +239,7 @@ class Microbit:
         """
         # [16, 0, 64, 0, 32, 252]
         # x=0.16, y=0.024, z=-0.992
-        accel_bytes = self.accel_iface.ReadValue(())
+        accel_bytes = self.accel_data.value
 
         return tools.bytes_to_xyz(accel_bytes)
 
@@ -467,7 +250,7 @@ class Microbit:
         as the earth's magnetic field in 3 axes.
         :return: List of x, y & z value
         """
-        mag_bytes = self.mag_iface.ReadValue(())
+        mag_bytes = self.magneto_data.value
 
         return tools.bytes_to_xyz(mag_bytes)
 
@@ -476,7 +259,7 @@ class Microbit:
         Compass bearing in degrees from North.
         :return: degrees in integer
         """
-        mag_bear_val = self.mag_bear_iface.ReadValue(())
+        mag_bear_val = self.magneto_bearing.value
 
         return int.from_bytes(mag_bear_val,
                               byteorder='little', signed=False)
@@ -488,9 +271,9 @@ class Microbit:
         for input.
         """
         if states is None:
-            return self.pin_conf_iface.ReadValue(())
+            return self.io_pin_config.value
         else:
-            self.pin_conf_iface.WriteValue(states, ())
+            self.io_pin_config.value = states
 
     def _pin_ad_config(self, states=None):
         """
@@ -501,9 +284,9 @@ class Microbit:
         """
 
         if states is None:
-            return self.pin_ad_conf_iface.ReadValue(())
+            return self.io_ad_config.value
         else:
-            self.pin_ad_conf_iface.WriteValue(states, ())
+            self.io_pin_config.value = states
 
     def _pin_states(self, pin_value_pairs=None):
         """
@@ -512,9 +295,9 @@ class Microbit:
         Number / Value pairs.
         """
         if pin_value_pairs is None:
-            return self.pin_states_iface.ReadValue(())
+            return self.io_pin_config.value
         else:
-            self.pin_states_iface.WriteValue(pin_value_pairs, ())
+            self.io_pin_config.value = pin_value_pairs
 
     def _pin_pwm_control(self, pin, value, period):
         """
@@ -527,14 +310,14 @@ class Microbit:
         """
         byte_value = tools.int_to_uint16(value)
         byte_period = tools.int_to_uint32(period)
-        self.pin_pwm_iface.WriteValue([pin,
-                                       byte_value[0],
-                                       byte_value[1],
-                                       byte_period[0],
-                                       byte_period[1],
-                                       byte_period[2],
-                                       byte_period[3]
-                                       ], ())
+        self.io_pin_pwm.value = [pin,
+                                 byte_value[0],
+                                 byte_value[1],
+                                 byte_period[0],
+                                 byte_period[1],
+                                 byte_period[2],
+                                 byte_period[3]
+                                 ]
 
     def play_beep(self, duration):
         """
@@ -551,15 +334,15 @@ class BitBot(Microbit):
     Class to simplify interacting with a microbit attached to a bit:bot
     over Bluetooth Low Energy
     """
-    def __init__(self, name=None, address=None):
+    def __init__(self, name=None, device_addr=None):
         """
         Initialization of an instance of a remote bit:bot
         :param name: Will look for a BLE device with this string in its name
-        :param address: Will look for a BLE device with this address
+        :param device_addr: Will look for a BLE device with this address
         """
         self.inputs_configured = False
         self.left_light = False
-        Microbit.__init__(self, name, address)
+        Microbit.__init__(self, name, device_addr)
 
     def stop(self):
         """
@@ -611,21 +394,21 @@ class BitBot(Microbit):
         period = tools.int_to_uint32(pwm_period)
         left_pwm = tools.int_to_uint16(left_val)
         right_pwm = tools.int_to_uint16(right_val)
-        self.pin_pwm_iface.WriteValue([0,
-                                       left_pwm[0],
-                                       left_pwm[1],
-                                       period[0],
-                                       period[1],
-                                       period[2],
-                                       period[3],
-                                       1,
-                                       right_pwm[0],
-                                       right_pwm[1],
-                                       period[0],
-                                       period[1],
-                                       period[2],
-                                       period[3]
-                                       ], ())
+        self.io_pin_pwm.value = [0,
+                                 left_pwm[0],
+                                 left_pwm[1],
+                                 period[0],
+                                 period[1],
+                                 period[2],
+                                 period[3],
+                                 1,
+                                 right_pwm[0],
+                                 right_pwm[1],
+                                 period[0],
+                                 period[1],
+                                 period[2],
+                                 period[3]
+                                 ]
         self._pin_states([0x08, left_rev, 0x0C, right_rev])
 
     def drive(self, left=100, right=100):
