@@ -42,7 +42,7 @@ before_script:
 script:
   # Shared
   - coverage run -m unittest -v tests.test_tools
-  - coverage run -m unittest -v tests.test_dbus_tools
+  - coverage run --append -m unittest -v tests.test_dbus_tools
   # Level 100
   - coverage run --append -m unittest -v tests.test_adapter
   - coverage run --append -m unittest -v tests.test_advertisement
