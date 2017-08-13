@@ -17,13 +17,17 @@ class TestDbusModuleCalls(unittest.TestCase):
         self.dbus_mock = MagicMock()
         self.mainloop_mock = MagicMock()
         self.gobject_mock = MagicMock()
+        self.process_mock = MagicMock()
 
         modules = {
             'dbus': self.dbus_mock,
             'dbus.mainloop.glib': self.mainloop_mock,
             'gi.repository': self.gobject_mock,
+            'subprocess': self.process_mock
         }
         self.dbus_mock.Interface.return_value.GetManagedObjects.return_value = tests.obj_data.full_ubits
+
+        self.process_mock.Popen.return_value.communicate.return_value = (b'5.43\n', None)
         self.module_patcher = patch.dict('sys.modules', modules)
         self.module_patcher.start()
         from bluezero import dbus_tools
@@ -33,13 +37,39 @@ class TestDbusModuleCalls(unittest.TestCase):
         self.module_patcher.stop()
 
     def test_uuid_path_gatt(self):
-        dbus_gatt_path = self.module_under_test.uuid_dbus_path(constants.GATT_SERVICE_IFACE,
-                                                               'e95dd91d-251d-470a-a062-fa1922dfa9a8')
-        expected_result = ['/org/bluez/hci0/dev_FD_6B_11_CD_4A_9B/service002a',
-                           '/org/bluez/hci0/dev_F7_17_E4_09_C0_C6/service002a',
-                           '/org/bluez/hci0/dev_EB_F6_95_27_84_A0/service002a',
-                           '/org/bluez/hci0/dev_E4_43_33_7E_54_1C/service002a']
-        self.assertCountEqual(dbus_gatt_path, expected_result)
+        dbus_full_path = self.module_under_test.get_dbus_path(adapter='00:00:00:00:5A:AD',
+                                                              device='F7:17:E4:09:C0:C6',
+                                                              service='e95df2d8-251d-470a-a062-fa1922dfa9a8',
+                                                              characteristic='e95d9715-251d-470a-a062-fa1922dfa9a8',
+                                                              descriptor='00002902-0000-1000-8000-00805f9b34fb')
+        expected_result = '/org/bluez/hci0/dev_F7_17_E4_09_C0_C6/service0031/char0035/desc0037'
+        self.assertEqual(dbus_full_path, expected_result)
+
+    def test_bad_pathh(self):
+        self.assertRaises(ValueError,
+                          self.module_under_test.get_dbus_path,
+                          adapter='00:00:00:00:5A:C6',
+                          device='F7:17:E4:09:C0:XX',
+                          service='e95df2d8-251d-470a-a062-fa1922dfa9a8')
+
+    def test_get_iface_from_path(self):
+        my_iface = self.module_under_test.get_iface(adapter='00:00:00:00:5A:AD',
+                                                    device='F7:17:E4:09:C0:C6',
+                                                    service='e95df2d8-251d-470a-a062-fa1922dfa9a8',
+                                                    characteristic='e95d9715-251d-470a-a062-fa1922dfa9a8',
+                                                    descriptor='00002902-0000-1000-8000-00805f9b34fb')
+        self.assertEqual(constants.GATT_DESC_IFACE, my_iface)
+
+    def test_profile_path(self):
+        my_iface = self.module_under_test.get_profile_path(adapter='00:00:00:00:5A:AD',
+                                                           device='F7:17:E4:09:C0:C6',
+                                                           profile='e95df2d8-251d-470a-a062-fa1922dfa9a8')
+        self.assertEqual(None, my_iface)
+
+
+    def test_bluez_version(self):
+        bluez_ver = self.module_under_test.bluez_version()
+        self.assertEqual('5.43', bluez_ver)
 
 if __name__ == '__main__':
     unittest.main()
