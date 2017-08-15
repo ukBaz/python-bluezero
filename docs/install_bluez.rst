@@ -24,16 +24,9 @@ these may already be install or not required::
     # sudo apt-get install bluez-hcidump
     # sudo apt-get install python-bluez
 
-To compile a new version of Bluez::
+To compile a new version of Bluez (requires ``deb-src`` entries in ``/etc/apt/sources.list``)::
 
-    sudo apt-get install build-essential
-    sudo apt-get install autoconf
-    sudo apt-get install glib2.0
-    sudo apt-get install libglib2.0-dev
-    sudo apt-get install libdbus-1-dev
-    sudo apt-get install libudev-dev
-    sudo apt-get install libical-dev
-    sudo apt-get install libreadline-dev
+    sudo apt-get build-dep bluez
 
 If you are looking to contribute to the development of Bluezero then you will
 need::
