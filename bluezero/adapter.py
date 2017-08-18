@@ -89,11 +89,11 @@ class Adapter:
         self.bus = dbus.SystemBus()
 
         if adapter_addr is None:
-            adapters = dbus_tools.list_adapters()
+            adapters = list_adapters()
             if len(adapters) > 0:
-                adapter_addr = adapters[0]
-
-        self.path = dbus_tools.get_dbus_path(adapter=adapter_addr)
+                self.path = adapters[0]
+        else:
+            self.path = dbus_tools.get_dbus_path(adapter=adapter_addr)
         self.adapter_object = self.bus.get_object(
             constants.BLUEZ_SERVICE_NAME,
             self.path)
