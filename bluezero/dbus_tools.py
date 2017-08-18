@@ -224,7 +224,7 @@ def get_props(adapter=None,
                              characteristic,
                              descriptor)
 
-    return get_dbus_iface(dbus.PROPERTIES_IFACE, path_obj)
+    return get_dbus_iface(dbus.PROPERTIES_IFACE, get_dbus_obj(path_obj))
 
 
 #############################

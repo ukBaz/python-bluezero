@@ -30,14 +30,14 @@ class Central:
 
     def __init__(self, device_addr, adapter_addr=None):
         if adapter_addr is None:
-            self.dongle = adapter.Adapter(adapter.list_adapters()[0])
+            self.dongle = adapter.Adapter()
             logger.debug('Adapter is: {}'.format(self.dongle.address))
         else:
             self.dongle = adapter.Adapter(adapter_addr)
         if not self.dongle.powered:
             self.dongle.powered = True
             logger.debug('Adapter was off, now powered on')
-        self.rmt_device = device.Device(adapter_addr, device_addr)
+        self.rmt_device = device.Device(self.dongle.address, device_addr)
 
         self._characteristics = []
 
