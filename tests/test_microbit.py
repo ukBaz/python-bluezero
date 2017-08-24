@@ -14,6 +14,10 @@ def mock_get(iface, prop):
         return tests.obj_data.full_ubits['/org/bluez/hci0/dev_E4_43_33_7E_54_B1/service0031/char0035'][iface][prop]
 
 
+def mock_read(options):
+    print('test')
+
+
 def mock_set(iface, prop, value):
     tests.obj_data.full_ubits['/org/bluez/hci0'][iface][prop] = value
 
@@ -41,6 +45,7 @@ class TestBluezeroMicrobit(unittest.TestCase):
         self.dbus_mock.Interface.return_value.GetManagedObjects.return_value = tests.obj_data.full_ubits
         self.dbus_mock.Interface.return_value.Get = mock_get
         self.dbus_mock.Interface.return_value.Set = mock_set
+        self.dbus_mock.Interface.return_value.ReadValue = mock_read
         self.dbus_mock.SystemBus = MagicMock()
         self.module_patcher = patch.dict('sys.modules', modules)
         self.module_patcher.start()
@@ -53,3 +58,14 @@ class TestBluezeroMicrobit(unittest.TestCase):
     def test_load(self):
         ubit = self.module_under_test.Microbit(adapter_addr='00:00:00:00:5A:AD',
                                                device_addr='E4:43:33:7E:54:1C')
+
+    def test_connected(self):
+        ubit = self.module_under_test.Microbit(adapter_addr='00:00:00:00:5A:AD',
+                                               device_addr='E4:43:33:7E:54:1C')
+        self.assertEqual(ubit.connected, True)
+
+    @unittest.skip('Need to mock GATT ReadValue')
+    def test_scroll_delay(self):
+        ubit = self.module_under_test.Microbit(adapter_addr='00:00:00:00:5A:AD',
+                                               device_addr='E4:43:33:7E:54:1C')
+        self.assertEqual(ubit.display_scroll_delay(), 23)

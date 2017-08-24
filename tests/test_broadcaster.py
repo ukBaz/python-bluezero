@@ -16,7 +16,6 @@ def mock_set(iface, prop, value):
 
 
 class TestBluezeroBroadcaster(unittest.TestCase):
-
     def setUp(self):
         """
         Patch the DBus module
@@ -55,16 +54,13 @@ class TestBluezeroBroadcaster(unittest.TestCase):
 
     def test_beacon_default_adapter(self):
         my_beacon = self.module_under_test.Beacon()
+    #
+    # def test_beacon_specified_adapter(self):
+    #     beacon2 = self.module_under_test.Beacon('00:00:00:00:5A:AD')
 
-    """
-    def test_beacon_specified_adapter(self):
-        my_adapter = self.bz_adapter.Adapter(self.bz_adapter.list_adapters()[0])
-        my_beacon = self.module_under_test.Beacon(my_adapter)
-
-
-    def test_service_data(self):
-        my_beacon = self.module_under_test.Beacon()
-        my_beacon.add_service_data({'FEAA': [0x10, 0x00, 0x00, 0x63, 0x73,
-                                             0x72, 0x00, 0x61, 0x62, 0x6f,
-                                             0x75, 0x74]})
-    """
+    # def test_service_data(self):
+    #     my_beacon = self.module_under_test.Beacon()
+    #     my_beacon.add_service_data('FEAA': [0x10, 0x00, 0x00, 0x63, 0x73,
+    #                                            0x72, 0x00, 0x61, 0x62, 0x6f,
+    #                                            0x75, 0x74])
+    #     self.assertEqual(my_beacon.serivce)
