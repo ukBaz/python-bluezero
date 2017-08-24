@@ -23,7 +23,7 @@ class Beacon:
         if adapter_obj is None:
             self.dongle = adapter.Adapter(adapter.list_adapters()[0])
         else:
-            self.dongle = adapter_obj
+            self.dongle = adapter.Adapter(adapter_obj)
 
         self.broadcaster = advertisement.Advertisement(1, 'broadcast')
 

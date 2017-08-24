@@ -5,8 +5,12 @@ import tests.obj_data
 from bluezero import constants
 
 
+def mock_get_all(iface):
+    return tests.obj_data.full_ubits['/org/bluez/hci0'][iface]
+
+
 def mock_get(iface, prop):
-    return tests.obj_data.full_ubits['/org/bluez/hci0'][iface][prop]
+    return mock_get_all(iface)[prop]
 
 
 def mock_set(iface, prop, value):
@@ -32,6 +36,7 @@ class TestBluezeroAdapter(unittest.TestCase):
         self.dbus_mock.Interface.return_value.GetManagedObjects.return_value = tests.obj_data.full_ubits
         self.dbus_mock.Interface.return_value.Get = mock_get
         self.dbus_mock.Interface.return_value.Set = mock_set
+        self.dbus_mock.Interface.return_value.GetAll = mock_get_all
         self.module_patcher = patch.dict('sys.modules', modules)
         self.module_patcher.start()
         from bluezero import adapter
@@ -45,11 +50,20 @@ class TestBluezeroAdapter(unittest.TestCase):
 
     def test_list_adapters(self):
         adapters = self.module_under_test.list_adapters()
-        self.assertListEqual(['/org/bluez/hci0'], adapters)
+        self.assertListEqual(['00:00:00:00:5A:AD'], adapters)
 
     def test_adapter_address(self):
         dongle = self.module_under_test.Adapter(self.path)
         self.assertEqual(dongle.address, '00:00:00:00:5A:AD')
+
+    def test_adapter_default(self):
+        dongle = self.module_under_test.Adapter()
+        self.assertEqual(dongle.address, '00:00:00:00:5A:AD')
+
+    def test_get_all(self):
+        dongle = self.module_under_test.Adapter(self.path)
+        self.assertEqual(dongle.get_all(),
+                         tests.obj_data.full_ubits['/org/bluez/hci0'][constants.ADAPTER_INTERFACE])
 
     def test_adapter_name(self):
         dongle = self.module_under_test.Adapter(self.path)

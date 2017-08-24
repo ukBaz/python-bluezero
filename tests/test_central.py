@@ -61,3 +61,4 @@ class TestBluezeroCentral(unittest.TestCase):
 
         # Test for the UUID
         self.assertEqual(test_central.connected, True)
+

@@ -49,6 +49,7 @@ class AdapterError(Exception):
 def list_adapters():
     """List adapters that are available on the D-Bus."""
     paths = []
+    addresses = []
     bus = dbus.SystemBus()
     manager = dbus.Interface(
         bus.get_object(constants.BLUEZ_SERVICE_NAME, '/'),
@@ -57,10 +58,12 @@ def list_adapters():
     for path, ifaces in manager_obj.items():
         if constants.ADAPTER_INTERFACE in ifaces:
             paths.append(path)
+            addresses.append(
+                manager_obj[path][constants.ADAPTER_INTERFACE]['Address'])
     if len(paths) < 1:
         raise AdapterError('No Bluetooth adapter found')
     else:
-        return paths
+        return addresses
 
 
 class Adapter:
@@ -91,9 +94,9 @@ class Adapter:
         if adapter_addr is None:
             adapters = list_adapters()
             if len(adapters) > 0:
-                self.path = adapters[0]
-        else:
-            self.path = dbus_tools.get_dbus_path(adapter=adapter_addr)
+                adapter_addr = adapters[0]
+
+        self.path = dbus_tools.get_dbus_path(adapter=adapter_addr)
         self.adapter_object = self.bus.get_object(
             constants.BLUEZ_SERVICE_NAME,
             self.path)

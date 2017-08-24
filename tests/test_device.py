@@ -69,7 +69,8 @@ class TestBluezeroDevice(unittest.TestCase):
 
     @unittest.skip('Do not know value to use for icon')
     def test_icon(self):
-        pass
+        ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
+        self.assertEqual(ble_dev.icon, 'dave')
 
     @unittest.skip('Do not know value to use for class')
     def test_class(self):
@@ -130,13 +131,13 @@ class TestBluezeroDevice(unittest.TestCase):
         ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
         self.assertEqual(ble_dev.tx_power, 0)
 
-    @unittest.skip('Do not know value to use for manufacturer data')
+    @unittest.skip('No test data for Manufacturer Data')
     def test_manufacturer_data(self):
         pass
 
-    @unittest.skip('Do not know value to use for service data')
+    @unittest.skip('No test data for Service Data')
     def test_service_data(self):
-        pass
+        ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
 
     def test_services_resolved(self):
         ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
