@@ -55,6 +55,10 @@ class Service:
             self.resolve_gatt()
 
     def resolve_gatt(self):
+        """
+        Get the methods and properties for the discovered Services
+        :return:
+        """
         if self.rmt_device.services_resolved:
             self.service_methods = dbus_tools.get_methods(self.adapter_addr,
                                                           self.device_addr,
@@ -115,6 +119,10 @@ class Characteristic:
         self.characteristic_props = None
 
     def resolve_gatt(self):
+        """
+        Get the methods and properties for the discovered characteristics
+        :return: Boolean of if characteristics have been resolved
+        """
         logger.info('Resolving GATT database for {}'.format(self.chrc_uuid))
         if self.rmt_device.services_resolved:
             self.characteristic_methods = dbus_tools.get_methods(
@@ -299,6 +307,10 @@ class Descriptor:
             self.resolve_gatt()
 
     def resolve_gatt(self):
+        """
+        Get the methods and properties for the discovered Descriptors
+        :return:
+        """
         if self.device_props.services_resolved:
             self.descriptor_methods = dbus_tools.get_methods(self.adapter_addr,
                                                              self.device_addr,

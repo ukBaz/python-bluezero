@@ -31,9 +31,11 @@ class BLE_blinkt:
     def __init__(self, device_addr, adapter_addr=None):
         """
         Initialization of an instance of a remote Blinkt BLE device
-        :param name: Will look for a BLE device with this string in its name
-        :param address: Will look for a BLE device with this address
-         (Currently not implemented)
+        :param device_addr: Connect to an already found BLE device with this
+                            mac address
+        :param adapter_addr: Connect to the BLE device using this adapter.
+                             If no adapter specified then first one in
+                             list is used
         """
         self.blinkt_dev = central.Central(adapter_addr=adapter_addr,
                                           device_addr=device_addr)

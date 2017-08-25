@@ -2,6 +2,11 @@
 
 
 def int_to_uint16(value_in):
+    """
+    Convert integer to Unsigned 16 bit little endian integer
+    :param value_in: Integer < 65535 (0xFFFF)
+    :return:
+    """
     bin_string = '{:016b}'.format(value_in)
     big_byte = int(bin_string[0:8], 2)
     little_byte = int(bin_string[8:16], 2)
@@ -9,10 +14,20 @@ def int_to_uint16(value_in):
 
 
 def sint16_to_int(bytes):
+    """
+    Convert a signed 16-bit integer to integer
+    :param bytes:
+    :return:
+    """
     return int.from_bytes(bytes, byteorder='little', signed=True)
 
 
 def bytes_to_xyz(bytes):
+    """
+    Split 6 byte long in integers representing x, y & z
+    :param bytes:
+    :return:
+    """
     x = sint16_to_int(bytes[0:2]) / 1000
     y = sint16_to_int(bytes[2:4]) / 1000
     z = sint16_to_int(bytes[4:6]) / 1000
@@ -21,6 +36,11 @@ def bytes_to_xyz(bytes):
 
 
 def int_to_uint32(value_in):
+    """
+    Convert integer to unsigned 32-bit
+    :param value_in:
+    :return:
+    """
     bin_string = '{0:032b}'.format(value_in)
     octet0 = int(bin_string[25:32], 2)
     octet1 = int(bin_string[17:24], 2)

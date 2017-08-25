@@ -42,6 +42,13 @@ class Central:
         self._characteristics = []
 
     def add_characteristic(self, srv_uuid, chrc_uuid):
+        """
+        Specify a characteristic of interest on the remote device by using
+        the GATT Service UUID and Characteristic UUID
+        :param srv_uuid: 128 bit UUID
+        :param chrc_uuid: 128 bit UUID
+        :return:
+        """
         chrc_hndl = GATT.Characteristic(self.dongle.address,
                                         self.rmt_device.address,
                                         srv_uuid,
@@ -50,11 +57,13 @@ class Central:
         return chrc_hndl
 
     def load_gatt(self):
+        """
+        Once the remote device has been connected to and the GATT database
+        has been resolved then it needs to be loaded.
+        :return:
+        """
         for chrc in self._characteristics:
             chrc.resolve_gatt()
-
-    def read_value(self, chrc_name):
-        return self.chrc_objs[chrc_name].value
 
     @property
     def services_resolved(self):
@@ -67,9 +76,9 @@ class Central:
 
     def connect(self, profile=None):
         """
-        Initiate a connection to the remote device.
+        Initiate a connection to the remote device and load
+        GATT database once resolved
 
-        :param address: unused
         :param profile: (optional) profile to use for the connection.
         """
         if profile is None:

@@ -20,7 +20,7 @@ class EddystoneURL:
         >>> eddystone.EddystoneURL('https://github.com/ukBaz')
 
         :param url: String containing URL e.g. ('http://camjam.me')
-        :param tx_power:
+        :param tx_power: Value of Tx Power of advertisement (Not implemented)
 
         """
         service_data = tools.url_to_advert(url, 0x10, tx_power)

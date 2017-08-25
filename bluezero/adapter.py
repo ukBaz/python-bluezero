@@ -1,13 +1,4 @@
-"""Class and methods that represent a Bluetooth Adapter.
-
-Classes:
-
-- Adapter -- Bluetooth Adapter Class
-
-Methods:
-
-- list_adapters -- List available adapters on the D-Bus interface
-"""
+"""Class and methods that represent a Bluetooth Adapter."""
 
 from __future__ import absolute_import, print_function, unicode_literals
 
@@ -47,7 +38,7 @@ class AdapterError(Exception):
 
 
 def list_adapters():
-    """List adapters that are available on the D-Bus."""
+    """Return list of adapters address available on system."""
     paths = []
     addresses = []
     bus = dbus.SystemBus()
@@ -70,7 +61,7 @@ class Adapter:
     """Bluetooth Adapter Class.
 
     This class instantiates an object that interacts with the physical
-    Bluetooth device via the D-Bus.
+    Bluetooth device.
 
     :Example:
 
@@ -83,11 +74,10 @@ class Adapter:
     def __init__(self, adapter_addr=None):
         """Default initialiser.
 
-        Creates the D-Bus interface to the specified local Bluetooth
-        adapter device.
-        The DBus path must be specified.
+        Creates the interface to the local Bluetooth adapter device.
+        If address is not given then first device is list is used.
 
-        :param adapter_path: DBus path to the Bluetooth adapter.
+        :param adapter_addr: Address of Bluetooth adapter to use.
         """
         self.bus = dbus.SystemBus()
 
@@ -136,10 +126,10 @@ class Adapter:
         return self.adapter_props.Get(constants.ADAPTER_INTERFACE, 'Class')
 
     @property
-    def alias(self, new_alias=None):
-        """Return or set the adapter alias.
+    def alias(self):
+        """Return the adapter alias.
 
-        :param new_alias: (optional) the new alias of the adapter.
+        :param new_alias: the new alias of the adapter.
         """
         return self.adapter_props.Get(
             constants.ADAPTER_INTERFACE, 'Alias')
@@ -150,39 +140,40 @@ class Adapter:
             constants.ADAPTER_INTERFACE, 'Alias', new_alias)
 
     def get_all(self):
-        """Print all the Adapter attributes."""
+        """Return dictionary of all the Adapter attributes."""
         return self.adapter_props.GetAll(constants.ADAPTER_INTERFACE)
 
     @property
     def powered(self):
-        """Get the power state of the Adapter."""
+        """power state of the Adapter.
+
+        :param new_state: boolean.
+        """
         return self.adapter_props.Get(
             constants.ADAPTER_INTERFACE, 'Powered')
 
     @powered.setter
     def powered(self, new_state):
-        """Set the power state of the Adapter.
-
-        :param new_state: boolean.
-        """
         self.adapter_props.Set(
             constants.ADAPTER_INTERFACE, 'Powered', new_state)
 
     @property
     def pairable(self):
-        """Get the pairable state of the Adapter."""
+        """pairable state of the Adapter.
+
+        :param new_state: boolean.
+        """
         return self.adapter_props.Get(
             constants.ADAPTER_INTERFACE, 'Pairable')
 
     @pairable.setter
     def pairable(self, new_state):
-        """Set the pairable state of the Adapter."""
         self.adapter_props.Set(
             constants.ADAPTER_INTERFACE, 'Pairable', new_state)
 
     @property
     def pairabletimeout(self):
-        """Set the pairable timeout of the Adapter."""
+        """The pairable timeout of the Adapter."""
         return self.adapter_props.Get(constants.ADAPTER_INTERFACE,
                                       'PairableTimeout')
 
@@ -193,7 +184,7 @@ class Adapter:
 
     @property
     def discoverable(self):
-        """Get the discoverable state of the Adapter."""
+        """Discoverable state of the Adapter."""
         return self.adapter_props.Get(
             constants.ADAPTER_INTERFACE, 'Discoverable')
 
@@ -204,7 +195,7 @@ class Adapter:
 
     @property
     def discoverabletimeout(self):
-        """Get the discoverable timeout of the Adapter."""
+        """Discoverable timeout of the Adapter."""
         return self.adapter_props.Get(constants.ADAPTER_INTERFACE,
                                       'DiscoverableTimeout')
 

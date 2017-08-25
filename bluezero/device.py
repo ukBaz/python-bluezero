@@ -34,7 +34,7 @@ class Device:
     """Remote Bluetooth Device Class.
 
     This class instantiates an object that interacts with a remote
-    Bluetooth device via the D-Bus.
+    Bluetooth device.
     """
 
     def __init__(self, adapter_addr, device_addr):
@@ -43,7 +43,8 @@ class Device:
         Creates object for the specified remote Bluetooth device.
         This is on the specified adapter specified.
 
-        :param device_path: DBus path to the remote Bluetooth device.
+        :param adapter_addr: Address of the local Bluetooth adapter.
+        :param device_addr: Address of the remote Bluetooth device.
         """
         self.bus = dbus.SystemBus()
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
