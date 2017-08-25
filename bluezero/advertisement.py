@@ -26,6 +26,7 @@ except ImportError:
             pass
 
 from bluezero import constants
+from bluezero import dbus_tools
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 mainloop = GObject.MainLoop()
@@ -62,7 +63,7 @@ class Advertisement(dbus.service.Object):
     >>> beacon.service_data =  {'FEAA': [0x10, 0x00, 0x00, 0x63, 0x73,
     >>>                                  0x72, 0x00, 0x61, 0x62, 0x6f,
     >>>                                  0x75, 0x74]}
-    >>> ad_manager = advertisement.AdvertisingManager('/org/bluez/hci0')
+    >>> ad_manager = advertisement.AdvertisingManager()
     >>> ad_manager.register_advertisement(beacon, {})
     >>> tools.start_mainloop()
 
@@ -71,10 +72,11 @@ class Advertisement(dbus.service.Object):
     def __init__(self, advert_id, ad_type):
         """Default initialiser.
 
-        Creates the D-Bus interface to the specified advertising data.
+        Creates the interface to the specified advertising data.
         The DBus path must be specified.
 
-        :param device_path: DBus path to the advertising data.
+        :param advert_id: Unique ID of advertisement.
+        :param ad_type: Possible values: "broadcast" or "peripheral"
         """
         # Setup D-Bus object paths and register service
         self.path = '/ukBaz/bluezero/advertisement{0:04d}'.format(advert_id)
@@ -240,10 +242,19 @@ def register_ad_error_cb(error):
 
 
 class AdvertisingManager:
-    def __init__(self, advert_mngr_path):
+    def __init__(self, adapter_addr=None):
+        """
+        Associate the advertisement to an adapter.
+        If no adapter specified then first adapter in list is used
+        """
         self.bus = dbus.SystemBus()
 
-        self.advert_mngr_path = advert_mngr_path
+        if adapter_addr is None:
+            adapters = list_adapters()
+            if len(adapters) > 0:
+                adapter_addr = adapters[0]
+
+        self.advert_mngr_path = dbus_tools.get_dbus_path(adapter=adapter_addr)
         self.advert_mngr_obj = self.bus.get_object(
             constants.BLUEZ_SERVICE_NAME,
             self.advert_mngr_path)

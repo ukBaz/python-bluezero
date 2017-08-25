@@ -50,7 +50,7 @@ class Beacon:
         Use to include TX power in advertisement.
         This is different to the TX power in specific beacon format
         (e.g. Eddystone)
-        :param show_power:
+        :param show_power: boolean value
         :return:
         """
         if show_power is None:

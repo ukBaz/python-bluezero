@@ -1,7 +1,7 @@
 """
 This is a simple API for reading data from a micro:bit.
 
-You will need the Bluetooth services of the micro:bit exposed.
+You will need the Bluetooth services on the micro:bit exposed.
 
 This code was developed using the 'Bluetooth Most Services, No Security'
 micro:bit hex file from:
@@ -55,12 +55,12 @@ logger.addHandler(NullHandler())
 
 class Microbit:
     """
-    Class to simplify interacting with a microbit over Bluetooth Low Energy
+    Class to simplify interacting with a micro:bit over Bluetooth Low Energy
     """
     def __init__(self, device_addr, adapter_addr=None):
         """
-        Initialization of an instance of a remote microbit
-        :param device_addr: Will look for a BLE device with this address
+        Initialization of an instance of a remote micro:bit
+        :param device_addr: Discovered microbit device with this address
         :param adapter_addr: Optional unless you have more than one adapter
                              on your machine
         """
@@ -108,7 +108,7 @@ class Microbit:
 
     def connect(self):
         """
-        Connect to the specified microbit for this instance
+        Connect to the specified micro:bit for this instance
         """
         self.ubit.connect()
         while not self.ubit.services_resolved:
@@ -117,7 +117,7 @@ class Microbit:
 
     def disconnect(self):
         """
-        Disconnect from the microbit
+        Disconnect from the micro:bit
         """
         self.ubit.disconnect()
 
@@ -225,10 +225,20 @@ class Microbit:
         return int.from_bytes(btn_val, byteorder='little', signed=False)
 
     def subscribe_button_a(self, user_callback):
+        """
+        Execute user_callback on Button A being press on micro:bit
+        :param user_callback:
+        :return:
+        """
         self.btn_a_state.add_characteristic_cb(user_callback)
         self.btn_a_state.start_notify()
 
     def subscribe_button_b(self, user_callback):
+        """
+        Execute user_callback on Button B being press on micro:bit
+        :param user_callback:
+        :return:
+        """
         self.btn_a_state.add_characteristic_cb(user_callback)
         self.btn_a_state.start_notify()
 

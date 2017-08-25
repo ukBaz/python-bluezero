@@ -1,4 +1,4 @@
-"""Utility functions for python-bluezero."""
+"""Utility functions for DBus use within Bluezero."""
 
 # Standard libraries
 import subprocess
@@ -40,11 +40,25 @@ def bluez_version():
 
 
 def interfaces_added(path, interfaces):
+    """
+    Callback for when an interface is added
+    :param path:
+    :param interfaces:
+    :return:
+    """
     if constants.DEVICE_INTERFACE in interfaces:
         logger.debug('Device added at {}'.format(path))
 
 
 def properties_changed(interface, changed, invalidated, path):
+    """
+    Callback for when properties are changed
+    :param interface:
+    :param changed:
+    :param invalidated:
+    :param path:
+    :return:
+    """
     if constants.DEVICE_INTERFACE in interface:
         for prop in changed:
             logger.debug(
@@ -55,11 +69,22 @@ def properties_changed(interface, changed, invalidated, path):
 
 
 def get_dbus_obj(dbus_path):
+    """
+    Get the the DBus object for the given path
+    :param dbus_path:
+    :return:
+    """
     bus = dbus.SystemBus()
     return bus.get_object(constants.BLUEZ_SERVICE_NAME, dbus_path)
 
 
 def get_dbus_iface(iface, dbus_obj):
+    """
+    Return the DBus interface object for given interface and DBus object
+    :param iface:
+    :param dbus_obj:
+    :return:
+    """
     return dbus.Interface(dbus_obj, iface)
 
 
@@ -73,6 +98,16 @@ def get_managed_objects():
 
 
 def _get_dbus_path2(objects, parent_path, iface_in, prop, value):
+    """
+    Find DBus path for given DBus interface with property of a given value.
+
+    :param objects: Dictionary of objects to search
+    :param parent_path: Parent path to include in search
+    :param iface_in: The interface of interest
+    :param prop: The property to search for
+    :param value: The value of the property being searched for
+    :return: Path of object searched for
+    """
     if parent_path is None:
         raise ValueError('Bad combination of inputs: found nothing')
     for path, iface in objects.items():
@@ -89,6 +124,15 @@ def get_dbus_path(adapter=None,
                   service=None,
                   characteristic=None,
                   descriptor=None):
+    """
+    Return a DBus path for the given properties
+    :param adapter: Adapter address
+    :param device: Device address
+    :param service: GATT Service UUID
+    :param characteristic: GATT Characteristic UUID
+    :param descriptor: GATT Descriptor UUID
+    :return: DBus path
+    """
     bus = dbus.SystemBus()
     manager = dbus.Interface(
         bus.get_object(constants.BLUEZ_SERVICE_NAME, '/'),
@@ -137,6 +181,13 @@ def get_dbus_path(adapter=None,
 def get_profile_path(adapter,
                      device,
                      profile):
+    """
+    Return a DBus path for the given properties
+    :param adapter: Adapter address
+    :param device: Device address
+    :param profile:
+    :return:
+    """
     bus = dbus.SystemBus()
     manager = dbus.Interface(
         bus.get_object(constants.BLUEZ_SERVICE_NAME, '/'),
@@ -172,7 +223,15 @@ def get_iface(adapter=None,
               service=None,
               characteristic=None,
               descriptor=None):
-
+    """
+    For the given list of properties return the deepest interface
+    :param adapter: Adapter address
+    :param device: Device address
+    :param service: GATT Service UUID
+    :param characteristic: GATT Characteristic UUID
+    :param descriptor: GATT Descriptor UUID
+    :return: DBus Interface
+    """
     if adapter is not None:
         _iface = constants.ADAPTER_INTERFACE
 
@@ -196,7 +255,15 @@ def get_methods(adapter=None,
                 service=None,
                 characteristic=None,
                 descriptor=None):
-
+    """
+    Get methods available for the specified
+    :param adapter: Adapter Address
+    :param device: Device Address
+    :param service: GATT Service UUID
+    :param characteristic: GATT Characteristic UUID
+    :param descriptor: GATT Descriptor UUID
+    :return: Object of the DBus methods available
+    """
     path_obj = get_dbus_path(adapter,
                              device,
                              service,
@@ -217,7 +284,15 @@ def get_props(adapter=None,
               service=None,
               characteristic=None,
               descriptor=None):
-
+    """
+    Get properties for the specified object
+    :param adapter: Adapter Address
+    :param device:  Device Address
+    :param service:  GATT Service UUID
+    :param characteristic: GATT Characteristic UUID
+    :param descriptor: GATT Descriptor UUID
+    :return: Object of the DBus properties available
+    """
     path_obj = get_dbus_path(adapter,
                              device,
                              service,
