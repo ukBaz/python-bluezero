@@ -18,3 +18,11 @@ Constants
 
 .. automodule:: bluezero.constants
     :members:
+
+DBus Tools
+==========
+
+.. py:currentmodule:: bluezero.dbus_tools
+
+.. automodule:: bluezero.dbus_tools
+    :members:

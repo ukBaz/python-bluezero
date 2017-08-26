@@ -9,3 +9,11 @@ Broadcaster
 
 .. automodule:: bluezero.broadcaster
     :members:
+
+Central
+=======
+
+.. py:currentmodule:: bluezero.central
+
+.. automodule:: bluezero.central
+    :members:
