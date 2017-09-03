@@ -1,9 +1,7 @@
 """
 The level 10 file for creating beacons
 """
-from bluezero import dbus_tools
 from bluezero import adapter
-from bluezero import constants
 from bluezero import advertisement
 
 
@@ -11,19 +9,19 @@ class Beacon:
     """
     Create a non-connectable Bluetooth instance advertising information
     """
-    def __init__(self, adapter_obj=None):
+    def __init__(self, adapter_addr=None):
         """Default initialiser.
 
         Creates the BLE beacon object
         If an adapter object exists then give it as an optional argument
         If an adapter object is not given then the first adapter found is used
-        :param adapter_obj: Optional Python adapter object.
+        :param adapter_addr: Optional Python adapter object.
         """
         self.dongle = None
-        if adapter_obj is None:
+        if adapter_addr is None:
             self.dongle = adapter.Adapter(adapter.list_adapters()[0])
         else:
-            self.dongle = adapter.Adapter(adapter_obj)
+            self.dongle = adapter.Adapter(adapter_addr)
 
         self.broadcaster = advertisement.Advertisement(1, 'broadcast')
 
@@ -54,12 +52,9 @@ class Beacon:
         :return:
         """
         if show_power is None:
-            self.broadcaster.Get(constants.LE_ADVERTISEMENT_IFACE,
-                                 'IncludeTxPower')
+            self.broadcaster.include_tx_power
         else:
-            self.broadcaster.Set(constants.LE_ADVERTISEMENT_IFACE,
-                                 'IncludeTxPower',
-                                 show_power)
+            self.broadcaster.include_tx_power = show_power
 
     def start_beacon(self):
         """
@@ -67,13 +62,13 @@ class Beacon:
         """
         if not self.dongle.powered:
             self.dongle.powered = True
-        ad_manager = advertisement.AdvertisingManager(self.dongle.path)
+        ad_manager = advertisement.AdvertisingManager(self.dongle.address)
         ad_manager.register_advertisement(self.broadcaster, {})
 
         try:
-            dbus_tools.start_mainloop()
+            self.broadcaster.start()
         except KeyboardInterrupt:
-            dbus_tools.stop_mainloop()
+            self.broadcaster.stop()
             ad_manager.unregister_advertisement(self.broadcaster)
         finally:
             pass

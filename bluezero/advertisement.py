@@ -27,6 +27,7 @@ except ImportError:
 
 from bluezero import constants
 from bluezero import dbus_tools
+from bluezero import adapter
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 mainloop = GObject.MainLoop()
@@ -56,16 +57,16 @@ class Advertisement(dbus.service.Object):
     An example of an Eddystone beacon:
     :Example:
 
-    >>> from bluezero import tools
     >>> from bluezero import advertisement
     >>> beacon = advertisement.Advertisement(1, 'broadcast')
     >>> beacon.service_UUIDs = ['FEAA']
-    >>> beacon.service_data =  {'FEAA': [0x10, 0x00, 0x00, 0x63, 0x73,
-    >>>                                  0x72, 0x00, 0x61, 0x62, 0x6f,
-    >>>                                  0x75, 0x74]}
+    >>> beacon.service_data =  {'FEAA': [0x10, 0x08, 0x03, 0x75, 0x6B,
+    >>>                                  0x42, 0x61, 0x7A, 0x2e, 0x67,
+    >>>                                  0x69, 0x74, 0x68, 0x75, 0x62,
+    >>>                                  0x2E, 0x69, 0x6F]}
     >>> ad_manager = advertisement.AdvertisingManager()
     >>> ad_manager.register_advertisement(beacon, {})
-    >>> tools.start_mainloop()
+    >>> beacon.start()
 
     """
 
@@ -93,6 +94,14 @@ class Advertisement(dbus.service.Object):
                 'IncludeTxPower': False
             }
         }
+
+    @staticmethod
+    def start():
+        dbus_tools.start_mainloop()
+
+    @staticmethod
+    def stop():
+        dbus_tools.stop_mainloop()
 
     def get_path(self):
         """Return the DBus object path"""
@@ -250,7 +259,7 @@ class AdvertisingManager:
         self.bus = dbus.SystemBus()
 
         if adapter_addr is None:
-            adapters = list_adapters()
+            adapters = adapter.list_adapters()
             if len(adapters) > 0:
                 adapter_addr = adapters[0]
 
