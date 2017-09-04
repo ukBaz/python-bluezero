@@ -7,6 +7,7 @@ Eddystone
 .. currentmodule:: bluezero.eddystone
 
 .. automodule:: bluezero.eddystone
+    :special-members:
     :members:
 
 micro:bit

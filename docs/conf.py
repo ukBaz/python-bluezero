@@ -12,8 +12,24 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
 import os
+import sys
+from unittest.mock import MagicMock
+
+
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, name):
+            return MagicMock()
+
+MOCK_MODULES = ['dbus',
+                'dbus.service',
+                'dbus.exceptions',
+                'dbus.mainloop',
+                'dbus.mainloop.glib',
+                'gobject']
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+
 sys.path.insert(0, os.path.abspath("../"))
 
 # If extensions (or modules to document with autodoc) are in another directory,

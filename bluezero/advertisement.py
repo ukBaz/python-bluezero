@@ -1,4 +1,6 @@
-"""Class and methods that represent LE Advertising.
+"""
+Class and methods that represent LE Advertising.
+This class requires BlueZ to have the experimental flag enabled
 
 Classes:
 
@@ -251,11 +253,13 @@ def register_ad_error_cb(error):
 
 
 class AdvertisingManager:
+    """
+    Associate the advertisement to an adapter.
+    If no adapter specified then first adapter in list is used
+    """
+
     def __init__(self, adapter_addr=None):
-        """
-        Associate the advertisement to an adapter.
-        If no adapter specified then first adapter in list is used
-        """
+
         self.bus = dbus.SystemBus()
 
         if adapter_addr is None:
