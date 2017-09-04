@@ -22,7 +22,7 @@ Constants
 DBus Tools
 ==========
 
-.. py:currentmodule:: bluezero.dbus_tools
+.. currentmodule:: bluezero.dbus_tools
 
 .. automodule:: bluezero.dbus_tools
     :members:

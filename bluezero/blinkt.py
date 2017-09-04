@@ -1,6 +1,7 @@
 """
 This is a simple API to access the Pimoroni Blinkt device.
-This is the central API. The peripheral is created with
+This is the central API.
+The peripheral is created with:
 examples/level100/blinkt_ble.py
 
 """
@@ -26,7 +27,8 @@ logger.addHandler(NullHandler())
 
 class BLE_blinkt:
     """
-    Class to simplify interacting with a microbit over Bluetooth Low Energy
+    Class to simplify interacting with a Pimoroni Blinkt over
+    Bluetooth Low Energy
     """
     def __init__(self, device_addr, adapter_addr=None):
         """

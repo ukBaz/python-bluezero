@@ -1,5 +1,6 @@
 """
 The level 10 file for creating beacons
+This requires BlueZ to have the experimental flag set
 """
 from bluezero import adapter
 from bluezero import advertisement

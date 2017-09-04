@@ -7,6 +7,8 @@ Current classes include:
 - Characteristic -- Bluetooth Characteristic
 - Descriptor -- Bluetooth Descriptor
 - Advertisement -- Bluetooth Advertisement
+
+This requires BlueZ to have the experimental flag to be enabled
 """
 
 # D-Bus imports

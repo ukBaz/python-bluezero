@@ -343,6 +343,7 @@ class BitBot(Microbit):
     """
     Class to simplify interacting with a microbit attached to a bit:bot
     over Bluetooth Low Energy
+    The bit:bot is a micro:bit robot available from 4tronix.co.uk
     """
     def __init__(self, name=None, device_addr=None):
         """
