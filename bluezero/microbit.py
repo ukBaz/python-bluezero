@@ -455,31 +455,46 @@ class BitBot:
         """
         Stop both wheels of the bit:bot
         """
-        self.ubit._pin_states = [0x01, 0x00, 0x0C, 0x00, 0x00, 0x00, 0x08, 0x00]
+        self.ubit._pin_states = [0x01, 0x00,
+                                 0x0C, 0x00,
+                                 0x00, 0x00,
+                                 0x08, 0x00]
 
     def spin_right(self):
         """
         Spin right wheel forward and left wheel backwards so bit:bot spins
         """
-        self.ubit._pin_states = [0x01, 0x01, 0x0C, 0x00, 0x00, 0x00, 0x08, 0x01]
+        self.ubit._pin_states = [0x01, 0x01,
+                                 0x0C, 0x00,
+                                 0x00, 0x00,
+                                 0x08, 0x01]
 
     def spin_left(self):
         """
         Spin left wheel forward and right wheel backwards so bit:bot spins
         """
-        self.ubit._pin_states = [0x01, 0x00, 0x0C, 0x01, 0x00, 0x01, 0x08, 0x00]
+        self.ubit._pin_states = [0x01, 0x00,
+                                 0x0C, 0x01,
+                                 0x00, 0x01,
+                                 0x08, 0x00]
 
     def forward(self):
         """
         Spin both wheels forward
         """
-        self.ubit._pin_states = [0x01, 0x01, 0x0C, 0x00, 0x00, 0x01, 0x08, 0x00]
+        self.ubit._pin_states = [0x01, 0x01,
+                                 0x0C, 0x00,
+                                 0x00, 0x01,
+                                 0x08, 0x00]
 
     def reverse(self):
         """
         Spin both wheels backwards
         """
-        self.ubit._pin_states = [0x01, 0x00, 0x0C, 0x01, 0x00, 0x00, 0x08, 0x01]
+        self.ubit._pin_states = [0x01, 0x00,
+                                 0x0C, 0x01,
+                                 0x00, 0x00,
+                                 0x08, 0x01]
 
     def _left_motor(self, pwm_value, reverse=False):
         if not reverse:
