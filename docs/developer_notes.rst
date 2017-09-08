@@ -10,10 +10,12 @@ Release Checklist
 * Build and publish pypi package
 * Check pypi page for obvious errors
 * Update version in docs/conf.py
-* Build and publish project documentation
-* Check read the docs page
 * `git tag` with version number
+* Check read the docs page
 
+
+Specifics on some steps
+=======================
 
 Build pypi package
 ------------------
@@ -24,11 +26,12 @@ To upload to pypi:
 
 .. code-block:: none
 
-    python3 setup.py sdist bdist_wheel upload -r pypi
+    python3 setup.py bdist_wheel sdist
+    twine upload  dist/*
 
 
-Build Documentation
--------------------
+Test Build of Documentation
+---------------------------
 
 Update version information in docs/conf.py:
 
@@ -37,6 +40,6 @@ Update version information in docs/conf.py:
     cd docs
     make clean
     make html
-    cd ..
-    python3 setup.py upload_docs --upload-dir docs/_build/html
 
+* readthedocs gets update from GitHub
+* readthedocs versions are based on GitHub version tags
