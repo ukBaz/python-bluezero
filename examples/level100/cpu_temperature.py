@@ -7,6 +7,7 @@ except ImportError:
     import gobject as GObject
 
 # Bluezero modules
+from bluezero import dbus_tools
 from bluezero import tools
 from bluezero import constants
 from bluezero import adapter
@@ -130,7 +131,7 @@ class ble:
         # advert.service_data = {EDDYSTONE: eddystone_data}
         if not self.dongle.powered:
             self.dongle.powered = True
-        ad_manager = advertisement.AdvertisingManager(self.dongle.path)
+        ad_manager = advertisement.AdvertisingManager(self.dongle.address)
         ad_manager.register_advertisement(advert, {})
 
     def add_call_back(self, callback):
