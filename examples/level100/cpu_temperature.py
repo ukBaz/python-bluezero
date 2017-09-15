@@ -7,6 +7,7 @@ except ImportError:
     import gobject as GObject
 
 # Bluezero modules
+from bluezero import dbus_tools
 from bluezero import tools
 from bluezero import constants
 from bluezero import adapter
@@ -23,6 +24,7 @@ CPU_FMT_DSCP = '2904'
 def get_cpu_temperature():
     # return random.randrange(3200, 5310, 10) / 100
     cpu_temp = os.popen('vcgencmd measure_temp').readline()
+    print(cpu_temp)
     return float(cpu_temp.replace('temp=', '').replace("'C\n", ''))
 
 
@@ -130,7 +132,7 @@ class ble:
         # advert.service_data = {EDDYSTONE: eddystone_data}
         if not self.dongle.powered:
             self.dongle.powered = True
-        ad_manager = advertisement.AdvertisingManager(self.dongle.path)
+        ad_manager = advertisement.AdvertisingManager(self.dongle.address)
         ad_manager.register_advertisement(advert, {})
 
     def add_call_back(self, callback):
