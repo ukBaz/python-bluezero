@@ -24,7 +24,6 @@ CPU_FMT_DSCP = '2904'
 def get_cpu_temperature():
     # return random.randrange(3200, 5310, 10) / 100
     cpu_temp = os.popen('vcgencmd measure_temp').readline()
-    print(cpu_temp)
     return float(cpu_temp.replace('temp=', '').replace("'C\n", ''))
 
 
