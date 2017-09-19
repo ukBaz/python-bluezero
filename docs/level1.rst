@@ -16,10 +16,3 @@ micro:bit
 
 .. automodule:: bluezero.microbit
     :members:
-
-blinkt
-======
-.. currentmodule:: bluezero.blinkt
-
-.. automodule:: bluezero.blinkt
-    :members:

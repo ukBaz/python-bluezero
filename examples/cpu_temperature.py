@@ -8,7 +8,6 @@ except ImportError:
 
 # Bluezero modules
 from bluezero import dbus_tools
-from bluezero import tools
 from bluezero import constants
 from bluezero import adapter
 from bluezero import advertisement
@@ -139,7 +138,7 @@ class ble:
 
     def start_bt(self):
         # self.light.StartNotify()
-        tools.start_mainloop()
+        dbus_tools.start_mainloop()
 
 
 if __name__ == '__main__':

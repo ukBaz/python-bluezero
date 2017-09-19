@@ -1,50 +1,48 @@
 import time
 from bluezero import microbit
 
-ubit = microbit.Microbit(adapter_addr='00:02:5B:03:44:07',
-                         device_addr='D4:AE:95:4C:3E:A4')
+ubit = microbit.Microbit(adapter_addr='B8:27:EB:22:57:E0',
+                         device_addr='E3:AC:D2:F8:EB:B9')
 
 ubit.connect()
 
-assert ubit.read_pixels() == ['0b1110',
-                              '0b10000',
-                              '0b10000',
-                              '0b10000',
-                              '0b1110']
+assert ubit.pixels == [0b01110,
+                       0b10000,
+                       0b10000,
+                       0b10000,
+                       0b01110]
 
-ubit.play_beep(0.25)
-ubit.display_scroll_delay(20)
-delay = ubit.display_scroll_delay()
-ubit.display_text('Scroll speed {}'.format(delay))
+ubit.scroll_delay = 20
+delay = ubit.scroll_delay
+ubit.text = 'Scroll speed {}'.format(delay)
 time.sleep(5)
-ubit.display_text('This is a really long string ')
+ubit.text = 'This is a really long string '
 time.sleep(5)
 
-while ubit.read_button_a() < 1:
-    ubit.display_pixels(0b00000,
-                        0b01000,
-                        0b11111,
-                        0b01000,
-                        0b00000)
+while not ubit.button_a:
+    ubit.pixels = [0b00000,
+                   0b01000,
+                   0b11111,
+                   0b01000,
+                   0b00000]
     time.sleep(0.5)
-    ubit.display_clear()
+    ubit.clear_display()
 
-while ubit.read_button_b() < 1:
-    ubit.display_pixels(0b00000,
-                        0b00010,
-                        0b11111,
-                        0b00010,
-                        0b00000)
+while not ubit.button_b:
+    ubit.pixels = [0b00000,
+                   0b00010,
+                   0b11111,
+                   0b00010,
+                   0b00000]
     time.sleep(0.5)
-    ubit.display_clear()
+    ubit.clear_display()
 
-
-ubit.display_clear()
-ubit.display_scroll_delay(120)
-ubit.display_text('{0}'.format(ubit.read_temperature()))
+ubit.clear_display()
+ubit.scroll_delay = 120
+ubit.text = '{0}'.format(ubit.temperature)
 time.sleep(5)
 
-ubit.display_text('{0}'.format(ubit.read_accelerometer()))
+ubit.text = '{0}'.format(ubit.accelerometer)
 time.sleep(5)
 
 ubit.disconnect()

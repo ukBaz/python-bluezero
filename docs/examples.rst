@@ -2,9 +2,6 @@
 Examples
 ========
 
-Level 1
-=======
-
 Adapter
 -------
 
@@ -14,47 +11,32 @@ nearby Bluetooth devices:
 
 .. literalinclude:: ../examples/adapter_example.py
 
+Central Device
+--------------
+This example uses the micro:bit API that has been written in bluezero to interact
+with the micro:bit
+
+.. literalinclude:: ../examples/microbit_poll.py
+
+
 Eddystone URL Beacon
 --------------------
 
 This example broadcasts a given URL in a format for the `Physical Web
 <https://google.github.io/physical-web/>`_:
+You will need to put the BlueZ bluetoothd into experimental mode for this one.
 
 .. literalinclude:: ../examples/eddystone-url-beacon.py
 
-Level 10
-========
 
-Micro:bit Buttons
------------------
+cpu_temperature.py
+------------------
 
-This example reads the status of the buttons on a `BBC micro:bit
-<https://en.wikipedia.org/wiki/Micro_Bit/>`_ and indicates them on a `Ryanteck
-Traffic Hat <https://ryanteck.uk/hats/1-traffichat-0635648607122.html/>`_. (To
-run this replace xx:xx:xx:xx:xx:xx with the address of your micro:bit):
+This example transmits the temperature of the CPU over the single characteristic.
+If your hardware does not support the `vcgencmd` then change the `get_cpu_temperature()`
+function to use the randomly generated temperature.
+Values are only updated when notification are switched on.
+You will need to have BlueZ in experimental mode and have tweaked the DBus configuration
+file to open the permissions for 'ukBaz.bluezero'
 
-    ``python3 microbit_button.py xx:xx:xx:xx:xx:xx``
-
-.. literalinclude:: ../examples/level10/microbit_button.py
-
-TI CC2650
----------
-
-This example reads the sensors or buttons on a `TI SensorTag
-<http://www.ti.com/tool/TIDC-CC2650STK-SENSORTAG/>`_ and prints them out to the
-screen:
-
-.. literalinclude:: ../examples/level10/read_sensortag_CC2650.py
-
-Level 100
-=========
-
-Physical Web FatBeacon
-----------------------
-
-This example advertises a Physical Web Beacon using the Eddystone standard.
-Currently this can only be connected to by the Physical Web app because that is
-the only thing that supports `FatBeacons
-<https://github.com/google/physical-web/issues/784>`_:
-
-.. literalinclude:: ../examples/level100/fatbeacon.py
+.. literalinclude:: ../examples/cpu_temperature.py
