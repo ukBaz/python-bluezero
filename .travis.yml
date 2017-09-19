@@ -53,7 +53,6 @@ script:
   - coverage run --append -m unittest -v tests.test_central
   - coverage run --append -m unittest -v tests.test_peripheral
   # Level 1
-  - coverage run --append -m unittest -v tests.test_blinkt
   - coverage run --append -m unittest -v tests.test_eddystone
   - coverage run --append -m unittest -v tests.test_microbit
   # Examples (Level 1)

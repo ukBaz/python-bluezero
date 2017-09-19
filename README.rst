@@ -38,12 +38,24 @@ These examples will need to be written without the need to sign (or break) non-d
 
 Status
 ======
-This is an early-stage experiment that we are developing in the open.
-This *currently* should only be of interest to developers looking to provide feedback and to contribute.
+While we want this to be easy to use it does not mean it easy to create.
+This library is still in the early stages so things might change and break. Apologies in advance!
+We will try to make it as stable as possible. However much of the functionality that is in BlueZ is
+still flagged as experimental.
+The library assumes you are using a Linux release with BlueZ 5.43. For example Raspbian Stretch
+
+
+Getting Started
+===============
+If you are here for the time, and especially if you are new to Bluetooth Low Energy, then
+a tutorial might be a good place to start.
+The following tutorial has been created based on the readily available hardware of
+a Raspberry Pi 3 and a micro:bit. More details available at:
+https://ukbaz.github.io/howto/ubit_workshop.html
 
 Examples
 ========
-If you are coming here for the first time then looking at the examples is probably the place to start
+There are some other examples in the library if you are feeling adventurous
 
 Adapter
 -------
@@ -57,25 +69,20 @@ nearby devices
 GATT Client (Central role)
 --------------------------
 
-read_sensortag_CC2650.py
-************************
-This is a simple example of how to read the Ti Sensortag CC2650
-
 microbit_poll.py
 ****************
 This example uses the micro:bit API that has been written in bluezero.
 You will need a buzzer attached to pin 0 to get play_beep to work.
-
-blinkt_central.py
-*****************
-This example is the other end of the radio link to blinkt_ble.py example.
 
 Beacon
 ------
 
 eddystone-url-beacon.py
 ***********************
-Simple Eddystone URL beacon. Can be read with any Physical Web application
+You will need to put the BlueZ bluetoothd into experimental mode for this one.
+More details elsewhere in the documentation.
+A Simple Eddystone URL beacon.
+You can be read the URL being broadcast with any Physical Web application on your Phone
 
 Scanner
 -------
@@ -83,24 +90,13 @@ No example currently.
 
 GATT Server (Peripheral role)
 -----------------------------
-
-fatbeacon.py
-************
-Experiment with Eddystone FatBeacon. Contains service for beacon to connect to that sends html page.
-
-lightswitch.py
-**************
-A simple light switch example using an LED and a switch.
-Write a value to the switch characteristic to change the state of the light
-
-blinkt_ble.py
-*************
-This can be controlled from web page via web bluetooth.
-This example advertises the URL via Eddystone URL. Once you attached you can change the
-colours of the LEDs on the Pimoroni Blinkt.
+This is starting to be very experimental...
+You will need to have BlueZ in experimental mode and have tweaked the dbus configuration
+file to open the permissions for 'ukBaz.bluezero'
 
 cpu_temperature.py
 ******************
+
 This example transmits the temperature of the CPU over the single characteristic.
 If your hardware does not support the `vcgencmd` then change the `get_cpu_temperature()`
 function to use the randomly generated temperature.

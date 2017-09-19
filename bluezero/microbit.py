@@ -123,6 +123,10 @@ class Microbit:
 
     @property
     def scroll_delay(self):
+        """
+        Specifies a millisecond delay to wait for in between showing each
+        character on the display.
+        """
         return int.from_bytes(self._led_scroll.value,
                               byteorder='little',
                               signed=False)
@@ -141,6 +145,11 @@ class Microbit:
 
     @property
     def text(self):
+        """
+        Specify text to be displayed. Limit of 20 characters.
+        The content will be restricted to that number of characters.
+        :param words:
+        """
         pass
 
     @text.setter
