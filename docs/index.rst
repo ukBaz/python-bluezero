@@ -30,3 +30,10 @@ python-bluezero modules
 
 .. toctree::
    api_modules
+
+Developer Notes
+***************
+
+.. toctree::
+   developer_notes
+   tests
