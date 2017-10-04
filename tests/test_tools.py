@@ -61,6 +61,89 @@ class TestDbusModuleCalls(unittest.TestCase):
         little_endian = self.module_under_test.int_to_uint32(305419896)
         self.assertListEqual(little_endian, [0x78, 0x56, 0x34, 0x12])
 
+    def test_not_signed(self):
+        self.assertListEqual([0xBB, 0xBB, 0xBB, 0xBB],
+                             self.module_under_test.int_to_uint32(3149642683))
+    def test_p0(self):
+        self.assertListEqual([1, 0x0, 0x00, 0x00],
+                             self.module_under_test.int_to_uint32(2**0))
+
+    def test_p1(self):
+        self.assertListEqual([2, 0x0, 0x00, 0x00],
+                             self.module_under_test.int_to_uint32(2**1))
+
+    def test_p2(self):
+        self.assertListEqual([4, 0x00, 0x00, 0x00],
+                             self.module_under_test.int_to_uint32(2**2))
+
+    def test_p3(self):
+        self.assertListEqual([8, 0x00, 0x00, 0x00],
+                             self.module_under_test.int_to_uint32(2**3))
+
+    def test_p4(self):
+        self.assertListEqual([0x10, 0x00, 0x00, 0x00],
+                             self.module_under_test.int_to_uint32(2**4))
+
+    def test_p5(self):
+        self.assertListEqual([0x20, 0x00, 0x00, 0x00],
+                             self.module_under_test.int_to_uint32(2**5))
+
+    def test_p6(self):
+        self.assertListEqual([0x40, 0x00, 0x00, 0x00],
+                             self.module_under_test.int_to_uint32(2**6))
+
+    def test_p7(self):
+        self.assertListEqual([0x80, 0x00, 0x00, 0x00],
+                             self.module_under_test.int_to_uint32(2**7))
+
+    def test_p8(self):
+        self.assertListEqual([0x00, 0x01, 0x00, 0x00],
+                             self.module_under_test.int_to_uint32(2**8))
+
+    def test_p9(self):
+        self.assertListEqual([0, 0x02, 0x00, 0x00],
+                             self.module_under_test.int_to_uint32(2**9))
+
+    def test_p10(self):
+        self.assertListEqual([0, 0x04, 0x00, 0x00],
+                             self.module_under_test.int_to_uint32(2**10))
+
+    def test_p11(self):
+        self.assertListEqual([0, 0x08, 0x00, 0x00],
+                             self.module_under_test.int_to_uint32(2**11))
+
+    def test_p12(self):
+        self.assertListEqual([0, 0x10, 0x00, 0x00],
+                             self.module_under_test.int_to_uint32(2**12))
+
+    def test_p13(self):
+        self.assertListEqual([0, 0x20, 0x00, 0x00],
+                             self.module_under_test.int_to_uint32(2**13))
+
+    def test_p14(self):
+        self.assertListEqual([0, 0x40, 0x00, 0x00],
+                             self.module_under_test.int_to_uint32(2**14))
+
+    def test_p15(self):
+        self.assertListEqual([0, 0x80, 0x00, 0x00],
+                             self.module_under_test.int_to_uint32(2**15))
+
+    def test_p16(self):
+        self.assertListEqual([0, 0x00, 0x01, 0x00],
+                             self.module_under_test.int_to_uint32(2**16))
+
+    def test_p17(self):
+        self.assertListEqual([0, 0x00, 0x02, 0x00],
+                             self.module_under_test.int_to_uint32(2**17))
+
+    def test_p18(self):
+        self.assertListEqual([0, 0x00, 0x04, 0x00],
+                             self.module_under_test.int_to_uint32(2**18))
+
+    def test_p19(self):
+        self.assertListEqual([0, 0x00, 0x08, 0x00],
+                             self.module_under_test.int_to_uint32(2**19))
+
     def test_IntToUint16(self):
         little_endian = self.module_under_test.int_to_uint16(43733)
         self.assertListEqual(little_endian, [0xD5, 0xAA])
@@ -73,6 +156,7 @@ class TestDbusModuleCalls(unittest.TestCase):
         # result = self.module_under_test.bytes_to_xyz([32, 176, 40,239, 96, 84])
         result = self.module_under_test.bytes_to_xyz([0x20, 0x00, 0xD0, 0x00, 0x20, 0xFC])
         self.assertEqual(result, [0.032, 0.208, -0.992])
+
 
 if __name__ == '__main__':
     unittest.main()

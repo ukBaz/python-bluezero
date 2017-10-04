@@ -13,16 +13,11 @@ except ImportError:
 # D-Bus import
 import dbus
 import dbus.mainloop.glib
-try:
-    from gi.repository import GObject
-except ImportError:
-    import gobject as GObject
 
 # python-bluezero constants import
 from bluezero import constants
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-mainloop = GObject.MainLoop()
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -300,20 +295,3 @@ def get_props(adapter=None,
                              descriptor)
 
     return get_dbus_iface(dbus.PROPERTIES_IFACE, get_dbus_obj(path_obj))
-
-
-#############################
-# Interface search functions
-#############################
-
-def start_mainloop():
-    mainloop.run()
-
-
-def stop_mainloop():
-    mainloop.quit()
-
-
-def generic_error_cb(error):
-    print('D-Bus call failed: ' + str(error))
-    mainloop.quit()

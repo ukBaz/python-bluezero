@@ -20,17 +20,10 @@ from bluezero import dbus_tools
 from bluezero import device
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-mainloop = GObject.MainLoop()
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.addHandler(NullHandler())
-
-
-def generic_error_cb(error):
-    """Generic Error Callback function."""
-    logger.error('D-Bus call failed: ' + str(error))
-    mainloop.quit()
 
 
 class Service:
@@ -428,6 +421,11 @@ class Profile:
         return self.profile_props.Get(constants.GATT_PROFILE_IFACE, 'UUIDs')
 
 
+def generic_error_cb(error):
+    """Generic Error Callback function."""
+    logger.error('D-Bus call failed: ' + str(error))
+
+
 def register_app_cb():
     """Application registration callback."""
     logger.info('GATT application registered')
@@ -436,7 +434,7 @@ def register_app_cb():
 def register_app_error_cb(error):
     """Application registration error callback."""
     logger.warning('Failed to register application: ' + str(error))
-    mainloop.quit()
+    # mainloop.quit()
 
 
 class GattManager:

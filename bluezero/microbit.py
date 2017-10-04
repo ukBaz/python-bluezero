@@ -297,6 +297,30 @@ class Microbit:
         return int.from_bytes(mag_bear_val,
                               byteorder='little', signed=False)
 
+    def set_pin(self, pin_number, input, analogue):
+        pin_bit = tools.int_to_uint32(2 ** pin_number)
+        current_io_setting = self._pin_config
+        current_ad_setting = self._pin_ad_config
+        if input:
+            new_setting = tools.bitwise_or_2lists(pin_bit, current_io_setting)
+            self._pin_config = new_setting
+        else:
+            pin_mask = tools.bitwise_xor_2lists(pin_bit,
+                                                [0xff, 0xff, 0xff, 0xff])
+            new_setting = tools.bitwise_and_2lists(pin_mask,
+                                                   current_io_setting)
+            self._pin_config = new_setting
+        if analogue:
+            new_setting = tools.bitwise_or_2lists(pin_bit,
+                                                  current_ad_setting)
+            self._pin_ad_config = new_setting
+        else:
+            pin_mask = tools.bitwise_xor_2lists(pin_bit,
+                                                [0xff, 0xff, 0xff, 0xff])
+            new_setting = tools.bitwise_and_2lists(pin_mask,
+                                                   current_ad_setting)
+            self._pin_ad_config = new_setting
+
     @property
     def _pin_config(self):
         """
@@ -304,7 +328,11 @@ class Microbit:
         A value of 0 means configured for output and 1 means configured
         for input.
         """
-        return self._io_pin_config.value
+        return_val = []
+        current_setting = self._io_pin_config.value
+        for i in range(len(current_setting)):
+            return_val.append(int(current_setting[i]))
+        return return_val
 
     @_pin_config.setter
     def _pin_config(self, states):
@@ -323,7 +351,11 @@ class Microbit:
         A value of 0 means digital and 1 means analogue.
         If no states are specified then the current state is returned
         """
-        return self._io_ad_config.value
+        return_val = []
+        current_setting = self._io_ad_config.value
+        for i in range(len(current_setting)):
+            return_val.append(int(current_setting[i]))
+        return return_val
 
     @_pin_ad_config.setter
     def _pin_ad_config(self, states):
@@ -333,7 +365,7 @@ class Microbit:
         A value of 0 means digital and 1 means analogue.
         If no states are specified then the current state is returned
         """
-        self._io_pin_config.value = states
+        self._io_ad_config.value = states
 
     @property
     def _pin_states(self):
@@ -352,6 +384,19 @@ class Microbit:
         Number / Value pairs.
         """
         self._io_pin_data.value = pin_value_pairs
+
+    @property
+    def pin_values(self):
+        """
+        Get the values of all the pins that are set as outputs
+        :return: Dictionary (keys are pins)
+        """
+        xx = self._io_pin_data.value
+        return_dict = {}
+        values = self._io_pin_data.value
+        for i in range(0, len(values), 2):
+            return_dict[str(int(values[i]))] = int(values[i + 1])
+        return return_dict
 
     @property
     def _pin_pwm_control(self):
@@ -388,6 +433,12 @@ class Microbit:
                                   byte_period[2],
                                   byte_period[3]
                                   ]
+
+    def run_async(self):
+        self.ubit.run()
+
+    def quit_async(self):
+        self.ubit.quit()
 
 
 class MIpower(Microbit):
@@ -643,3 +694,102 @@ class BitBot:
             return pin_value_pairs[pin]
         else:
             return None
+
+
+class BitCommander:
+    """
+    Class to simplify interacting with a microbit attached to a bit:commander
+    over Bluetooth Low Energy
+    The bit:commander is a micro:bit controller available from 4tronix.co.uk
+    """
+    def __init__(self, device_addr, adapter_addr=None):
+        """
+        Initialization of an instance of a remote bit:bot
+        :param name: Will look for a BLE device with this string in its name
+        :param device_addr: Will look for a BLE device with this address
+        """
+        self._pins_configured = False
+        self.ubit = Microbit(device_addr, adapter_addr)
+
+    def __enter__(self):
+        return self
+
+    def __del__(self):
+        self.clean_up()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.clean_up()
+
+    def clean_up(self):
+        if self.connected:
+            pass
+
+    def connect(self):
+        """
+        Connect to the bit:bot
+        """
+        self.ubit.connect()
+        self._config_pins()
+
+    def disconnect(self):
+        """
+        Disconnect from the bit:bot
+        """
+        self.clean_up()
+        self.ubit.disconnect()
+
+    @property
+    def connected(self):
+        """
+        Returns true if bit:bot is connected
+        """
+        return self.ubit.connected
+
+    def _config_pins(self):
+        # Buttons
+        self.ubit.set_pin(12, True, False)
+        self.ubit.set_pin(14, True, False)
+        self.ubit.set_pin(15, True, False)
+        self.ubit.set_pin(16, True, False)
+        # Dial
+        self.ubit.set_pin(2, True, True)
+        # Joy sticks
+        self.ubit.set_pin(8, True, False)
+        self.ubit.set_pin(1, True, True)
+        self.ubit.set_pin(0, True, True)
+        self._pins_configured = True
+
+    @property
+    def joystick(self):
+        values = self.ubit.pin_values
+        if '1' in values:
+            x, y, z = values['1'], values['0'], values['8']
+        return x, y, z
+
+    @property
+    def dial(self):
+        values = self.ubit.pin_values
+        return values['2']
+
+    def _read_button(self, pin):
+        values = self.ubit.pin_values
+        if pin in values:
+            return values[pin]
+        else:
+            return None
+
+    @property
+    def button_a(self):
+        return self._read_button('12')
+
+    @property
+    def button_b(self):
+        return self._read_button('14')
+
+    @property
+    def button_c(self):
+        return self._read_button('16')
+
+    @property
+    def button_d(self):
+        return self._read_button('15')
