@@ -1,4 +1,11 @@
 from bluezero import adapter
+import logging
+try:  # Python 2.7+
+    from logging import NullHandler
+except ImportError:
+    class NullHandler(logging.Handler):
+        def emit(self, record):
+            pass
 
 
 def main():
@@ -21,8 +28,12 @@ def main():
         print('Now powered: ', dongle.powered)
     print('Start discovering')
     dongle.nearby_discovery()
-    dongle.powered = False
+    # dongle.powered = False
 
 
 if __name__ == '__main__':
+    print(__name__)
+    logger = logging.getLogger('adapter')
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(NullHandler())
     main()

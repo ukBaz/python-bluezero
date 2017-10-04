@@ -37,17 +37,37 @@ def bytes_to_xyz(bytes):
 
 def int_to_uint32(value_in):
     """
-    Convert integer to unsigned 32-bit
+    Convert integer to unsigned 32-bit (little endian)
     :param value_in:
     :return:
     """
-    bin_string = '{0:032b}'.format(value_in)
-    octet0 = int(bin_string[25:32], 2)
-    octet1 = int(bin_string[17:24], 2)
-    octet2 = int(bin_string[9:16], 2)
-    octet3 = int(bin_string[0:8], 2)
+    return [octet for octet in value_in.to_bytes(4,
+                                                 byteorder='little',
+                                                 signed=False)]
 
-    return [octet0, octet1, octet2,  octet3]
+
+def bitwise_or_2lists(list1, list2):
+    list_len = len(list1)
+    return_list = [None] * list_len
+    for i in range(list_len):
+        return_list[i] = list1[i] | list2[i]
+    return return_list
+
+
+def bitwise_and_2lists(list1, list2):
+    list_len = len(list1)
+    return_list = [None] * list_len
+    for i in range(list_len):
+        return_list[i] = list1[i] & list2[i]
+    return return_list
+
+
+def bitwise_xor_2lists(list1, list2):
+    list_len = len(list1)
+    return_list = [None] * list_len
+    for i in range(list_len):
+        return_list[i] = list1[i] ^ list2[i]
+    return return_list
 
 
 def url_to_advert(url, frame_type, tx_power):

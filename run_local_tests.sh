@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 coverage run -m unittest -v tests.test_tools
 test1001=$?
-coverage run --append -m unittest -v tests.test_dbus_tools
+coverage run --append -m unittest -v tests.test_async_tools
 test1002=$?
-coverage run --append -m unittest -v tests.test_adapter
+coverage run --append -m unittest -v tests.test_dbus_tools
 test1003=$?
-coverage run --append -m unittest -v tests.test_advertisement
+coverage run --append -m unittest -v tests.test_adapter
 test1004=$?
-coverage run --append -m unittest -v tests.test_device
+coverage run --append -m unittest -v tests.test_advertisement
 test1005=$?
-coverage run --append -m unittest -v tests.test_gatt
+coverage run --append -m unittest -v tests.test_device
 test1006=$?
+coverage run --append -m unittest -v tests.test_gatt
+test1007=$?
 coverage run --append -m unittest -v tests.test_broadcaster
 test101=$?
 coverage run --append -m unittest -v tests.test_central
@@ -31,7 +33,7 @@ lint_examples=$?
 # lint_tests=$?
 
 coverage report
-group100=$((test1001 + test1002 + test1003 + test1004 + test1005 + test1006))
+group100=$((test1001 + test1002 + test1003 + test1004 + test1005 + test1006 + test1007))
 group10=$((test101 + test102))
 group1=$((test11 + test12 + test13))
 group_examples=$((test_example1))

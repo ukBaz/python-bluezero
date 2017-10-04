@@ -19,12 +19,6 @@ logger.setLevel(logging.WARNING)
 logger.addHandler(NullHandler())
 
 
-def generic_error_cb(error):
-    """Generic Error Callback function."""
-    logger.error('D-Bus call failed: ' + str(error))
-    mainloop.quit()
-
-
 class Central:
     """Create a BLE instance taking the Central role."""
 
@@ -92,3 +86,9 @@ class Central:
     def disconnect(self):
         """Disconnect from the remote device."""
         self.rmt_device.disconnect()
+
+    def run(self):
+        self.dongle.run()
+
+    def quit(self):
+        self.dongle.quit()

@@ -4,17 +4,11 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 # D-Bus imports
 import dbus
-import dbus.mainloop.glib
 
 # python-bluezero imports
 from bluezero import constants
 from bluezero import dbus_tools
-
-# Main eventloop import
-try:
-    from gi.repository import GLib as GObject
-except ImportError:
-    import gobject as GObject
+from bluezero import async_tools
 
 import logging
 try:  # Python 2.7+
@@ -24,9 +18,6 @@ except ImportError:
         def emit(self, record):
             pass
 
-
-# Initialise the mainloop
-dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -98,7 +89,7 @@ class Adapter:
 
         self._nearby_timeout = 10
         self._nearby_count = 0
-        self.mainloop = GObject.MainLoop()
+        self.mainloop = async_tools.EventLoop()
 
         self.bus.add_signal_receiver(dbus_tools.interfaces_added,
                                      dbus_interface=constants.DBUS_OM_IFACE,
@@ -224,10 +215,17 @@ class Adapter:
         self._nearby_timeout = timeout
         self._nearby_count = 0
 
-        GObject.timeout_add(1000, self._discovering_timeout)
+        # GLib.timeout_add(1000, self._discovering_timeout)
+        self.mainloop.add_timer(1000, self._discovering_timeout)
         self.adapter_methods.StartDiscovery()
         self.mainloop.run()
 
     def stop_discovery(self):
         """Stop scanning of nearby Bluetooth devices."""
         self.adapter_methods.StopDiscovery()
+
+    def run(self):
+        self.mainloop.run()
+
+    def quit(self):
+        self.mainloop.quit()

@@ -43,6 +43,7 @@ script:
   # Shared
   - coverage run -m unittest -v tests.test_tools
   - coverage run --append -m unittest -v tests.test_dbus_tools
+  - coverage run --append -m unittest -v tests.test_async_tools
   # Level 100
   - coverage run --append -m unittest -v tests.test_adapter
   - coverage run --append -m unittest -v tests.test_advertisement
