@@ -67,6 +67,7 @@ class Microbit:
         self.ubit = central.Central(adapter_addr=adapter_addr,
                                     device_addr=device_addr)
 
+        self.user_pin_callback = None
         # Micro:bit Characteristics
         self._accel_data = self.ubit.add_characteristic(ACCEL_SRV,
                                                         ACCEL_DATA)
@@ -262,6 +263,22 @@ class Microbit:
         self._btn_a_state.add_characteristic_cb(user_callback)
         self._btn_a_state.start_notify()
 
+    def _decode_pins(self, *pin_values):
+        if pin_values[0] != 'org.bluez.GattCharacteristic1':
+            return
+        self.user_pin_callback(int(pin_values[1]['Value'][0]),
+                               int(pin_values[1]['Value'][1]))
+
+    def subscribe_pins(self, user_callback):
+        """
+        Execute user_callback on input pin being changed on micro:bit
+        :param user_callback:
+        :return:
+        """
+        self.user_pin_callback = user_callback
+        self._io_pin_data.add_characteristic_cb(self._decode_pins)
+        self._io_pin_data.start_notify()
+
     @property
     def accelerometer(self):
         """
@@ -297,11 +314,19 @@ class Microbit:
         return int.from_bytes(mag_bear_val,
                               byteorder='little', signed=False)
 
-    def set_pin(self, pin_number, input, analogue):
+    def set_pin(self, pin_number, pin_input, pin_analogue):
+        """
+        For a given pin, set the direction and type for the microbit pin.
+
+        :param pin_number: Pin number of the microbit
+        :param pin_input: False for output, True for input
+        :param pin_analogue: False for digital, True for analogue
+        :return:
+        """
         pin_bit = tools.int_to_uint32(2 ** pin_number)
         current_io_setting = self._pin_config
         current_ad_setting = self._pin_ad_config
-        if input:
+        if pin_input:
             new_setting = tools.bitwise_or_2lists(pin_bit, current_io_setting)
             self._pin_config = new_setting
         else:
@@ -310,7 +335,7 @@ class Microbit:
             new_setting = tools.bitwise_and_2lists(pin_mask,
                                                    current_io_setting)
             self._pin_config = new_setting
-        if analogue:
+        if pin_analogue:
             new_setting = tools.bitwise_or_2lists(pin_bit,
                                                   current_ad_setting)
             self._pin_ad_config = new_setting
@@ -435,9 +460,17 @@ class Microbit:
                                   ]
 
     def run_async(self):
+        """
+        Puts the code into asynchronous mode
+        :return:
+        """
         self.ubit.run()
 
     def quit_async(self):
+        """
+        Stops asynchronose mode
+        :return:
+        """
         self.ubit.quit()
 
 
@@ -486,6 +519,10 @@ class BitBot:
         self.clean_up()
 
     def clean_up(self):
+        """
+        Stop bitbot and turn buzzer is off
+        :return:
+        """
         if self.connected:
             self.stop()
             self.buzzer_off()
@@ -759,8 +796,22 @@ class BitCommander:
         self.ubit.set_pin(0, True, True)
         self._pins_configured = True
 
+    def subscribe_pins(self, user_cb):
+        """
+        Get notification when pins configured as input values change
+        :param user_cb: User callback to call when change happens
+        :return:
+        """
+        self.ubit.subscribe_pins(user_cb)
+
     @property
     def joystick(self):
+        """
+        The value of the joystick as a list of x, y and z
+        x and y are analogue values in the range -255 to 255
+        z is a button with a binary value of 1 for pressed
+        :return: x, y, z
+        """
         values = self.ubit.pin_values
         if '1' in values:
             x, y, z = values['1'], values['0'], values['8']
@@ -768,6 +819,10 @@ class BitCommander:
 
     @property
     def dial(self):
+        """
+        The value of the dial.
+        :return: integer in range 0 - 255
+        """
         values = self.ubit.pin_values
         return values['2']
 
@@ -780,16 +835,46 @@ class BitCommander:
 
     @property
     def button_a(self):
+        """
+        The state of button a of bit:commander
+        :return: when pressed returns 1
+        """
         return self._read_button('12')
 
     @property
     def button_b(self):
+        """
+        The state of button b of bit:commander
+        :return: when pressed returns 1
+        """
         return self._read_button('14')
 
     @property
     def button_c(self):
+        """
+        The state of button c of bit:commander
+        :return: when pressed returns 1
+        """
         return self._read_button('16')
 
     @property
     def button_d(self):
+        """
+        The state of button d of bit:commander
+        :return: when pressed returns 1
+        """
         return self._read_button('15')
+
+    def run_async(self):
+        """
+        Puts the code into asynchronous mode
+        :return:
+        """
+        self.ubit.run_async()
+
+    def quit_async(self):
+        """
+        Stops asynchronose mode
+        :return:
+        """
+        self.ubit.quit_async()
