@@ -1,6 +1,7 @@
 """Utility functions for DBus use within Bluezero."""
 
 # Standard libraries
+import re
 import subprocess
 import logging
 try:  # Python 2.7+
@@ -32,6 +33,18 @@ def bluez_version():
     p = subprocess.Popen(['bluetoothctl', '-v'], stdout=subprocess.PIPE)
     ver = p.communicate()
     return str(ver[0].decode().rstrip())
+
+
+def bluez_experimental_mode():
+    """
+    Return True if the BlueZ daemon service is in experimental mode
+    :return: True if experimental enabled
+    """
+    status = subprocess.check_output('service bluetooth status', shell=True)
+    if re.search('--experimental', status.decode('utf-8')) is None:
+        return False
+    else:
+        return True
 
 
 def interfaces_added(path, interfaces):

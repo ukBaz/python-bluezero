@@ -9,6 +9,16 @@ class TestDbusModuleCalls(unittest.TestCase):
     """
     Testing things that use the Dbus module
     """
+    experimental = True
+    bluetooth_service_experimental = b'\xe2\x97\x8f bluetooth.service - Bluetooth service\n   Loaded: loaded (/lib/systemd/system/bluetooth.service; enabled; vendor preset: enabled)\n   Active: active (running) since Fri 2017-10-13 21:48:58 UTC; 1 day 23h ago\n     Docs: man:bluetoothd(8)\n Main PID: 530 (bluetoothd)\n   Status: "Running"\n   CGroup: /system.slice/bluetooth.service\n           \xe2\x94\x94\xe2\x94\x80530 /usr/lib/bluetooth/bluetoothd --experimental\n\nOct 13 21:48:58 RPi3 systemd[1]: Starting Bluetooth service...\nOct 13 21:48:58 RPi3 bluetoothd[530]: Bluetooth daemon 5.43\nOct 13 21:48:58 RPi3 systemd[1]: Started Bluetooth service.\nOct 13 21:48:58 RPi3 bluetoothd[530]: Bluetooth management interface 1.14 initialized\nOct 13 21:48:58 RPi3 bluetoothd[530]: Failed to obtain handles for "Service Changed" characteristic\nOct 13 21:48:58 RPi3 bluetoothd[530]: Endpoint registered: sender=:1.10 path=/MediaEndpoint/A2DPSource\nOct 13 21:48:58 RPi3 bluetoothd[530]: Endpoint registered: sender=:1.10 path=/MediaEndpoint/A2DPSink\n'
+    bluetooth_service_normal = b'\xe2\x97\x8f bluetooth.service - Bluetooth service\n   Loaded: loaded (/lib/systemd/system/bluetooth.service; enabled; vendor preset: enabled)\n   Active: active (running) since Fri 2017-10-13 21:48:58 UTC; 1 day 23h ago\n     Docs: man:bluetoothd(8)\n Main PID: 530 (bluetoothd)\n   Status: "Running"\n   CGroup: /system.slice/bluetooth.service\n           \xe2\x94\x94\xe2\x94\x80530 /usr/lib/bluetooth/bluetoothd\n\nOct 13 21:48:58 RPi3 systemd[1]: Starting Bluetooth service...\nOct 13 21:48:58 RPi3 bluetoothd[530]: Bluetooth daemon 5.43\nOct 13 21:48:58 RPi3 systemd[1]: Started Bluetooth service.\nOct 13 21:48:58 RPi3 bluetoothd[530]: Bluetooth management interface 1.14 initialized\nOct 13 21:48:58 RPi3 bluetoothd[530]: Failed to obtain handles for "Service Changed" characteristic\nOct 13 21:48:58 RPi3 bluetoothd[530]: Endpoint registered: sender=:1.10 path=/MediaEndpoint/A2DPSource\nOct 13 21:48:58 RPi3 bluetoothd[530]: Endpoint registered: sender=:1.10 path=/MediaEndpoint/A2DPSink\n'
+
+    def get_bluetooth_service(self, cmd, shell):
+        if TestDbusModuleCalls.experimental:
+            return TestDbusModuleCalls.bluetooth_service_experimental
+        else:
+            return TestDbusModuleCalls.bluetooth_service_normal
+
     def setUp(self):
         """
         Patch the DBus module
@@ -26,7 +36,7 @@ class TestDbusModuleCalls(unittest.TestCase):
             'subprocess': self.process_mock
         }
         self.dbus_mock.Interface.return_value.GetManagedObjects.return_value = tests.obj_data.full_ubits
-
+        self.process_mock.check_output = self.get_bluetooth_service
         self.process_mock.Popen.return_value.communicate.return_value = (b'5.43\n', None)
         self.module_patcher = patch.dict('sys.modules', modules)
         self.module_patcher.start()
@@ -45,7 +55,7 @@ class TestDbusModuleCalls(unittest.TestCase):
         expected_result = '/org/bluez/hci0/dev_F7_17_E4_09_C0_C6/service0031/char0035/desc0037'
         self.assertEqual(dbus_full_path, expected_result)
 
-    def test_bad_pathh(self):
+    def test_bad_path(self):
         self.assertRaises(ValueError,
                           self.module_under_test.get_dbus_path,
                           adapter='00:00:00:00:5A:C6',
@@ -66,10 +76,20 @@ class TestDbusModuleCalls(unittest.TestCase):
                                                            profile='e95df2d8-251d-470a-a062-fa1922dfa9a8')
         self.assertEqual(None, my_iface)
 
-
     def test_bluez_version(self):
         bluez_ver = self.module_under_test.bluez_version()
         self.assertEqual('5.43', bluez_ver)
+
+    def test_bluez_service_experimental(self):
+        TestDbusModuleCalls.experimental = True
+        bluez_exper = self.module_under_test.bluez_experimental_mode()
+        self.assertTrue(bluez_exper)
+
+    def test_bluez_service_normal(self):
+        TestDbusModuleCalls.experimental = False
+        bluez_exper = self.module_under_test.bluez_experimental_mode()
+        self.assertFalse(bluez_exper)
+
 
 if __name__ == '__main__':
     unittest.main()
