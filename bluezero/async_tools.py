@@ -26,16 +26,6 @@ class EventLoop:
     def __init__(self):
         self.mainloop = GLib.MainLoop()
 
-    # @property
-    # def run(self):
-    #     return self.mainloop.is_running()
-    #
-    # @run.setter
-    # def run(self, state):
-    #     if state:
-    #         self.mainloop.run()
-    #     else:
-    #         self.mainloop.quit()
     def run(self):
         self.mainloop.run()
 

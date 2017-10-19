@@ -23,6 +23,7 @@ except ImportError:
 
 # python-bluezero imports
 from bluezero import constants
+from bluezero import async_tools
 
 # Initialise the mainloop
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -61,7 +62,7 @@ class Application(dbus.service.Object):
     >>> app.add_managed_object(srv)
     >>> srv_mng = GATT.GattManager('/org/bluez/hci0')
     >>> srv_mng.register_application(app.get_path(), {})
-    >>> tools.start_mainloop()
+    >>> app.start()
 
     """
     def __init__(self, device_id=None):
@@ -80,6 +81,7 @@ class Application(dbus.service.Object):
 
         # Objects to be associated with this service
         self.managed_objs = []
+        self.eventloop = async_tools.EventLoop()
 
     @dbus.service.method(constants.DBUS_OM_IFACE,
                          out_signature='a{oa{sa{sv}}}')
@@ -107,6 +109,12 @@ class Application(dbus.service.Object):
     def get_path(self):
         """Return the DBus object path"""
         return dbus.ObjectPath(self.path)
+
+    def start(self):
+        self.eventloop.run()
+
+    def stop(self):
+        self.eventloop.quit()
 
 
 class Service(dbus.service.Object):
