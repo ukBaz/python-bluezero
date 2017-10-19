@@ -7,7 +7,6 @@ except ImportError:
     import gobject as GObject
 
 # Bluezero modules
-from bluezero import dbus_tools
 from bluezero import constants
 from bluezero import adapter
 from bluezero import advertisement
@@ -138,7 +137,7 @@ class ble:
 
     def start_bt(self):
         # self.light.StartNotify()
-        dbus_tools.start_mainloop()
+        self.app.start()
 
 
 if __name__ == '__main__':

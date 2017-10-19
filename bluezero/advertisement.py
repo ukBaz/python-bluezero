@@ -29,6 +29,7 @@ except ImportError:
 
 from bluezero import constants
 from bluezero import dbus_tools
+from bluezero import async_tools
 from bluezero import adapter
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -84,6 +85,7 @@ class Advertisement(dbus.service.Object):
         # Setup D-Bus object paths and register service
         self.path = '/ukBaz/bluezero/advertisement{0:04d}'.format(advert_id)
         self.bus = dbus.SystemBus()
+        self.eventloop = async_tools.EventLoop()
         self.interface = constants.LE_ADVERTISEMENT_IFACE
         dbus.service.Object.__init__(self, self.bus, self.path)
         self.props = {
@@ -97,13 +99,11 @@ class Advertisement(dbus.service.Object):
             }
         }
 
-    @staticmethod
-    def start():
-        dbus_tools.start_mainloop()
+    def start(self):
+        self.eventloop.run()
 
-    @staticmethod
-    def stop():
-        dbus_tools.stop_mainloop()
+    def stop(self):
+        self.eventloop.quit()
 
     def get_path(self):
         """Return the DBus object path"""
