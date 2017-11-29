@@ -69,6 +69,8 @@ class TemperatureChrc(localGATT.Characteristic):
         GObject.timeout_add(500, self.temperature_cb)
 
     def ReadValue(self, options):
+        reading = [get_cpu_temperature()]
+        self.props[constants.GATT_CHRC_IFACE]['Value'] = reading
         return dbus.Array(
             cpu_temp_sint16(self.props[constants.GATT_CHRC_IFACE]['Value'])
         )
