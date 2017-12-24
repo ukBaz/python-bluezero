@@ -23,7 +23,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.0.5',
+    version='0.0.6',
 
     description='Python library for Bluetooth Low Energy (BLE) on Linux',
     long_description=long_description,
@@ -69,7 +69,8 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=find_packages(exclude=['contrib', 'docs', 'tests', 'examples', 'experiments']),
+    packages=find_packages(exclude=['contrib', 'docs', 'tests', 'examples',
+                                    'experiments', 'web_bluetooth']),
     # packages=['bluezero'],
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
@@ -80,7 +81,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    # install_requires=['libsoc'],
+    install_requires=['aioblescan'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
