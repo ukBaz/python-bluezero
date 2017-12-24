@@ -1,3 +1,3 @@
-from bluezero import eddystone
+from bluezero import eddystone_beacon
 
-eddystone.EddystoneURL('https://github.com/ukBaz')
+eddystone_beacon.EddystoneURL('https://github.com/ukBaz')

@@ -41,8 +41,8 @@ class TestBluezeroEddystone(unittest.TestCase):
         self.dbus_mock.SystemBus = MagicMock()
         self.module_patcher = patch.dict('sys.modules', modules)
         self.module_patcher.start()
-        from bluezero import eddystone
-        self.module_under_test = eddystone
+        from bluezero import eddystone_beacon
+        self.module_under_test = eddystone_beacon
 
     def tearDown(self):
         self.module_patcher.stop()

@@ -4,9 +4,9 @@ Level 1
 
 Eddystone
 =========
-.. currentmodule:: bluezero.eddystone
+.. currentmodule:: bluezero.eddystone_beacon
 
-.. automodule:: bluezero.eddystone
+.. automodule:: bluezero.eddystone_beacon
     :special-members:
     :members:
 
