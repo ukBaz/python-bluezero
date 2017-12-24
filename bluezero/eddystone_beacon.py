@@ -20,8 +20,8 @@ class EddystoneURL:
     format in order to fit more within the limited advertisement packet.
     :Example:
 
-    >>> from bluezero import eddystone
-    >>> eddystone.EddystoneURL('https://github.com/ukBaz')
+    >>> from bluezero import eddystone_beacon
+    >>> eddystone_beacon.EddystoneURL('https://github.com/ukBaz')
 
     """
     def __init__(self, url, tx_power=0x08):

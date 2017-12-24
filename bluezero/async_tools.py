@@ -1,5 +1,5 @@
 # Main eventloop import
-from gi.repository import GLib
+from gi.repository import GObject
 
 import logging
 try:  # Python 2.7+
@@ -24,7 +24,7 @@ class EventLoop:
     #     return object.__new__(cls)
 
     def __init__(self):
-        self.mainloop = GLib.MainLoop()
+        self.mainloop = GObject.MainLoop()
 
     def run(self):
         self.mainloop.run()
@@ -36,4 +36,4 @@ class EventLoop:
         self.mainloop.is_running()
 
     def add_timer(self, time, callback):
-        GLib.timeout_add(time, callback)
+        GObject.timeout_add(time, callback)
