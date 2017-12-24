@@ -8,3 +8,4 @@ Adapter
 
 .. automodule:: tests.test_adapter
     :members:
+

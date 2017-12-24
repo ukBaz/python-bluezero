@@ -40,3 +40,15 @@ You will need to have BlueZ in experimental mode and have tweaked the DBus confi
 file to open the permissions for 'ukBaz.bluezero'
 
 .. literalinclude:: ../examples/cpu_temperature.py
+
+
+Eddystone Scanner
+--------------------
+
+This example scans for beacons in the Eddystone format.
+It will report on `UID beacons` <https://github.com/google/eddystone/tree/master/eddystone-uid>
+and `URL beacons` <https://github.com/google/eddystone/tree/master/eddystone-url>.
+
+This uses the `aioblescan` Python library which requires your code to be run with `sudo`
+
+.. literalinclude:: ../examples/eddystone-scanner.py

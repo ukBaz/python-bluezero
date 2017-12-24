@@ -17,3 +17,19 @@ Central
 
 .. automodule:: bluezero.central
     :members:
+
+Observer
+========
+
+.. py:currentmodule:: bluezero.observer
+
+.. automodule:: bluezero.observer
+    :members:
+
+Peripheral
+==========
+
+.. py:currentmodule:: bluezero.peripheral
+
+.. automodule:: bluezero.peripheral
+    :members:
