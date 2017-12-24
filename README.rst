@@ -86,7 +86,14 @@ You can be read the URL being broadcast with any Physical Web application on you
 
 Scanner
 -------
-No example currently.
+
+eddystone-scanner.py
+********************
+
+This example scans for beacons using the Eddystone format.
+It will report on `UID beacons` and `URL beacons`.
+
+This uses the `aioblescan` Python library which requires your code to be run with `sudo`.
 
 GATT Server (Peripheral role)
 -----------------------------
