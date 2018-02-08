@@ -260,8 +260,8 @@ class Microbit:
         :param user_callback:
         :return:
         """
-        self._btn_a_state.add_characteristic_cb(user_callback)
-        self._btn_a_state.start_notify()
+        self._btn_b_state.add_characteristic_cb(user_callback)
+        self._btn_b_state.start_notify()
 
     def _decode_pins(self, *pin_values):
         if pin_values[0] != 'org.bluez.GattCharacteristic1':
