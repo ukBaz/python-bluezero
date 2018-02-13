@@ -459,6 +459,14 @@ class Microbit:
                                   byte_period[3]
                                   ]
 
+    @property
+    def on_disconnect(self):
+        return self.ubit.dongle.on_disconnect
+
+    @on_disconnect.setter
+    def on_disconnect(self, callback):
+        self.ubit.dongle.on_disconnect = callback
+
     def run_async(self):
         """
         Puts the code into asynchronous mode

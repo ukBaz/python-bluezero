@@ -91,11 +91,12 @@ class Adapter:
         self._nearby_count = 0
         self.mainloop = async_tools.EventLoop()
 
+        self.on_disconnect = None
         self.bus.add_signal_receiver(dbus_tools.interfaces_added,
                                      dbus_interface=constants.DBUS_OM_IFACE,
                                      signal_name='InterfacesAdded')
 
-        self.bus.add_signal_receiver(dbus_tools.properties_changed,
+        self.bus.add_signal_receiver(self._properties_changed,
                                      dbus_interface=dbus.PROPERTIES_IFACE,
                                      signal_name='PropertiesChanged',
                                      arg0=constants.DEVICE_INTERFACE,
@@ -229,3 +230,9 @@ class Adapter:
 
     def quit(self):
         self.mainloop.quit()
+
+    def _properties_changed(self, interface, changed, invalidated, path):
+        if self.on_disconnect is not None:
+            if 'Connected' in changed:
+                if not changed['Connected']:
+                    self.on_disconnect()
