@@ -19,11 +19,11 @@ Examples
 .. toctree::
    examples
 
-Installing Bluez
-****************
+Set-up
+******
 
 .. toctree::
-   install_bluez
+   system_setup
 
 python-bluezero modules
 ***********************
