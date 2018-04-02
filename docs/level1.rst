@@ -2,17 +2,23 @@
 Level 1
 =======
 
-Eddystone
-=========
-.. currentmodule:: bluezero.eddystone_beacon
-
-.. automodule:: bluezero.eddystone_beacon
-    :special-members:
-    :members:
-
 micro:bit
 =========
 .. currentmodule:: bluezero.microbit
 
-.. automodule:: bluezero.microbit
+.. autoclass:: bluezero.microbit.Microbit
+    :members:
+
+.. autoclass:: bluezero.microbit.MIpower
+    :members:
+
+.. autoclass:: bluezero.microbit.BitBot
+    :members:
+
+
+Eddystone
+=========
+.. currentmodule:: bluezero.eddystone_beacon
+
+.. autoclass:: bluezero.eddystone_beacon.EddystoneURL
     :members:
