@@ -23,6 +23,11 @@ class EddystoneURL:
     >>> from bluezero import eddystone_beacon
     >>> eddystone_beacon.EddystoneURL('https://github.com/ukBaz')
 
+
+    :param url: String containing URL e.g. ('http://camjam.me')
+    :param tx_power: Value of Tx Power of advertisement (Not implemented)
+
+
     """
     def __init__(self, url, tx_power=0x08):
         """
