@@ -2,6 +2,12 @@
 Examples
 ========
 
+An example can often speed things up when you are trying to get started with
+a library so there are few below.
+There is also a `Getting Started
+<https://ukbaz.github.io/howto/ubit_workshop.html>`_
+workshop using a Raspberry Pi and a BBC micro:bit
+
 Adapter
 -------
 
