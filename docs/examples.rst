@@ -17,16 +17,16 @@ nearby Bluetooth devices:
 
 .. literalinclude:: ../examples/adapter_example.py
 
-Central Device
---------------
-This example uses the micro:bit API that has been written in bluezero to interact
+Central Role
+------------
+This example uses the micro:bit API that has been written in Bluezero to interact
 with the micro:bit
 
 .. literalinclude:: ../examples/microbit_poll.py
 
 
-Eddystone URL Beacon
---------------------
+Beacon: Eddystone URL
+---------------------
 
 This example broadcasts a given URL in a format for the `Physical Web
 <https://google.github.io/physical-web/>`_:
@@ -35,21 +35,21 @@ You will need to put the BlueZ bluetoothd into experimental mode for this one.
 .. literalinclude:: ../examples/eddystone-url-beacon.py
 
 
-cpu_temperature.py
-------------------
+Peripheral Role
+---------------
 
 This example transmits the temperature of the CPU over the single characteristic.
 If your hardware does not support the `vcgencmd` then change the `get_cpu_temperature()`
 function to use the randomly generated temperature.
 Values are only updated when notification are switched on.
-You will need to have BlueZ in experimental mode and have tweaked the DBus configuration
+You will need to have BlueZ in experimental mode and have modified the DBus configuration
 file to open the permissions for 'ukBaz.bluezero'
 
 .. literalinclude:: ../examples/cpu_temperature.py
 
 
-Eddystone Scanner
---------------------
+Scanner: Eddystone
+------------------
 
 This example scans for beacons in the Eddystone format.
 It will report on `UID beacons` <https://github.com/google/eddystone/tree/master/eddystone-uid>
