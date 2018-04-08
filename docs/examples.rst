@@ -25,6 +25,17 @@ with the micro:bit
 .. literalinclude:: ../examples/microbit_poll.py
 
 
+Scanner: Eddystone
+------------------
+
+This example scans for beacons in the Eddystone format.
+It will report on `UID beacons` <https://github.com/google/eddystone/tree/master/eddystone-uid>
+and `URL beacons` <https://github.com/google/eddystone/tree/master/eddystone-url>.
+
+This uses the `aioblescan` Python library which requires your code to be run with `sudo`
+
+.. literalinclude:: ../examples/eddystone-scanner.py
+
 Beacon: Eddystone URL
 ---------------------
 
@@ -48,13 +59,3 @@ file to open the permissions for 'ukBaz.bluezero'
 .. literalinclude:: ../examples/cpu_temperature.py
 
 
-Scanner: Eddystone
-------------------
-
-This example scans for beacons in the Eddystone format.
-It will report on `UID beacons` <https://github.com/google/eddystone/tree/master/eddystone-uid>
-and `URL beacons` <https://github.com/google/eddystone/tree/master/eddystone-url>.
-
-This uses the `aioblescan` Python library which requires your code to be run with `sudo`
-
-.. literalinclude:: ../examples/eddystone-scanner.py
