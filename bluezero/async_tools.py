@@ -1,5 +1,8 @@
 # Main eventloop import
-from gi.repository import GObject
+try:
+    from gi.repository import GObject
+except ImportError:
+    import gobject as GObject
 
 import logging
 try:  # Python 2.7+
