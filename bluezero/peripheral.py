@@ -82,7 +82,8 @@ class NotPermittedException(dbus.exceptions.DBusException):
 
 
 class InvalidValueLengthException(dbus.exceptions.DBusException):
-    """This is a D-Bus exception class for Bluez Invalid Value Length Exceptions.
+    """
+    This is a D-Bus exception class for Bluez Invalid Value Length Exceptions.
 
     All this class does is set the internal variable ``_dbus_error_name`` to
     the object path for Bluez Invalid Value Length Exceptions.
