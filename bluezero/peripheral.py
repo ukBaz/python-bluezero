@@ -19,6 +19,7 @@ import dbus.service
 
 # python-bluezero imports
 from bluezero import tools
+from bluezero import dbus_tools
 from bluezero import adapter
 from bluezero import constants
 
@@ -226,11 +227,13 @@ class Application(dbus.service.Object):
 
         # Setup the advertising manager
         print('setup ad_manager')
-        self.ad_manager = tools.get_advert_manager_interface()
+        self.ad_manager = dbus_tools.get_dbus_iface(constants.LE_ADVERTISING_MANAGER_IFACE,
+                                                    dbus_tools.get_dbus_obj(self.dongle.path))
 
         # Setup the service manager
         print('setup service_manager')
-        self.service_manager = tools.get_gatt_manager_interface()
+        self.service_manager = dbus_tools.get_dbus_iface(constants.GATT_MANAGER_IFACE,
+                                                         dbus_tools.get_dbus_obj(self.dongle.path))
 
         # Setup the advertisement
         self.service_ad = Advertisement(self, 'peripheral')
@@ -247,7 +250,7 @@ class Application(dbus.service.Object):
                                                      service.service_data)
 
         # Register the advertisement
-        print('Register Adver', self.service_ad.get_path())
+        print('Register Advert', self.service_ad.get_path())
         self.ad_manager.RegisterAdvertisement(
             self.service_ad.get_path(), {},
             reply_handler=register_ad_cb,
@@ -550,7 +553,10 @@ class Characteristic(dbus.service.Object):
         # print('Reading Characteristic', self.value)
         if self.value is None:
             self.value = 0
-        return [dbus.Byte(self.value)]
+        elif isinstance(self.value, str):
+            self.value = dbus_tools.str_to_dbusarray(self.value)
+        # print('Read value', self.value)
+        return self.value
 
     @dbus.service.method(constants.GATT_CHRC_IFACE, in_signature='aya{sv}')
     def WriteValue(self, value, options):
@@ -567,10 +573,10 @@ class Characteristic(dbus.service.Object):
         # print('Writing Characteristic', value)
         # if not self.writable:
         #     raise NotPermittedException()
-        self.value = int.from_bytes(value, byteorder='little', signed=False)
+        self.value = value
         if self.write_cb is not None:
-            # print('Write callback')
-            self.write_cb()
+            # print('Write callback', value)
+            self.write_cb(self.value)
 
     def add_write_event(self, object_id):
         """Add a write callback.
@@ -641,15 +647,15 @@ class Characteristic(dbus.service.Object):
         This function sets the characteristic value, and if the characteristic
         is set to notify emits a PropertiesChanged() signal with the new value.
         """
-        # print('send', self, value)
         self.value = value
         if not self.notifying:
             print('Not notifying')
-            return
-        # print('Update prop')
-        self.PropertiesChanged(
-            constants.GATT_CHRC_IFACE,
-            {'Value': [dbus.Byte(self.value)]}, [])
+        else:
+            # print('Notify: ', dbus_tools.str_to_dbusarray(self.value))
+            self.PropertiesChanged(
+                constants.GATT_CHRC_IFACE,
+                {'Value': dbus_tools.str_to_dbusarray(self.value)},
+                [])
 
 ####################
 # Descriptor Classes
