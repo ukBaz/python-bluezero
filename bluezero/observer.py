@@ -1,4 +1,5 @@
 import aioblescan
+from aioblescan.plugins import EddyStone 
 
 import asyncio
 import logging
@@ -19,7 +20,7 @@ def _process_packet(data):
     ev.decode(data)
     logging.debug('Using the following callback %s', packet_callback)
     if packet_callback is not None:
-        eddystone_data = aioblescan.EddyStone(ev)
+        eddystone_data = EddyStone().decode(ev)
         if eddystone_data:
             packet_callback(eddystone_data)
 
