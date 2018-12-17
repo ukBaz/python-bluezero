@@ -1,5 +1,5 @@
 import aioblescan
-from aioblescan.plugins import EddyStone 
+from aioblescan.plugins import EddyStone
 
 import asyncio
 import logging
