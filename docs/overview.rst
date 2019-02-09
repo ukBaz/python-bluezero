@@ -67,10 +67,10 @@ Level 100
 ---------
 - At this level the interface is expecting the user to know Bluetooth, DBus
   and event loops.
-- DBus function names are not Pythonic but will be exposed at the level.
+- DBus function names are not Pythonic and may be exposed at the level.
 - This level will be very specific to the Linux kernel and so it will be
   difficult to port this to other operating systems that do not have the
-  Bluez Daemon running.
+  BlueZ Daemon running.
 - The previous more abstracted API levels should be easier to port to any
   hardware.
 

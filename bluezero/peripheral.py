@@ -227,13 +227,15 @@ class Application(dbus.service.Object):
 
         # Setup the advertising manager
         print('setup ad_manager')
-        self.ad_manager = dbus_tools.get_dbus_iface(constants.LE_ADVERTISING_MANAGER_IFACE,
-                                                    dbus_tools.get_dbus_obj(self.dongle.path))
+        self.ad_manager = dbus_tools.get_dbus_iface(
+            constants.LE_ADVERTISING_MANAGER_IFACE,
+            dbus_tools.get_dbus_obj(self.dongle.path))
 
         # Setup the service manager
         print('setup service_manager')
-        self.service_manager = dbus_tools.get_dbus_iface(constants.GATT_MANAGER_IFACE,
-                                                         dbus_tools.get_dbus_obj(self.dongle.path))
+        self.service_manager = dbus_tools.get_dbus_iface(
+            constants.GATT_MANAGER_IFACE,
+            dbus_tools.get_dbus_obj(self.dongle.path))
 
         # Setup the advertisement
         self.service_ad = Advertisement(self, 'peripheral')
