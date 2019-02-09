@@ -7,18 +7,18 @@ Release Checklist
 
 * Check Travis-tests are passing
 * Update version info in setup.py
-* Build and publish pypi package (see below)
-* Check pypi page for obvious errors
+* Build and publish PyPI package (see below)
+* Check PyPI page for obvious errors
 * Update version in docs/conf.py (see below)
 * ``git tag`` with version number
 * Check read the docs page
 
-Build pypi package
+Build PyPI package
 ------------------
 
 Update version information in setup.py.
 
-To upload to pypi:
+To upload to PyPI:
 
 .. code-block:: none
 

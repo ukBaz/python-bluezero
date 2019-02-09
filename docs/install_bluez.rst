@@ -5,14 +5,14 @@ Installing Bluez
 Overview
 --------
 
-Bluezero relies on the dbus interface of Bluez.  This library requires the
-features provided by Bluez version **5.43** and later.  As this is as recent
-build,  it is unlikely that the Linux version you have installed will have the
-correct version. These instructions are intended to jump start the switching to
-a newer version of Bluez which will need to be built from source.
+Bluezero relies on the dbus interface of BlueZ.  This library requires the
+features provided by BlueZ version **5.43** and later.
+If the Linux OS you have installed does not have the correct version then
+these instructions are intended to jump start the switching to
+a newer version of BlueZ which will need to be built from source.
 
-Packages that need available
-----------------------------
+Required Packages
+-----------------
 
 The following packages are a super set of what is required. For some systems
 these may already be install or not required::
@@ -24,7 +24,7 @@ these may already be install or not required::
     # sudo apt-get install bluez-hcidump
     # sudo apt-get install python-bluez
 
-To compile a new version of Bluez (requires ``deb-src`` entries in ``/etc/apt/sources.list``)::
+To compile a new version of BlueZ (requires ``deb-src`` entries in ``/etc/apt/sources.list``)::
 
     sudo apt-get build-dep bluez
 
@@ -46,7 +46,7 @@ There are also some pip installs required for development::
     # To check code against PEP 8 style conventions
     sudo pip3 install pycodestyle
 
-Getting newer versions of Bluez source
+Getting newer versions of BlueZ source
 --------------------------------------
 
 Download the User Space BlueZ Package from http://www.bluez.org/download/ ::
@@ -55,7 +55,7 @@ Download the User Space BlueZ Package from http://www.bluez.org/download/ ::
     tar xf bluez-5.43.tar.xz
     cd bluez-5.43
 
-How to config and compile Bluez 5.43 and later
+How to config and compile BlueZ 5.43 and later
 ----------------------------------------------
 To configure run::
 

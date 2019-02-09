@@ -59,3 +59,16 @@ file to open the permissions for 'ukBaz.bluezero'
 .. literalinclude:: ../examples/cpu_temperature.py
 
 
+Peripheral - Nordic UART Service
+--------------------------------
+
+This service simulates a basic UART connection over two lines, TXD and RXD.
+
+It is based on a proprietary UART service specification by Nordic Semiconductors.
+Data sent to and from this service can be viewed using the nRF UART apps from Nordic
+Semiconductors for Android and iOS.
+
+It uses the Bluezero peripheral file (level 10) so should be easier than the previous CPU
+Temperature example that was a level 100.
+
+.. literalinclude:: ../examples/ble_uart.py

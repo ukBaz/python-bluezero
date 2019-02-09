@@ -28,9 +28,9 @@ The aim of this library is to provide an API to access to *Bluez* with *zero* bo
 Goal
 ====
 To provide a simplified API to people that want to use Bluetooth functionality in their code.
-The library will use calls to the Bluez D-Bus API and use 'sensible' defaults to help with that simplification.
+The library will use calls to the BlueZ D-Bus API and use 'sensible' defaults to help with that simplification.
 It aims to support the ability to create interesting STEM activities without needing to 
-explain the Bluez API or write an event loop.
+explain the BlueZ API or write an event loop.
 
 In addition to the API it will contain examples of how to connect to common Bluetooth Smart (BLE) objects 
 around them (or at least easily accessible to them).
@@ -108,3 +108,15 @@ This example transmits the temperature of the CPU over the single characteristic
 If your hardware does not support the `vcgencmd` then change the `get_cpu_temperature()`
 function to use the randomly generated temperature.
 Values are only updated when notification are switched on.
+
+ble_uart.py
+-----------
+
+This example simulates a basic UART connection over two lines, TXD and RXD.
+
+It is based on a proprietary UART service specification by Nordic Semiconductors.
+Data sent to and from this service can be viewed using the nRF UART apps from Nordic
+Semiconductors for Android and iOS.
+
+It uses the Bluezero peripheral file (level 10) so should be easier than the previous CPU
+Temperature example that was a level 100.
