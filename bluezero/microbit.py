@@ -28,22 +28,23 @@ except ImportError:
 ACCEL_SRV = 'E95D0753-251D-470A-A062-FA1922DFA9A8'
 ACCEL_DATA = 'E95DCA4B-251D-470A-A062-FA1922DFA9A8'
 ACCEL_PERIOD = 'E95DFB24-251D-470A-A062-FA1922DFA9A8'
+BTN_SRV = 'E95D9882-251D-470A-A062-FA1922DFA9A8'
+BTN_A_STATE = 'E95DDA90-251D-470A-A062-FA1922DFA9A8'
+BTN_B_STATE = 'E95DDA91-251D-470A-A062-FA1922DFA9A8'
+LED_SRV = 'E95DD91D-251D-470A-A062-FA1922DFA9A8'
+LED_STATE = 'E95D7B77-251D-470A-A062-FA1922DFA9A8'
+LED_TEXT = 'E95D93EE-251D-470A-A062-FA1922DFA9A8'
+LED_SCROLL = 'E95D0D2D-251D-470A-A062-FA1922DFA9A8'
 MAGNETO_SRV = 'E95DF2D8-251D-470A-A062-FA1922DFA9A8'
 MAGNETO_DATA = 'E95DFB11-251D-470A-A062-FA1922DFA9A8'
 MAGNETO_PERIOD = 'E95D386C-251D-470A-A062-FA1922DFA9A8'
 MAGNETO_BEARING = 'E95D9715-251D-470A-A062-FA1922DFA9A8'
-BTN_SRV = 'E95D9882-251D-470A-A062-FA1922DFA9A8'
-BTN_A_STATE = 'E95DDA90-251D-470A-A062-FA1922DFA9A8'
-BTN_B_STATE = 'E95DDA91-251D-470A-A062-FA1922DFA9A8'
+MAGNETO_CALIBRATE = 'E95DB358-251D-470A-A062-FA1922DFA9A8'
 IO_PIN_SRV = 'E95D127B-251D-470A-A062-FA1922DFA9A8'
 IO_PIN_DATA = 'E95D8D00-251D-470A-A062-FA1922DFA9A8'
 IO_AD_CONFIG = 'E95D5899-251D-470A-A062-FA1922DFA9A8'
 IO_PIN_CONFIG = 'E95DB9FE-251D-470A-A062-FA1922DFA9A8'
 IO_PIN_PWM = 'E95DD822-251D-470A-A062-FA1922DFA9A8'
-LED_SRV = 'E95DD91D-251D-470A-A062-FA1922DFA9A8'
-LED_STATE = 'E95D7B77-251D-470A-A062-FA1922DFA9A8'
-LED_TEXT = 'E95D93EE-251D-470A-A062-FA1922DFA9A8'
-LED_SCROLL = 'E95D0D2D-251D-470A-A062-FA1922DFA9A8'
 TEMP_SRV = 'E95D6100-251D-470A-A062-FA1922DFA9A8'
 TEMP_DATA = 'E95D9250-251D-470A-A062-FA1922DFA9A8'
 TEMP_PERIOD = 'E95D1B25-251D-470A-A062-FA1922DFA9A8'
@@ -57,7 +58,13 @@ class Microbit:
     """
     Class to simplify interacting with a micro:bit over Bluetooth Low Energy
     """
-    def __init__(self, device_addr, adapter_addr=None):
+    def __init__(self, device_addr, adapter_addr=None,
+                 accelerometer_service=True,
+                 button_service=True,
+                 led_service=True,
+                 magnetometer_service=False,
+                 pin_service=False,
+                 temperature_service=True):
         """
         Initialization of an instance of a remote micro:bit
         :param device_addr: Discovered microbit device with this address
@@ -68,39 +75,52 @@ class Microbit:
                                     device_addr=device_addr)
 
         self.user_pin_callback = None
+        self.user_calibrate_cb = None
         # Micro:bit Characteristics
-        self._accel_data = self.ubit.add_characteristic(ACCEL_SRV,
-                                                        ACCEL_DATA)
-        self._accel_period = self.ubit.add_characteristic(ACCEL_SRV,
-                                                          ACCEL_PERIOD)
-        self._magneto_data = self.ubit.add_characteristic(MAGNETO_SRV,
-                                                          MAGNETO_DATA)
-        self._magneto_period = self.ubit.add_characteristic(MAGNETO_SRV,
-                                                            MAGNETO_PERIOD)
-        self._magneto_bearing = self.ubit.add_characteristic(MAGNETO_SRV,
-                                                             MAGNETO_BEARING)
-        self._btn_a_state = self.ubit.add_characteristic(BTN_SRV,
-                                                         BTN_A_STATE)
-        self._btn_b_state = self.ubit.add_characteristic(BTN_SRV,
-                                                         BTN_B_STATE)
-        self._io_pin_data = self.ubit.add_characteristic(IO_PIN_SRV,
-                                                         IO_PIN_DATA)
-        self._io_ad_config = self.ubit.add_characteristic(IO_PIN_SRV,
-                                                          IO_AD_CONFIG)
-        self._io_pin_config = self.ubit.add_characteristic(IO_PIN_SRV,
-                                                           IO_PIN_CONFIG)
-        self._io_pin_pwm = self.ubit.add_characteristic(IO_PIN_SRV,
-                                                        IO_PIN_PWM)
-        self._led_state = self.ubit.add_characteristic(LED_SRV,
-                                                       LED_STATE)
-        self._led_text = self.ubit.add_characteristic(LED_SRV,
-                                                      LED_TEXT)
-        self._led_scroll = self.ubit.add_characteristic(LED_SRV,
-                                                        LED_SCROLL)
-        self._temp_data = self.ubit.add_characteristic(TEMP_SRV,
-                                                       TEMP_DATA)
-        self._temp_period = self.ubit.add_characteristic(TEMP_SRV,
-                                                         TEMP_PERIOD)
+        if accelerometer_service:
+            self._accel_data = self.ubit.add_characteristic(ACCEL_SRV,
+                                                            ACCEL_DATA)
+            self._accel_period = self.ubit.add_characteristic(ACCEL_SRV,
+                                                              ACCEL_PERIOD)
+        if button_service:
+            self._btn_a_state = self.ubit.add_characteristic(BTN_SRV,
+                                                             BTN_A_STATE)
+            self._btn_b_state = self.ubit.add_characteristic(BTN_SRV,
+                                                             BTN_B_STATE)
+        if led_service:
+            self._led_state = self.ubit.add_characteristic(LED_SRV,
+                                                           LED_STATE)
+            self._led_text = self.ubit.add_characteristic(LED_SRV,
+                                                          LED_TEXT)
+            self._led_scroll = self.ubit.add_characteristic(LED_SRV,
+                                                            LED_SCROLL)
+        if magnetometer_service:
+            self._magneto_data = self.ubit.add_characteristic(
+                MAGNETO_SRV,
+                MAGNETO_DATA)
+            self._magneto_period = self.ubit.add_characteristic(
+                MAGNETO_SRV,
+                MAGNETO_PERIOD)
+            self._magneto_bearing = self.ubit.add_characteristic(
+                MAGNETO_SRV,
+                MAGNETO_BEARING)
+            self._magneto_calibrate = self.ubit.add_characteristic(
+                MAGNETO_SRV,
+                MAGNETO_CALIBRATE)
+        if pin_service:
+            self._io_pin_data = self.ubit.add_characteristic(IO_PIN_SRV,
+                                                             IO_PIN_DATA)
+            self._io_ad_config = self.ubit.add_characteristic(IO_PIN_SRV,
+                                                              IO_AD_CONFIG)
+            self._io_pin_config = self.ubit.add_characteristic(IO_PIN_SRV,
+                                                               IO_PIN_CONFIG)
+            self._io_pin_pwm = self.ubit.add_characteristic(IO_PIN_SRV,
+                                                            IO_PIN_PWM)
+        if temperature_service:
+            self._temp_data = self.ubit.add_characteristic(TEMP_SRV,
+                                                           TEMP_DATA)
+            self._temp_period = self.ubit.add_characteristic(TEMP_SRV,
+                                                             TEMP_PERIOD)
 
     @property
     def connected(self):
@@ -313,6 +333,28 @@ class Microbit:
 
         return int.from_bytes(mag_bear_val,
                               byteorder='little', signed=False)
+
+    def calibrate(self):
+        """
+        Request a calibration of the magnetometer
+        """
+        self._magneto_calibrate.value = 0x01
+
+    def subscribe_calibrate(self, user_callback):
+        """
+        Execute user_callback when calibration of magnetometer is complete
+        :param user_callback:
+        :return:
+        """
+        self.user_calibrate_cb = user_callback
+        self._magneto_calibrate.add_characteristic_cb(self._magneto_cal_cb)
+        self._magneto_calibrate.start_notify()
+
+    def _magneto_cal_cb(self, iface, changed_props, invalidated_props):
+        if iface != 'org.bluez.GattCharacteristic1':
+            return
+        if 'Value' in changed_props:
+            self.user_calibrate_cb(int(changed_props['Value'][0]))
 
     def set_pin(self, pin_number, pin_input, pin_analogue):
         """
