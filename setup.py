@@ -6,7 +6,7 @@ https://github.com/pypa/sampleproject
 """
 
 # Always prefer setuptools over distutils
-from setuptools import setup, find_packages, setuptools
+from setuptools import setup
 # To use a consistent encoding
 from codecs import open
 from os import path
@@ -27,6 +27,7 @@ setup(
 
     description='Python library for Bluetooth Low Energy (BLE) on Linux',
     long_description=long_description,
+    long_description_content_type='text/x-rst',
 
     # The project's main homepage.
     url='https://github.com/ukBaz/python-bluezero',
@@ -69,9 +70,7 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=find_packages(exclude=['contrib', 'docs', 'tests', 'examples',
-                                    'experiments', 'web_bluetooth']),
-    # packages=['bluezero'],
+    packages=['bluezero'],
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
@@ -87,10 +86,13 @@ setup(
     # dependencies). You can install these using the following syntax,
     # for example:
     # $ pip install -e .[dev,test]
-    # extras_require={
-    #     'dev': ['check-manifest'],
-    #     'test': ['pep8'],
-    # },
+    extras_require={
+        'dev': ['bumpversion', 'twine'],
+        'docs': ['sphinx', 'sphinx_rtd_theme'],
+        'test': ['coverage', 'pycodestyle'],
+    },
+
+    test_suite='tests',
 
     # If there are data files included in your packages that need to be
     # installed, specify them here.  If using Python 2.6 or less, then these
