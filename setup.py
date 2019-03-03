@@ -13,6 +13,12 @@ from os import path
 
 here = path.abspath(path.dirname(__file__))
 
+required_packages = ['aioblescan']
+extras_rel = ['bumpversion', 'twine']
+extras_doc = ['sphinx', 'sphinx_rtd_theme']
+extras_test = ['coverage', 'pycodestyle']
+extras_dev = extras_rel + extras_doc + extras_test
+
 # Get the long description from the README file
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
@@ -80,16 +86,17 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['aioblescan'],
+    install_requires=required_packages,
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
     # for example:
     # $ pip install -e .[dev,test]
     extras_require={
-        'dev': ['bumpversion', 'twine'],
-        'docs': ['sphinx', 'sphinx_rtd_theme'],
-        'test': ['coverage', 'pycodestyle'],
+        'rel': extras_rel,
+        'docs': extras_doc,
+        'test': extras_test,
+        'dev': extras_dev,
     },
 
     test_suite='tests',
