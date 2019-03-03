@@ -6,12 +6,18 @@ https://github.com/pypa/sampleproject
 """
 
 # Always prefer setuptools over distutils
-from setuptools import setup, find_packages, setuptools
+from setuptools import setup
 # To use a consistent encoding
 from codecs import open
 from os import path
 
 here = path.abspath(path.dirname(__file__))
+
+required_packages = ['aioblescan']
+extras_rel = ['bumpversion', 'twine']
+extras_doc = ['sphinx', 'sphinx_rtd_theme']
+extras_test = ['coverage', 'pycodestyle']
+extras_dev = extras_rel + extras_doc + extras_test
 
 # Get the long description from the README file
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
@@ -23,10 +29,11 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.0.8',
+    version='0.1.0',
 
     description='Python library for Bluetooth Low Energy (BLE) on Linux',
     long_description=long_description,
+    long_description_content_type='text/x-rst',
 
     # The project's main homepage.
     url='https://github.com/ukBaz/python-bluezero',
@@ -69,9 +76,7 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=find_packages(exclude=['contrib', 'docs', 'tests', 'examples',
-                                    'experiments', 'web_bluetooth']),
-    # packages=['bluezero'],
+    packages=['bluezero'],
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
@@ -81,16 +86,20 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['aioblescan'],
+    install_requires=required_packages,
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
     # for example:
     # $ pip install -e .[dev,test]
-    # extras_require={
-    #     'dev': ['check-manifest'],
-    #     'test': ['pep8'],
-    # },
+    extras_require={
+        'rel': extras_rel,
+        'docs': extras_doc,
+        'test': extras_test,
+        'dev': extras_dev,
+    },
+
+    test_suite='tests',
 
     # If there are data files included in your packages that need to be
     # installed, specify them here.  If using Python 2.6 or less, then these

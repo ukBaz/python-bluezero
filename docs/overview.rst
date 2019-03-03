@@ -60,7 +60,7 @@ Level 10
 --------
 - At this level the API will be pythonic.
 - The API will require some knowledge of Bluetooth such as UUIDs of services and
- characteristics for selecting required services.
+  characteristics for selecting required services.
 - The API will not expose DBus terminology and will simplify event loops.
 
 Level 100
