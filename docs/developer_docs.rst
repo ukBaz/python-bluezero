@@ -2,10 +2,14 @@
 Developer Documentation
 =======================
 
+Developer Install
+=================
+
 If you wish to help with the development of Bluezero then the recommended way
 of installing for edit is as follows:
 
 .. code-block:: none
+
     git clone https://github.com/ukBaz/python-bluezero.git
     cd python-bluezero
     pip3 install -e .[dev]
@@ -26,8 +30,11 @@ Update Version Info
 Use bumpversion package to update all references at once.
 This library tries to use `Semantic Versioning
 <https://semver.org/#semantic-versioning-200>`_
-Which is major.minor.patch. The bumpversion command allows you to choose
-which to update
+
+Semantic version uses three numbers that represent ``major.minor.patch``.
+
+The bumpversion command allows you to choose which to update. In the
+following example the version is being updated for a patch.
 
 .. code-block:: none
 
@@ -61,5 +68,3 @@ To do a local build of the documentation:
 
 * readthedocs gets update from GitHub
 * readthedocs versions are based on GitHub version tags
-
-.. include:: tests.rst
