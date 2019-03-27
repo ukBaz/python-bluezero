@@ -9,6 +9,7 @@ import dbus
 from bluezero import constants
 from bluezero import dbus_tools
 from bluezero import async_tools
+from bluezero import device
 
 import logging
 try:  # Python 2.7+
@@ -210,6 +211,18 @@ class Adapter:
             self.mainloop.quit()
             return False
         return True
+
+    def get_managed_device_list(self):
+        """Return a list of Devices manageable by this adapter"""
+        device_objects_list = []
+        managed_devices = dbus_tools.get_managed_objects()
+        for key, dev in managed_devices.items():
+            remote_device = dev.get("org.bluez.Device1")
+            if remote_device is not None:
+                device_addr = remote_device.get("Address")
+                if device_addr is not None:
+                    device_objects_list.append(device.Device(self.address, device_addr))
+        return device_objects_list
 
     def nearby_discovery(self, timeout=10):
         """Start discovery of nearby Bluetooth devices."""
