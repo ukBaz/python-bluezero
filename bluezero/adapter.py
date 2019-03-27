@@ -221,6 +221,13 @@ class Adapter:
         self.adapter_methods.StartDiscovery()
         self.mainloop.run()
 
+    def start_discovery(self):
+        """
+        Start discovery of nearby Bluetooth devices.
+        :return: True on success otherwise False
+        """
+        self.adapter_methods.StartDiscovery()
+
     def stop_discovery(self):
         """Stop scanning of nearby Bluetooth devices."""
         self.adapter_methods.StopDiscovery()
