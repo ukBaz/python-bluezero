@@ -240,6 +240,13 @@ class Device:
             constants.DEVICE_INTERFACE,
             'ServicesResolved')
 
+    def pair(self):
+        """
+        Pair the device
+        :return: Boolean indicating if pairing was successful
+        """
+        self.remote_device_methods.Pair()
+
     def connect(self, profile=None):
         """
         Initiate a connection to the remote device.
