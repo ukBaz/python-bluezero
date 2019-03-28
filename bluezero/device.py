@@ -30,7 +30,7 @@ logger.setLevel(logging.WARNING)
 logger.addHandler(NullHandler())
 
 
-class Device:
+class Device(object):
     """Remote Bluetooth Device Class.
 
     This class instantiates an object that interacts with a remote
