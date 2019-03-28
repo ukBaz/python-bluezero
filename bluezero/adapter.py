@@ -49,7 +49,7 @@ def list_adapters():
         return addresses
 
 
-class Adapter:
+class Adapter(object):
     """Bluetooth Adapter Class.
 
     This class instantiates an object that interacts with the physical
