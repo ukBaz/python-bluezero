@@ -525,14 +525,27 @@ class Microbit:
 
 
 class MIpower(Microbit):
-    def __init__(self, device_addr, adapter_addr=None):
+    def __init__(self, device_addr, adapter_addr=None,
+                 accelerometer_service=True,
+                 button_service=True,
+                 led_service=True,
+                 magnetometer_service=False,
+                 pin_service=False,
+                 temperature_service=True
+                 ):
         """
         Initialization of an instance of a remote bit:bot
         with a MI:power board attached
         :param device_addr: Connect to a BLE device with this address
         :param adapter_addr: Use the adapter with this address
         """
-        Microbit.__init__(self, device_addr, adapter_addr)
+        Microbit.__init__(self, device_addr, adapter_addr,
+                          accelerometer_service=accelerometer_service,
+                          button_service=button_service,
+                          led_service=led_service,
+                          magnetometer_service=magnetometer_service,
+                          pin_service=pin_service,
+                          temperature_service=temperature_service)
 
     def beep(self, duration=1):
         """
@@ -550,14 +563,26 @@ class BitBot:
     over Bluetooth Low Energy
     The bit:bot is a micro:bit robot available from 4tronix.co.uk
     """
-    def __init__(self, device_addr, adapter_addr=None):
+    def __init__(self, device_addr, adapter_addr=None,
+                 accelerometer_service=False,
+                 button_service=True,
+                 led_service=True,
+                 magnetometer_service=False,
+                 pin_service=True,
+                 temperature_service=False):
         """
         Initialization of an instance of a remote bit:bot
         :param name: Will look for a BLE device with this string in its name
         :param device_addr: Will look for a BLE device with this address
         """
         self._pins_configured = False
-        self.ubit = Microbit(device_addr, adapter_addr)
+        self.ubit = Microbit(device_addr, adapter_addr,
+                             accelerometer_service=accelerometer_service,
+                             button_service=button_service,
+                             led_service=led_service,
+                             magnetometer_service=magnetometer_service,
+                             pin_service=pin_service,
+                             temperature_service=temperature_service)
 
     def __enter__(self):
         return self
@@ -789,14 +814,26 @@ class BitCommander:
     over Bluetooth Low Energy
     The bit:commander is a micro:bit controller available from 4tronix.co.uk
     """
-    def __init__(self, device_addr, adapter_addr=None):
+    def __init__(self, device_addr, adapter_addr=None,
+                 accelerometer_service=True,
+                 button_service=True,
+                 led_service=True,
+                 magnetometer_service=False,
+                 pin_service=False,
+                 temperature_service=True):
         """
         Initialization of an instance of a remote bit:bot
         :param name: Will look for a BLE device with this string in its name
         :param device_addr: Will look for a BLE device with this address
         """
         self._pins_configured = False
-        self.ubit = Microbit(device_addr, adapter_addr)
+        self.ubit = Microbit(device_addr, adapter_addr,
+                             accelerometer_service=accelerometer_service,
+                             button_service=button_service,
+                             led_service=led_service,
+                             magnetometer_service=magnetometer_service,
+                             pin_service=pin_service,
+                             temperature_service=temperature_service)
 
     def __enter__(self):
         return self
