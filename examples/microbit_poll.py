@@ -2,7 +2,13 @@ import time
 from bluezero import microbit
 
 ubit = microbit.Microbit(adapter_addr='B8:27:EB:22:57:E0',
-                         device_addr='E3:AC:D2:F8:EB:B9')
+                         device_addr='E3:AC:D2:F8:EB:B9',
+                         accelerometer_service=True,
+                         button_service=True,
+                         led_service=True,
+                         magnetometer_service=False,
+                         pin_service=False,
+                         temperature_service=True)
 
 ubit.connect()
 
