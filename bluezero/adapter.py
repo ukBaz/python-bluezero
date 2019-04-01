@@ -212,6 +212,12 @@ class Adapter(object):
             return False
         return True
 
+    @property
+    def uuids(self):
+        """List of 128-bit UUIDs that represent available remote services."""
+        return self.adapter_props.Get(
+            constants.ADAPTER_INTERFACE, 'UUIDs')
+
     def get_managed_device_list(self):
         """Return a list of Devices manageable by this adapter"""
         device_objects_list = []
@@ -221,7 +227,8 @@ class Adapter(object):
             if remote_device is not None:
                 device_addr = remote_device.get("Address")
                 if device_addr is not None:
-                    device_objects_list.append(device.Device(self.address, device_addr))
+                    device_objects_list.append(
+                        device.Device(self.address, device_addr))
         return device_objects_list
 
     def nearby_discovery(self, timeout=10):
