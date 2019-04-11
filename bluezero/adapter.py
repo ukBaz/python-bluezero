@@ -256,6 +256,14 @@ class Adapter(object):
         """Stop scanning of nearby Bluetooth devices."""
         self.adapter_methods.StopDiscovery()
 
+    def remove_device(self, device_object):
+        """
+        Remove device from the actual adapter and clear pairing
+        info if it exists
+        :param device_object: device_remote_object
+        """
+        self.adapter_methods.RemoveDevice(device_object)
+
     def run(self):
         self.mainloop.run()
 
