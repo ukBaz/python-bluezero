@@ -240,6 +240,19 @@ class Device:
             constants.DEVICE_INTERFACE,
             'ServicesResolved')
 
+    def pair(self):
+        """
+        Pair the device
+        """
+        self.remote_device_methods.Pair()
+
+    def cancel_pairing(self):
+        """
+        This method can be used to cancel a pairing
+        operation initiated by the pair method
+        """
+        self.remote_device_methods.CancelPairing()
+
     def connect(self, profile=None):
         """
         Initiate a connection to the remote device.
