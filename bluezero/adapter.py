@@ -211,6 +211,12 @@ class Adapter:
             return False
         return True
 
+    @property
+    def uuids(self):
+        """List of 128-bit UUIDs that represent available remote services."""
+        return self.adapter_props.Get(
+            constants.ADAPTER_INTERFACE, 'UUIDs')
+
     def nearby_discovery(self, timeout=10):
         """Start discovery of nearby Bluetooth devices."""
         self._nearby_timeout = timeout
