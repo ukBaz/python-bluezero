@@ -455,7 +455,7 @@ class Microbit:
     @property
     def pin_values(self):
         """
-        Get the values of all the pins that are set as outputs
+        Get the values of all the pins that are set as inputs
         :return: Dictionary (keys are pins)
         """
         xx = self._io_pin_data.value
