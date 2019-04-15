@@ -58,7 +58,7 @@ class Adapter:
 
     >>> from bluezero import adapter
     >>> dongle = adapter.Adapter()
-    >>> dongle.powered = True
+    >>> dongle.powered = dbus.Boolean(True)
 
     """
 
