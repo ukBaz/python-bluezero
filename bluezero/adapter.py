@@ -92,9 +92,14 @@ class Adapter(object):
         self.mainloop = async_tools.EventLoop()
 
         self.on_disconnect = None
-        self.bus.add_signal_receiver(dbus_tools.interfaces_added,
+        self.on_device_found = None
+        self.bus.add_signal_receiver(self._interfaces_added,
                                      dbus_interface=constants.DBUS_OM_IFACE,
                                      signal_name='InterfacesAdded')
+
+        self.bus.add_signal_receiver(self._interfaces_removed,
+                                     dbus_interface=constants.DBUS_OM_IFACE,
+                                     signal_name='InterfacesRemoved')
 
         self.bus.add_signal_receiver(self._properties_changed,
                                      dbus_interface=dbus.PROPERTIES_IFACE,
@@ -227,6 +232,13 @@ class Adapter(object):
         self.adapter_methods.StartDiscovery()
         self.mainloop.run()
 
+    def start_discovery(self):
+            """
+            Start discovery of nearby Bluetooth devices.
+            :return: True on success otherwise False
+            """
+            self.adapter_methods.StartDiscovery()
+
     def stop_discovery(self):
         """Stop scanning of nearby Bluetooth devices."""
         self.adapter_methods.StopDiscovery()
@@ -242,3 +254,10 @@ class Adapter(object):
             if 'Connected' in changed:
                 if not changed['Connected']:
                     self.on_disconnect()
+
+    def _interfaces_added(self, path, device_info):
+        if self.on_device_found is not None:
+            self.on_device_found(path, device_info)
+    
+    def _interfaces_removed(self, path, device_info):
+        pass
