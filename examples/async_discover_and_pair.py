@@ -10,16 +10,15 @@ def start_disco():
     return False
 
 
-def new_device_handler(device_path, device_info):
-    print('Device path', device_path)
-    if constants.DEVICE_INTERFACE in device_info:
-        if 'micro:bit' in device_info[constants.DEVICE_INTERFACE]['Alias']:
-            print('micro:bit found')
-            dongle.stop_discovery()
-            new_dev = device.Device(adapter_addr=dongle.address,
-                                    device_addr=device_info[constants.DEVICE_INTERFACE]['Address'])
-            new_dev.pair()
+def device_found_handler(device_path, device_info):
+    if 'micro:bit' in device_info['Alias']:
+        print('micro:bit found')
+        dongle.stop_discovery()
+        new_dev = device.Device(adapter_addr=dongle.address,
+                                device_addr=device_info['Address'])
+        new_dev.pair()
     return True
+
 
 def exit_test():
     print('Exiting eventloop')
@@ -28,10 +27,11 @@ def exit_test():
     eloop.quit()
     return False
 
+
 dongle = adapter.Adapter()
 eloop = async_tools.EventLoop()
 
-dongle.on_device_found = new_device_handler
+dongle.on_device_found = device_found_handler
 
 eloop.add_timer(500, start_disco)
 eloop.add_timer(30000, exit_test)

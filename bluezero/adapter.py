@@ -233,11 +233,11 @@ class Adapter(object):
         self.mainloop.run()
 
     def start_discovery(self):
-            """
-            Start discovery of nearby Bluetooth devices.
-            :return: True on success otherwise False
-            """
-            self.adapter_methods.StartDiscovery()
+        """
+        Start discovery of nearby Bluetooth devices.
+        :return: True on success otherwise False
+        """
+        self.adapter_methods.StartDiscovery()
 
     def stop_discovery(self):
         """Stop scanning of nearby Bluetooth devices."""
@@ -256,8 +256,10 @@ class Adapter(object):
                     self.on_disconnect()
 
     def _interfaces_added(self, path, device_info):
-        if self.on_device_found is not None:
-            self.on_device_found(path, device_info)
-    
+        if constants.DEVICE_INTERFACE in device_info:
+            if self.on_device_found is not None:
+                self.on_device_found(path,
+                                     device_info[constants.DEVICE_INTERFACE])
+
     def _interfaces_removed(self, path, device_info):
         pass
