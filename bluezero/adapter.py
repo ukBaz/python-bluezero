@@ -9,6 +9,7 @@ import dbus
 from bluezero import constants
 from bluezero import dbus_tools
 from bluezero import async_tools
+from bluezero import device
 
 import logging
 try:  # Python 2.7+
@@ -235,6 +236,7 @@ class Adapter(object):
     def start_discovery(self):
         """
         Start discovery of nearby Bluetooth devices.
+
         :return: True on success otherwise False
         """
         self.adapter_methods.StartDiscovery()
@@ -244,22 +246,39 @@ class Adapter(object):
         self.adapter_methods.StopDiscovery()
 
     def run(self):
+        """Start the EventLoop for async operations"""
         self.mainloop.run()
 
     def quit(self):
+        """Stop the EventLoop for async operations"""
         self.mainloop.quit()
 
     def _properties_changed(self, interface, changed, invalidated, path):
+        """
+        Handle DBus PropertiesChanged signal and
+        call appropriate user callback
+        """
         if self.on_disconnect is not None:
             if 'Connected' in changed:
                 if not changed['Connected']:
                     self.on_disconnect()
 
     def _interfaces_added(self, path, device_info):
+        """
+        Handle DBus InterfacesAdded signal and
+        call appropriate user callback
+        """
+        dev_iface = constants.DEVICE_INTERFACE
         if constants.DEVICE_INTERFACE in device_info:
             if self.on_device_found is not None:
-                self.on_device_found(path,
-                                     device_info[constants.DEVICE_INTERFACE])
+                new_dev = device.Device(
+                    adapter_addr=self.address,
+                    device_addr=device_info[dev_iface]['Address'])
+                self.on_device_found(new_dev)
 
     def _interfaces_removed(self, path, device_info):
+        """
+        Handle DBus InterfacesRemoved signal and
+        call appropriate user callback
+        """
         pass
