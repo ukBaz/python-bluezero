@@ -9,6 +9,7 @@ import dbus
 from bluezero import constants
 from bluezero import dbus_tools
 from bluezero import async_tools
+from bluezero import device
 
 import logging
 try:  # Python 2.7+
@@ -92,9 +93,14 @@ class Adapter(object):
         self.mainloop = async_tools.EventLoop()
 
         self.on_disconnect = None
-        self.bus.add_signal_receiver(dbus_tools.interfaces_added,
+        self.on_device_found = None
+        self.bus.add_signal_receiver(self._interfaces_added,
                                      dbus_interface=constants.DBUS_OM_IFACE,
                                      signal_name='InterfacesAdded')
+
+        self.bus.add_signal_receiver(self._interfaces_removed,
+                                     dbus_interface=constants.DBUS_OM_IFACE,
+                                     signal_name='InterfacesRemoved')
 
         self.bus.add_signal_receiver(self._properties_changed,
                                      dbus_interface=dbus.PROPERTIES_IFACE,
@@ -227,18 +233,52 @@ class Adapter(object):
         self.adapter_methods.StartDiscovery()
         self.mainloop.run()
 
+    def start_discovery(self):
+        """
+        Start discovery of nearby Bluetooth devices.
+
+        :return: True on success otherwise False
+        """
+        self.adapter_methods.StartDiscovery()
+
     def stop_discovery(self):
         """Stop scanning of nearby Bluetooth devices."""
         self.adapter_methods.StopDiscovery()
 
     def run(self):
+        """Start the EventLoop for async operations"""
         self.mainloop.run()
 
     def quit(self):
+        """Stop the EventLoop for async operations"""
         self.mainloop.quit()
 
     def _properties_changed(self, interface, changed, invalidated, path):
+        """
+        Handle DBus PropertiesChanged signal and
+        call appropriate user callback
+        """
         if self.on_disconnect is not None:
             if 'Connected' in changed:
                 if not changed['Connected']:
                     self.on_disconnect()
+
+    def _interfaces_added(self, path, device_info):
+        """
+        Handle DBus InterfacesAdded signal and
+        call appropriate user callback
+        """
+        dev_iface = constants.DEVICE_INTERFACE
+        if constants.DEVICE_INTERFACE in device_info:
+            if self.on_device_found is not None:
+                new_dev = device.Device(
+                    adapter_addr=self.address,
+                    device_addr=device_info[dev_iface]['Address'])
+                self.on_device_found(new_dev)
+
+    def _interfaces_removed(self, path, device_info):
+        """
+        Handle DBus InterfacesRemoved signal and
+        call appropriate user callback
+        """
+        pass
