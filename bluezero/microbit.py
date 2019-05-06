@@ -542,14 +542,14 @@ class Microbit:
         :return:
         """
         self.uart_tx_cb = user_callback
-        self._uart_rx.add_characteristic_cb(self._uart_read)
-        self._uart_rx.start_notify()
+        self._uart_tx.add_characteristic_cb(self._uart_read)
+        self._uart_tx.start_notify()
 
     def _uart_read(self, iface, changed_props, invalidated_props):
         if iface != constants.GATT_CHRC_IFACE:
             return
         if 'Value' in changed_props:
-            self.uart_tx_cb(changed_props['Value'])
+            self.uart_tx_cb(''.join([str(v) for v in changed_props['Value']]))
 
     @property
     def on_disconnect(self):
