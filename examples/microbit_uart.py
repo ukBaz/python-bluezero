@@ -1,4 +1,3 @@
-from time import sleep
 from bluezero import microbit
 from bluezero import async_tools
 
