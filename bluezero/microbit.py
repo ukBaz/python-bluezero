@@ -16,6 +16,7 @@ from time import sleep
 
 from bluezero import central
 from bluezero import tools
+from bluezero import constants
 
 import logging
 try:  # Python 2.7+
@@ -48,6 +49,9 @@ IO_PIN_PWM = 'E95DD822-251D-470A-A062-FA1922DFA9A8'
 TEMP_SRV = 'E95D6100-251D-470A-A062-FA1922DFA9A8'
 TEMP_DATA = 'E95D9250-251D-470A-A062-FA1922DFA9A8'
 TEMP_PERIOD = 'E95D1B25-251D-470A-A062-FA1922DFA9A8'
+UART_SRV = '6E400001-B5A3-F393-E0A9-E50E24DCCA9E'
+UART_TX = '6E400002-B5A3-F393-E0A9-E50E24DCCA9E'
+UART_RX = '6E400003-B5A3-F393-E0A9-E50E24DCCA9E'
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)
@@ -64,7 +68,8 @@ class Microbit:
                  led_service=True,
                  magnetometer_service=False,
                  pin_service=False,
-                 temperature_service=True):
+                 temperature_service=True,
+                 uart_service=False):
         """
         Initialization of an instance of a remote micro:bit
         :param device_addr: Discovered microbit device with this address
@@ -76,6 +81,8 @@ class Microbit:
 
         self.user_pin_callback = None
         self.user_calibrate_cb = None
+        self.uart_tx_cb = None
+
         # Micro:bit Characteristics
         if accelerometer_service:
             self._accel_data = self.ubit.add_characteristic(ACCEL_SRV,
@@ -121,6 +128,11 @@ class Microbit:
                                                            TEMP_DATA)
             self._temp_period = self.ubit.add_characteristic(TEMP_SRV,
                                                              TEMP_PERIOD)
+        if uart_service:
+            self._uart_tx = self.ubit.add_characteristic(UART_SRV,
+                                                         UART_TX)
+            self._uart_rx = self.ubit.add_characteristic(UART_SRV,
+                                                         UART_RX)
 
     @property
     def connected(self):
@@ -500,6 +512,44 @@ class Microbit:
                                   byte_period[2],
                                   byte_period[3]
                                   ]
+
+    @property
+    def uart(self):
+        """
+        Write string to micro:bit UART service. To read from UART, use
+
+        :return:
+        """
+        pass
+
+    @uart.setter
+    def uart(self, txt):
+        data = []
+        text = ''
+        if len(txt) > 20:
+            text = txt[:19]
+        else:
+            text = txt
+        for letter in text:
+            data.append(ord(letter))
+        self._uart_rx.value = data
+
+    def subscribe_uart(self, user_callback):
+        """
+        Execute user_callback on data being received on UART service
+
+        :param user_callback:
+        :return:
+        """
+        self.uart_tx_cb = user_callback
+        self._uart_tx.add_characteristic_cb(self._uart_read)
+        self._uart_tx.start_notify()
+
+    def _uart_read(self, iface, changed_props, invalidated_props):
+        if iface != constants.GATT_CHRC_IFACE:
+            return
+        if 'Value' in changed_props:
+            self.uart_tx_cb(''.join([str(v) for v in changed_props['Value']]))
 
     @property
     def on_disconnect(self):
