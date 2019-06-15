@@ -645,6 +645,7 @@ class Characteristic(dbus.service.Object):
         """Send a notification event.
 
         :param value: the value that the characteristic is to be set to.
+                      require str or list of byte.
 
         This function sets the characteristic value, and if the characteristic
         is set to notify emits a PropertiesChanged() signal with the new value.
@@ -652,12 +653,19 @@ class Characteristic(dbus.service.Object):
         self.value = value
         if not self.notifying:
             print('Not notifying')
-        else:
+        elif isinstance(self.value, str):
             # print('Notify: ', dbus_tools.str_to_dbusarray(self.value))
             self.PropertiesChanged(
                 constants.GATT_CHRC_IFACE,
                 {'Value': dbus_tools.str_to_dbusarray(self.value)},
                 [])
+        elif isinstance(self.value, list):
+            self.PropertiesChanged(
+                constants.GATT_CHRC_IFACE,
+                {'Value': self.value},
+                [])
+        else:
+            raise InvalidArgsException()
 
 ####################
 # Descriptor Classes
