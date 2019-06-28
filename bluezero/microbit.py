@@ -144,9 +144,6 @@ class Microbit:
         Connect to the specified micro:bit for this instance
         """
         self.ubit.connect()
-        while not self.ubit.services_resolved:
-            sleep(0.5)
-        self.ubit.load_gatt()
 
     def disconnect(self):
         """
