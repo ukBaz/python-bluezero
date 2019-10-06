@@ -80,6 +80,8 @@ class Microbit:
                                     device_addr=device_addr)
 
         self.user_pin_callback = None
+        self.user_btn_a_callback = None
+        self.user_btn_b_callback = None
         self.user_calibrate_cb = None
         self.uart_tx_cb = None
 
@@ -274,29 +276,42 @@ class Microbit:
 
         return int.from_bytes(btn_val, byteorder='little', signed=False)
 
+    def _decode_btn_a(self, *button_values):
+        """Decode button A state and pass on to user callback."""
+        if 'Value' in button_values[1]:
+            self.user_btn_a_callback(int(button_values[1]['Value'][0]))
+
+    def _decode_btn_b(self, *button_values):
+        """Decode button B state and pass on to user callback."""
+        if 'Value' in button_values[1]:
+            self.user_btn_b_callback(int(button_values[1]['Value'][0]))
+
     def subscribe_button_a(self, user_callback):
         """
         Execute user_callback on Button A being press on micro:bit
-        :param user_callback:
+        :param user_callback: User callback method receiving the button state
         :return:
         """
-        self._btn_a_state.add_characteristic_cb(user_callback)
+        self.user_btn_a_callback = user_callback
+        self._btn_a_state.add_characteristic_cb(self._decode_btn_a)
         self._btn_a_state.start_notify()
 
     def subscribe_button_b(self, user_callback):
         """
         Execute user_callback on Button B being press on micro:bit
-        :param user_callback:
+        :param user_callback: User callback method receiving the button state
         :return:
         """
-        self._btn_b_state.add_characteristic_cb(user_callback)
+        self.user_btn_b_callback = user_callback
+        self._btn_b_state.add_characteristic_cb(self._decode_btn_b)
         self._btn_b_state.start_notify()
 
     def _decode_pins(self, *pin_values):
         if pin_values[0] != 'org.bluez.GattCharacteristic1':
             return
-        self.user_pin_callback(int(pin_values[1]['Value'][0]),
-                               int(pin_values[1]['Value'][1]))
+        if 'Value' in pin_values[1]:
+            self.user_pin_callback(int(pin_values[1]['Value'][0]),
+                                   int(pin_values[1]['Value'][1]))
 
     def subscribe_pins(self, user_callback):
         """
