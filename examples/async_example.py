@@ -4,10 +4,8 @@ cmdr = microbit.BitCommander(adapter_addr='B8:27:EB:22:57:E0',
                              device_addr='E3:AC:D2:F8:EB:B9')
 
 
-def button_callback(*args, **kwargs):
-    print('Hello, World')
-    print('args = ', args)
-    print('kwargs = ', kwargs)
+def button_callback(status):
+    print('Button A status: ', status)
 
 
 def pin_callback(pin, value):
