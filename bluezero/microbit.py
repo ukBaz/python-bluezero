@@ -619,6 +619,89 @@ class MIpower(Microbit):
         self._pin_pwm_control = [0, 0, 0]
 
 
+class Calliope(Microbit):
+    """
+    Subclass of `Microbit` to interact with a Calliope Mini.
+
+    The German Calliope Mini is a derivative of BBC's micro:bit with additional
+    and partly different hardware, but uses essentially the same microbit DAL.
+    This subclass is used to address issues and characteristics specific to
+    the Calliope Mini.
+    """
+    def __init__(self, device_addr, adapter_addr=None,
+                 accelerometer_service=True,
+                 button_service=True,
+                 led_service=True,
+                 magnetometer_service=False,
+                 pin_service=False,
+                 temperature_service=True,
+                 uart_service=False):
+        """
+        Initialization of an instance of a remote Calliope
+        :param device_addr: Discovered Callipe device with this address
+        :param adapter_addr: Optional unless you have more than one adapter
+                             on your machine
+        """
+        self.ubit = central.Central(adapter_addr=adapter_addr,
+                                    device_addr=device_addr)
+
+        self.user_pin_callback = None
+        self.user_btn_a_callback = None
+        self.user_btn_b_callback = None
+        self.user_calibrate_cb = None
+        self.uart_tx_cb = None
+
+        # Calliope Characteristics
+        # Calliope doesn't support MAGNETO_CALIBRATE yet, otherwise identical
+        # to micro:bit
+        if accelerometer_service:
+            self._accel_data = self.ubit.add_characteristic(ACCEL_SRV,
+                                                            ACCEL_DATA)
+            self._accel_period = self.ubit.add_characteristic(ACCEL_SRV,
+                                                              ACCEL_PERIOD)
+        if button_service:
+            self._btn_a_state = self.ubit.add_characteristic(BTN_SRV,
+                                                             BTN_A_STATE)
+            self._btn_b_state = self.ubit.add_characteristic(BTN_SRV,
+                                                             BTN_B_STATE)
+        if led_service:
+            self._led_state = self.ubit.add_characteristic(LED_SRV,
+                                                           LED_STATE)
+            self._led_text = self.ubit.add_characteristic(LED_SRV,
+                                                          LED_TEXT)
+            self._led_scroll = self.ubit.add_characteristic(LED_SRV,
+                                                            LED_SCROLL)
+        if magnetometer_service:
+            self._magneto_data = self.ubit.add_characteristic(
+                MAGNETO_SRV,
+                MAGNETO_DATA)
+            self._magneto_period = self.ubit.add_characteristic(
+                MAGNETO_SRV,
+                MAGNETO_PERIOD)
+            self._magneto_bearing = self.ubit.add_characteristic(
+                MAGNETO_SRV,
+                MAGNETO_BEARING)
+        if pin_service:
+            self._io_pin_data = self.ubit.add_characteristic(IO_PIN_SRV,
+                                                             IO_PIN_DATA)
+            self._io_ad_config = self.ubit.add_characteristic(IO_PIN_SRV,
+                                                              IO_AD_CONFIG)
+            self._io_pin_config = self.ubit.add_characteristic(IO_PIN_SRV,
+                                                               IO_PIN_CONFIG)
+            self._io_pin_pwm = self.ubit.add_characteristic(IO_PIN_SRV,
+                                                            IO_PIN_PWM)
+        if temperature_service:
+            self._temp_data = self.ubit.add_characteristic(TEMP_SRV,
+                                                           TEMP_DATA)
+            self._temp_period = self.ubit.add_characteristic(TEMP_SRV,
+                                                             TEMP_PERIOD)
+        if uart_service:
+            self._uart_tx = self.ubit.add_characteristic(UART_SRV,
+                                                         UART_TX)
+            self._uart_rx = self.ubit.add_characteristic(UART_SRV,
+                                                         UART_RX)
+
+
 class BitBot:
     """
     Class to simplify interacting with a microbit attached to a bit:bot
