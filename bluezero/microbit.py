@@ -12,6 +12,7 @@ pairing not required" was used.
 The following link is a good reference for Bluetooth on the microbit
 http://bluetooth-mdw.blogspot.co.uk/p/bbc-microbit.html
 """
+import warnings
 from time import sleep
 
 from bluezero import central
@@ -659,6 +660,10 @@ class Calliope(Microbit):
                                                             ACCEL_DATA)
             self._accel_period = self.ubit.add_characteristic(ACCEL_SRV,
                                                               ACCEL_PERIOD)
+            # Accelerometer BLE service is not working properly
+            warnings.warn('Accelerometer services are not running properly '
+                          'on the Calliope yet. ".accelerometer" will always '
+                          'receive [0.0, 0.0, 0.0].')
         if button_service:
             self._btn_a_state = self.ubit.add_characteristic(BTN_SRV,
                                                              BTN_A_STATE)
