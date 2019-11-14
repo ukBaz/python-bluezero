@@ -125,7 +125,7 @@ def _get_dbus_path2(objects, parent_path, iface_in, prop, value):
         if props[prop].lower() == value.lower() and \
                 path.startswith(parent_path):
             return path
-
+    raise ValueError('Bad combination of inputs: found nothing')
 
 def get_dbus_path(adapter=None,
                   device=None,
