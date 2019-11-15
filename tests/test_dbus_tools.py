@@ -71,10 +71,11 @@ class TestDbusModuleCalls(unittest.TestCase):
         self.assertEqual(constants.GATT_DESC_IFACE, my_iface)
 
     def test_profile_path(self):
-        my_iface = self.module_under_test.get_profile_path(adapter='00:00:00:00:5A:AD',
-                                                           device='F7:17:E4:09:C0:C6',
-                                                           profile='e95df2d8-251d-470a-a062-fa1922dfa9a8')
-        self.assertEqual(None, my_iface)
+        self.assertRaises(ValueError,
+                          self.module_under_test.get_profile_path,
+                          adapter='00:00:00:00:5A:AD',
+                          device='F7:17:E4:09:C0:C6',
+                          profile='e95df2d8-251d-470a-a062-fa1922dfa9a8')
 
     def test_bluez_version(self):
         bluez_ver = self.module_under_test.bluez_version()
