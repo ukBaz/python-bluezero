@@ -56,11 +56,11 @@ class TestDbusModuleCalls(unittest.TestCase):
         self.assertEqual(dbus_full_path, expected_result)
 
     def test_bad_path(self):
-        self.assertRaises(ValueError,
-                          self.module_under_test.get_dbus_path,
-                          adapter='00:00:00:00:5A:C6',
-                          device='F7:17:E4:09:C0:XX',
-                          service='e95df2d8-251d-470a-a062-fa1922dfa9a8')
+        path_found = self.module_under_test.get_dbus_path(adapter='00:00:00:00:5A:C6',
+                                                          device='F7:17:E4:09:C0:XX',
+                                                          service='e95df2d8-251d-470a-a062-fa1922dfa9a8')
+        expected_path = None
+        self.assertEqual(path_found, expected_path)
 
     def test_get_iface_from_path(self):
         my_iface = self.module_under_test.get_iface(adapter='00:00:00:00:5A:AD',
