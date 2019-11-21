@@ -51,6 +51,9 @@ class Device(object):
         self.mainloop = GObject.MainLoop()
 
         device_path = dbus_tools.get_dbus_path(adapter_addr, device_addr)
+        if not device_path:
+            raise ValueError("Cannot find a device: " + device_addr +
+                             " using adapter: " + adapter_addr)
 
         self.remote_device_path = device_path
         self.remote_device_obj = self.bus.get_object(
