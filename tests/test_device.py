@@ -45,6 +45,12 @@ class TestBluezeroDevice(unittest.TestCase):
     def tearDown(self):
         self.module_patcher.stop()
 
+    def test_bad_device(self):
+        self.assertRaises(ValueError,
+                          self.module_under_test.Device,
+                          self.adapter_addr,
+                          "bad_device_address")
+
     def test_device_name(self):
         ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
         self.assertEqual(ble_dev.name, self.dev_name)

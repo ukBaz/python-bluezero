@@ -117,7 +117,7 @@ def _get_dbus_path2(objects, parent_path, iface_in, prop, value):
     :return: Path of object searched for
     """
     if parent_path is None:
-        raise ValueError('Bad combination of inputs: found nothing')
+        return None
     for path, iface in objects.items():
         props = iface.get(iface_in)
         if props is None:
@@ -125,6 +125,7 @@ def _get_dbus_path2(objects, parent_path, iface_in, prop, value):
         if props[prop].lower() == value.lower() and \
                 path.startswith(parent_path):
             return path
+    return None
 
 
 def get_dbus_path(adapter=None,
