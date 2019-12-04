@@ -93,6 +93,7 @@ class Adapter(object):
         self.mainloop = async_tools.EventLoop()
 
         self.on_disconnect = None
+        self.on_connect = None
         self.on_device_found = None
         self.bus.add_signal_receiver(self._interfaces_added,
                                      dbus_interface=constants.DBUS_OM_IFACE,
@@ -258,10 +259,13 @@ class Adapter(object):
         Handle DBus PropertiesChanged signal and
         call appropriate user callback
         """
+        macaddr=path.split("/")[-1].replace("dev_",'').replace("_",":")
         if self.on_disconnect is not None:
             if 'Connected' in changed:
                 if not changed['Connected']:
-                    self.on_disconnect()
+                    self.on_disconnect(macaddr)
+		else:
+		    self.on_connect(macaddr)
 
     def _interfaces_added(self, path, device_info):
         """
