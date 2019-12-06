@@ -601,7 +601,7 @@ class Characteristic(dbus.service.Object):
             return
 
         self.notifying = True
-        if self.notify_cb :
+        if self.notify_cb:
             self.notify_cb()
 
     @dbus.service.method(constants.GATT_CHRC_IFACE)
