@@ -264,8 +264,8 @@ class Adapter(object):
             if 'Connected' in changed:
                 if not changed['Connected']:
                     self.on_disconnect(macaddr)
-		else:
-		    self.on_connect(macaddr)
+        else:
+            self.on_connect(macaddr)
 
     def _interfaces_added(self, path, device_info):
         """
