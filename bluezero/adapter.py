@@ -259,13 +259,16 @@ class Adapter(object):
         Handle DBus PropertiesChanged signal and
         call appropriate user callback
         """
-        macaddr = path.split("/")[-1].replace("dev_", '').replace("_", ":")
-        if self.on_disconnect is not None:
-            if 'Connected' in changed:
-                if not changed['Connected']:
-                    self.on_disconnect(macaddr)
-        else:
-            self.on_connect(macaddr)
+        macaddr = dbus_tools.get_mac_addr_from_dbus_path(path)
+        if 'Connected' in changed:
+            new_dev = device.Device(
+                adapter_addr=self.address,
+                device_addr=macaddr)
+            self.on_device_found(new_dev)
+            if changed['Connected'] and self.on_connect:
+                self.on_connect(new_dev)
+            elif not changed['Connected'] and self.on_disconnect:
+                self.on_disconnect(new_dev)
 
     def _interfaces_added(self, path, device_info):
         """
