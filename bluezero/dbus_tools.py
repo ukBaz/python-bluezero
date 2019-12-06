@@ -109,6 +109,7 @@ def get_mac_addr_from_dbus_path(path):
     """Return the mac addres from a dev_XX_XX_XX_XX_XX_XX dbus path"""
     return path.split("/")[-1].replace("dev_", '').replace("_", ":")
 
+
 def _get_dbus_path2(objects, parent_path, iface_in, prop, value):
     """
     Find DBus path for given DBus interface with property of a given value.
