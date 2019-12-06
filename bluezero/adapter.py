@@ -259,7 +259,7 @@ class Adapter(object):
         Handle DBus PropertiesChanged signal and
         call appropriate user callback
         """
-        macaddr=path.split("/")[-1].replace("dev_",'').replace("_",":")
+        macaddr=path.split("/")[-1].replace("dev_", '').replace("_", ":")
         if self.on_disconnect is not None:
             if 'Connected' in changed:
                 if not changed['Connected']:
