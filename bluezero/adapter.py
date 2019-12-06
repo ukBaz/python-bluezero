@@ -264,7 +264,6 @@ class Adapter(object):
             new_dev = device.Device(
                 adapter_addr=self.address,
                 device_addr=macaddr)
-            self.on_device_found(new_dev)
             if changed['Connected'] and self.on_connect:
                 self.on_connect(new_dev)
             elif not changed['Connected'] and self.on_disconnect:
