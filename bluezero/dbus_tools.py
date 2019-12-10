@@ -317,5 +317,3 @@ def str_to_dbusarray(word):
 
 def bytes_to_dbusarray(bytesarray):
     return dbus.Array([dbus.Byte(elem) for elem in bytesarray], 'y')
-
-    
