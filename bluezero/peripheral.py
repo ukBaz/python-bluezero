@@ -664,6 +664,11 @@ class Characteristic(dbus.service.Object):
                 constants.GATT_CHRC_IFACE,
                 {'Value': self.value},
                 [])
+        elif isinstance(self.value, bytes):
+            self.PropertiesChanged(
+                constants.GATT_CHRC_IFACE,
+                {'Value': dbus_tools.bytes_to_dbusarray(self.value)},
+                [])
         else:
             raise InvalidArgsException()
 

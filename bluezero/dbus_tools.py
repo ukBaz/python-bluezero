@@ -313,3 +313,7 @@ def get_props(adapter=None,
 
 def str_to_dbusarray(word):
     return dbus.Array([dbus.Byte(ord(letter)) for letter in word], 'y')
+
+
+def bytes_to_dbusarray(bytesarray):
+    return dbus.Array([dbus.Byte(elem) for elem in bytesarray], 'y')
