@@ -10,6 +10,7 @@ from bluezero import constants
 from bluezero import dbus_tools
 from bluezero import async_tools
 from bluezero import device
+from bluezero import tools
 
 import logging
 try:  # Python 2.7+
@@ -267,7 +268,11 @@ class Adapter(object):
             if changed['Connected'] and self.on_connect:
                 self.on_connect(new_dev)
             elif not changed['Connected'] and self.on_disconnect:
-                self.on_disconnect(new_dev)
+                if tools.get_fn_parameters(self.on_disconnect) == 0:
+                    logger.warn("using deprecated version of disconnect callback , move to on_disconnect(dev) with device parameter")
+                    self.on_disconnect()   
+                elif tools.get_fn_parameters(self.on_disconnect) == 1:
+                    self.on_disconnect(new_dev)
 
     def _interfaces_added(self, path, device_info):
         """
