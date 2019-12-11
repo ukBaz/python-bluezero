@@ -269,9 +269,10 @@ class Adapter(object):
                 self.on_connect(new_dev)
             elif not changed['Connected'] and self.on_disconnect:
                 if tools.get_fn_parameters(self.on_disconnect) == 0:
-                    logger.warn("using deprecated version of disconnect callback , \\\
-                                 move to on_disconnect(dev) with device parameter")
-                    self.on_disconnect()   
+                    logger.warn("using deprecated version of disconnect " +
+                                "callback, move to on_disconnect(dev) " +
+                                "with device parameter")
+                    self.on_disconnect()
                 elif tools.get_fn_parameters(self.on_disconnect) == 1:
                     self.on_disconnect(new_dev)
 

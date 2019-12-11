@@ -139,12 +139,11 @@ def get_fn_parameters(fn):
         try:
             # legacy python 2.x
             return len(inspect.getargspec(fn).args)
-        except Exception as e: 
+        except Exception as e:
             return None
     else:
         try:
             # python 3.x
             return len(inspect.getfullargspec(fn).args)
-        except Exception as e: 
+        except Exception as e:
             return None
-
