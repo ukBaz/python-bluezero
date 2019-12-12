@@ -10,6 +10,7 @@ from bluezero import constants
 from bluezero import dbus_tools
 from bluezero import async_tools
 from bluezero import device
+from bluezero import tools
 
 import logging
 try:  # Python 2.7+
@@ -93,6 +94,7 @@ class Adapter(object):
         self.mainloop = async_tools.EventLoop()
 
         self.on_disconnect = None
+        self.on_connect = None
         self.on_device_found = None
         self.bus.add_signal_receiver(self._interfaces_added,
                                      dbus_interface=constants.DBUS_OM_IFACE,
@@ -258,10 +260,21 @@ class Adapter(object):
         Handle DBus PropertiesChanged signal and
         call appropriate user callback
         """
-        if self.on_disconnect is not None:
-            if 'Connected' in changed:
-                if not changed['Connected']:
+        macaddr = dbus_tools.get_mac_addr_from_dbus_path(path)
+        if 'Connected' in changed:
+            new_dev = device.Device(
+                adapter_addr=self.address,
+                device_addr=macaddr)
+            if changed['Connected'] and self.on_connect:
+                self.on_connect(new_dev)
+            elif not changed['Connected'] and self.on_disconnect:
+                if tools.get_fn_parameters(self.on_disconnect) == 0:
+                    logger.warn("using deprecated version of disconnect " +
+                                "callback, move to on_disconnect(dev) " +
+                                "with device parameter")
                     self.on_disconnect()
+                elif tools.get_fn_parameters(self.on_disconnect) == 1:
+                    self.on_disconnect(new_dev)
 
     def _interfaces_added(self, path, device_info):
         """

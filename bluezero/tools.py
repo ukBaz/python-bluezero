@@ -1,4 +1,6 @@
 """Utility functions for python-bluezero."""
+from sys import version_info
+import inspect
 
 
 def int_to_uint16(value_in):
@@ -129,3 +131,19 @@ def url_to_advert(url, frame_type, tx_power):
             service_data.extend([ord(url[x])])
 
     return service_data
+
+
+def get_fn_parameters(fn):
+    """ return the number of input parameters of the fn , None on error"""
+    if version_info[0] < 3:
+        try:
+            # legacy python 2.x
+            return len(inspect.getargspec(fn).args)
+        except Exception as e:
+            return None
+    else:
+        try:
+            # python 3.x
+            return len(inspect.getfullargspec(fn).args)
+        except Exception as e:
+            return None
