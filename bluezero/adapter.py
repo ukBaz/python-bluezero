@@ -294,7 +294,6 @@ class Adapter(object):
                         device_addr=device_info[dev_iface]['Address'])
                     self.on_connect(new_dev)
 
-
     def _interfaces_removed(self, path, device_info):
         """
         Handle DBus InterfacesRemoved signal and
