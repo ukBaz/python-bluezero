@@ -262,19 +262,15 @@ class Adapter(object):
         """
         macaddr = dbus_tools.get_mac_addr_from_dbus_path(path)
         if 'Connected' in changed:
-            new_dev = device.Device(
-                adapter_addr=self.address,
-                device_addr=macaddr)
-            if changed['Connected'] and self.on_connect:
-                self.on_connect(new_dev)
-            elif not changed['Connected'] and self.on_disconnect:
+
+            if not changed['Connected'] and self.on_disconnect:
                 if tools.get_fn_parameters(self.on_disconnect) == 0:
                     logger.warn("using deprecated version of disconnect " +
                                 "callback, move to on_disconnect(dev) " +
                                 "with device parameter")
                     self.on_disconnect()
                 elif tools.get_fn_parameters(self.on_disconnect) == 1:
-                    self.on_disconnect(new_dev)
+                    self.on_disconnect(macaddr)
 
     def _interfaces_added(self, path, device_info):
         """
@@ -288,6 +284,9 @@ class Adapter(object):
                     adapter_addr=self.address,
                     device_addr=device_info[dev_iface]['Address'])
                 self.on_device_found(new_dev)
+            if device_info[dev_iface]['Connected'] and self.on_connect:
+                self.on_connect(new_dev)
+
 
     def _interfaces_removed(self, path, device_info):
         """
