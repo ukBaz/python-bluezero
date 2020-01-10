@@ -289,10 +289,10 @@ class Adapter(object):
                     device_addr=device_info[dev_iface]['Address'])
                 self.on_device_found(new_dev)
             if device_info[dev_iface]['Connected'] and self.on_connect:
-                    new_dev = device.Device(
-                        adapter_addr=self.address,
-                        device_addr=device_info[dev_iface]['Address'])
-                    self.on_connect(new_dev)
+                new_dev = device.Device(
+                    adapter_addr=self.address,
+                    device_addr=device_info[dev_iface]['Address'])
+                self.on_connect(new_dev)
 
     def _interfaces_removed(self, path, device_info):
         """
