@@ -5,7 +5,7 @@ from evdev import InputDevice, categorize, ecodes
 from bluezero import peripheral
 
 # constants
-UART_SERIVCE = '6E400001-B5A3-F393-E0A9-E50E24DCCA9E'
+UART_SERVICE = '6E400001-B5A3-F393-E0A9-E50E24DCCA9E'
 RX_CHARACTERISTIC = '6E400002-B5A3-F393-E0A9-E50E24DCCA9E'
 TX_CHARACTERISTIC = '6E400003-B5A3-F393-E0A9-E50E24DCCA9E'
 
@@ -13,7 +13,7 @@ TX_CHARACTERISTIC = '6E400003-B5A3-F393-E0A9-E50E24DCCA9E'
 class UartService:
     def __init__(self):
         self.app = peripheral.Application()
-        self.ble_uart = peripheral.Service(UART_SERIVCE,
+        self.ble_uart = peripheral.Service(UART_SERVICE,
                                            True)
         self.rx_uart = peripheral.Characteristic(RX_CHARACTERISTIC,
                                                  ['write',
