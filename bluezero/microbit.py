@@ -580,7 +580,7 @@ class Microbit:
 
     def quit_async(self):
         """
-        Stops asynchronose mode
+        Stops asynchronous mode
         :return:
         """
         self.ubit.quit()
