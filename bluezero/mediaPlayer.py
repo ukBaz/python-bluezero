@@ -50,28 +50,28 @@ class MediaPlayer :
     def track(self):
         """Return a dict of the track metadata."""
         return self.player_props.Get(constants.MEDIA_PLAYER_IFACE, 'Track')
-    
+
     @property
     def device(self):
         """Return Device object path"""
         return self.player_props.Get(constants.MEDIA_PLAYER_IFACE, 'Device')
-    
+
     @property
     def playlist(self):
         """Return the Playlist object path."""
         return self.player_props.Get(constants.MEDIA_PLAYER_IFACE, 'Playlist')
-    
+
     @property
     def equalizer (self):
-         """Return the equalizer value."""
-         return self.player_props.Get(constants.MEDIA_PLAYER_IFACE, 'Equalizer')
-    
+        """Return the equalizer value."""
+        return self.player_props.Get(constants.MEDIA_PLAYER_IFACE, 'Equalizer')
+
     @equalizer.setter
     def equalizer(self,value):
         """Possible values: "off" or "on"."""
         self.player_props.Set(
             constants.MEDIA_PLAYER_IFACE, 'Equalizer', value)
-    
+
     @property
     def name(self):
         """Return the player name"""
@@ -79,8 +79,8 @@ class MediaPlayer :
 
     @property
     def repeat(self):
-         """Return the repeat value"""
-         return self.payer_props.Get(constants.MEDIA_PLAYER_IFACE, 'Repeat')
+        """Return the repeat value"""
+        return self.payer_props.Get(constants.MEDIA_PLAYER_IFACE, 'Repeat')
 
     @repeat.setter
     def repeat(self,value):
@@ -90,11 +90,11 @@ class MediaPlayer :
         self.player_props.Set(
             constants.MEDIA_PLAYER_IFACE, 'Repeat', value)
 
-    @property  
+    @property
     def shuffle(self):
         """Return the shuffle value"""
         return self.player_props.Get(constants.MEDIA_PLAYER_IFACE, 'Shuffle')
-    
+
     @shuffle.setter
     def shuffle(self,value):
         """"Possible values: "off", "alltracks" or "group" """
@@ -108,7 +108,7 @@ class MediaPlayer :
 		"forward-seek", "reverse-seek" or "error"
         """
         return self.player_props.Get(constants.MEDIA_PLAYER_IFACE, 'Status')
-    
+
     @property
     def subtype(self):
         """Return the player subtype"""
@@ -124,12 +124,12 @@ class MediaPlayer :
         """
         self.player_props.Set(
             constants.MEDIA_PLAYER_IFACE, 'Type', type)
-    
+
     @property
     def position(self):
         """Return the playback position in milliseconds."""
         return self.player_props.Get(constants.MEDIA_PLAYER_IFACE, 'Position')
-    
+
     def next(self):
         """Goes the next track and play it."""
         self.player_methods.Next()
@@ -137,7 +137,7 @@ class MediaPlayer :
     def play(self):
         """Resume the playback."""
         self.player_methods.Play()
-    
+
     def pause(self):
         """Pause the track."""
         self.player_methods.Pause()
