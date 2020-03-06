@@ -17,20 +17,42 @@ logger.setLevel(logging.WARNING)
 logger.addHandler(NullHandler())
 
 
+class MediaPlayerError(Exception):
+    pass
+
+
+def find_proper_player_path(device_address):
+    """ finds the player_path corresponding to the device """
+    player_path_list = []
+    objects = dbus_tools.get_managed_objects()
+    for path in objects.keys():
+        interfaces = objects[path]
+        for interface in interfaces.keys():
+            if interface == 'org.bluez.MediaPlayer1':
+                player_path_list.append(path)
+
+    for path in player_path_list:
+        address = path.split("/")[-2].replace("dev_", '').replace("_", ":")
+        if address == device_address:
+            return path
+    raise MediaPlayerError("No player found for the device")
+
+
 class MediaPlayer:
     """Bluetooth MediaPlayer Class.
     This class instantiates an object that is able to interact with
     the player of a Bluetooth device and get audio from its source.
     """
 
-    def __init__(self, player_addr):
+    def __init__(self, device_addr):
         """Default initialiser.
 
         Creates the interface to the remote Bluetooth device.
 
-        :param player_addr: Address of Bluetooth player to use.
+        :param device_addr: Address of Bluetooth device player to use.
         """
-        self.player_object = dbus_tools.get_dbus_obj(player_addr)
+        self.player_path = find_proper_player_path(device_addr)
+        self.player_object = dbus_tools.get_dbus_obj(self.player_path)
         self.player_methods = dbus_tools.get_dbus_iface(
             constants.MEDIA_PLAYER_IFACE, self.player_object)
         self.player_props = dbus_tools.get_dbus_iface(
@@ -106,7 +128,7 @@ class MediaPlayer:
     @shuffle.setter
     def shuffle(self, value):
         """"Possible values: "off", "alltracks" or "group" """
-        self.player_props.Set(constants.MEDIA_PLAYER_IFACE, 'Browsable', value)
+        self.player_props.Set(constants.MEDIA_PLAYER_IFACE, 'Shuffle', value)
 
     @property
     def status(self):
