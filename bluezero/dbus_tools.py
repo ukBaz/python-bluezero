@@ -107,7 +107,7 @@ def get_managed_objects():
 
 def get_mac_addr_from_dbus_path(path):
     """Return the mac addres from a dev_XX_XX_XX_XX_XX_XX dbus path"""
-    return path.split("/")[-1].replace("dev_", '').replace("_", ":")
+    return [x for x in path.split('/') if x.startswith('dev_')][0].replace("dev_", '').replace("_", ":")
 
 
 def _get_dbus_path2(objects, parent_path, iface_in, prop, value):
