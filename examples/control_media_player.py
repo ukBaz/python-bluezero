@@ -19,7 +19,8 @@
 #
 #     [Nexus 5X]# trust 64:BC:0C:F6:22:F8
 #
-#  Now the phone is connected you can run this script to find which track is playing
+#  Now the phone is connected you can run this script to find which track is
+#  playing
 #
 #     pi@RPi3:~ $ python3 examples/control_media_player.py
 
