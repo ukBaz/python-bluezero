@@ -1,9 +1,11 @@
-#  When using your Linux computer as a Bluetooth speaker the MediaPlayer interfaces allows you interact with the
-#  media player on the other end of the Bluetooth connection.
+#  When using your Linux computer as a Bluetooth speaker the MediaPlayer
+#  interfaces allows you interact with the media player on the other end of
+#  the Bluetooth connection.
 #  e.g. the music player on your phone.
-#  This script displays information about the current track
-#  Before you can run this scrip you have to pair and connect your audio source. For simplicity we can do this
-#  on the command line with the bluetoothctl tool
+#  This script displays information about the current track.
+#  Before you can run this scrip you have to pair and connect your audio
+#  source. For simplicity we can do this on the command line with the
+#  bluetoothctl tool
 #     pi@RPi3:~ $ bluetoothctl
 #     [bluetooth]# agent NoInputNoOutput
 #     Agent registered
@@ -11,8 +13,9 @@
 #     Changing discoverable on succeeded
 #     [CHG] Controller B8:27:EB:22:57:E0 Discoverable: yes
 #
-#  Now we have made the Raspberry Pi discoverable we can pair to it from the mobile phone. Once it has paired you
-#  you can tell the Raspberry Pi that it is a trusted device
+#  Now we have made the Raspberry Pi discoverable we can pair to it from the
+#  mobile phone. Once it has paired you can tell the Raspberry Pi that it is a
+#  trusted device
 #
 #     [Nexus 5X]# trust 64:BC:0C:F6:22:F8
 #
