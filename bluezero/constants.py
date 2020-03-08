@@ -43,3 +43,7 @@ GATT_DESC_IFACE = 'org.bluez.GattDescriptor1'
 LE_ADVERTISING_MANAGER_IFACE = 'org.bluez.LEAdvertisingManager1'
 #: BlueZ DBus Advertisement Interface
 LE_ADVERTISEMENT_IFACE = 'org.bluez.LEAdvertisement1'
+
+# Bluez Media D-Bus object paths
+#: BlueZ DBus Media player Interface
+MEDIA_PLAYER_IFACE = 'org.bluez.MediaPlayer1'
