@@ -21,19 +21,16 @@ class MediaPlayerError(Exception):
     pass
 
 
-def find_proper_player_path(device_address):
-    """ finds the player_path corresponding to the device """
+def _find_player_path(device_address):
+    """ finds the player_path corresponding to the device addr"""
     player_path_list = []
-    objects = dbus_tools.get_managed_objects()
-    for path in objects.keys():
-        interfaces = objects[path]
-        for interface in interfaces.keys():
-            if interface == 'org.bluez.MediaPlayer1':
-                player_path_list.append(path)
+    mngd_objs = dbus_tools.get_managed_objects()
+    for path in dbus_tools.get_managed_objects():
+        if mngd_objs[path].get(constants.MEDIA_PLAYER_IFACE):
+            player_path_list.append(path)
 
     for path in player_path_list:
-        address = path.split("/")[-2].replace("dev_", '').replace("_", ":")
-        if address == device_address:
+        if device_address == dbus_tools.get_mac_addr_from_dbus_path(path):
             return path
     raise MediaPlayerError("No player found for the device")
 
@@ -51,7 +48,7 @@ class MediaPlayer:
 
         :param device_addr: Address of Bluetooth device player to use.
         """
-        self.player_path = find_proper_player_path(device_addr)
+        self.player_path = _find_player_path(device_addr)
         self.player_object = dbus_tools.get_dbus_obj(self.player_path)
         self.player_methods = dbus_tools.get_dbus_iface(
             constants.MEDIA_PLAYER_IFACE, self.player_object)
