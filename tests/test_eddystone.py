@@ -48,7 +48,9 @@ class TestBluezeroEddystone(unittest.TestCase):
         self.module_patcher.stop()
 
     def test_long_url(self):
-        self.assertRaises(Exception, self.module_under_test.EddystoneURL, 'https://ukBaz.github.io')
+        self.assertRaises(Exception,
+                          self.module_under_test.EddystoneURL,
+                          'https://ukbaz.github.io/howto/beacon_scan_cmd_line.html')
 
     def test_load(self):
         self.module_under_test.EddystoneURL('http://camjam.me')

@@ -72,3 +72,12 @@ It uses the Bluezero peripheral file (level 10) so should be easier than the pre
 Temperature example that was a level 100.
 
 .. literalinclude:: ../examples/ble_uart.py
+
+
+Control Media Player over Bluetooth
+-----------------------------------
+
+This script displays information about the current track being playered by
+the connected media player
+
+.. literalinclude:: ../examples/control_media_player.py

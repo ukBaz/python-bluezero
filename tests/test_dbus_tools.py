@@ -90,6 +90,25 @@ class TestDbusModuleCalls(unittest.TestCase):
         bluez_exper = self.module_under_test.bluez_experimental_mode()
         self.assertFalse(bluez_exper)
 
+    def test_mac_addr_from_dbus_path(self):
+        """
+        Get mac address fromo any given dbus_path that includes
+        "dev_xx_xx_xx_xx"
+        """
+        test_data = [
+            ['/org/bluez/hci0/dev_EB_F6_95_27_84_A0', 'EB:F6:95:27:84:A0'],
+            ['/org/bluez/hci0', ''],
+            ['/org/bluez/hci0/dev_EB_F6_95_27_84_A0/player0',
+             'EB:F6:95:27:84:A0']
+        ]
+        for i in range(0, len(test_data)):
+            with self.subTest(i=i):
+                self.assertEqual(
+                    test_data[i][1],
+                    self.module_under_test.get_mac_addr_from_dbus_path(
+                        test_data[i][0]
+                    ))
+
 
 if __name__ == '__main__':
     unittest.main()

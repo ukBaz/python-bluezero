@@ -36,3 +36,10 @@ Local Device GATT
 
 .. automodule:: bluezero.localGATT
     :members:
+
+BlueZ Media Player Control
+==========================
+.. currentmodule:: bluezero.media_player
+
+.. automodule:: bluezero.media_player
+    :members:

@@ -37,7 +37,7 @@ class EddystoneURL:
 
         """
         service_data = tools.url_to_advert(url, 0x10, tx_power)
-        if len(service_data) > 17:
+        if len(service_data) > 20:
             raise Exception('URL too long')
         url_beacon = broadcaster.Beacon()
         url_beacon.add_service_data('FEAA', service_data)
