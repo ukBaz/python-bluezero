@@ -41,8 +41,9 @@ def scan_eddystone(on_data=None):
     mysocket = aioblescan.create_bt_socket(mydev)
 
     # create a connection with the raw socket
-    fac = event_loop.create_connection(aioblescan.BLEScanRequester,
-                                       sock=mysocket)
+    fac=event_loop._create_connection_transport(mysocket,
+                                                aioblescan.BLEScanRequester,
+                                                None, None)
     # Start it
     conn, btctrl = event_loop.run_until_complete(fac)
     # Attach your processing
