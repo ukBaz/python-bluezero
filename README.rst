@@ -32,7 +32,7 @@ The library will use calls to the BlueZ D-Bus API and use 'sensible' defaults to
 It aims to support the ability to create interesting STEM activities without needing to 
 explain the BlueZ API or write an event loop.
 
-In addition to the API it will contain examples of how to connect to common Bluetooth Smart (BLE) objects 
+In addition to the API, it will contain examples of how to connect to common Bluetooth Smart (BLE) objects 
 around them (or at least easily accessible to them).
 These examples will need to be written without the need to sign (or break) non-disclosure agreements.
 
