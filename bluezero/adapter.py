@@ -262,9 +262,10 @@ class Adapter(object):
         """
         macaddr = dbus_tools.get_mac_addr_from_dbus_path(path)
         if 'Connected' in changed:
-            new_dev = device.Device(
-                adapter_addr=self.address,
-                device_addr=macaddr)
+            if changed['Connected']:
+                new_dev = device.Device(
+                    adapter_addr=self.address,
+                    device_addr=macaddr)
             if changed['Connected'] and self.on_connect:
                 self.on_connect(new_dev)
             elif not changed['Connected'] and self.on_disconnect:
