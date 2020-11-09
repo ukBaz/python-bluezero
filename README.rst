@@ -17,7 +17,9 @@ python-bluezero
    :target: https://github.com/ukBaz/python-bluezero/blob/master/LICENSE
    :alt: MIT License
 
-
+.. image:: https://readthedocs.org/projects/bluezero/badge/
+   :target: https://bluezero.readthedocs.io/en/latest/
+   :alt: docs
 
 A simple Python interface to BlueZ stack
 
