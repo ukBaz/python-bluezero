@@ -8,8 +8,6 @@ Classes:
 - AdvertisingManager -- register Advertisement Data which should be
   broadcast to devices
 """
-from __future__ import absolute_import, print_function, unicode_literals
-
 import dbus
 import dbus.exceptions
 import dbus.service
@@ -168,28 +166,24 @@ class Advertisement(dbus.service.Object):
     def include_tx_power(self, state):
         return self.Set(constants.LE_ADVERTISEMENT_IFACE,
                         'IncludeTxPower', state)
+
     @property
     def local_name(self):
         """Local name of the device included in Advertisement."""
-        return self.Get(constants.LE_ADVERTISEMENT_IFACE,
-                        'LocalName')
+        return self.Get(constants.LE_ADVERTISEMENT_IFACE, 'LocalName')
 
     @local_name.setter
     def local_name(self, name):
-        self.Set(constants.LE_ADVERTISEMENT_IFACE,
-                 'LocalName', name)
+        self.Set(constants.LE_ADVERTISEMENT_IFACE, 'LocalName', name)
 
     @property
     def appearance(self):
         """Appearance to be used in the advertising report."""
-        return self.Get(constants.LE_ADVERTISEMENT_IFACE,
-                        'Appearance')
+        return self.Get(constants.LE_ADVERTISEMENT_IFACE, 'Appearance')
 
     @appearance.setter
     def appearance(self, appearance):
-        self.Set(constants.LE_ADVERTISEMENT_IFACE,
-                 'Appearance',
-                 appearance)
+        self.Set(constants.LE_ADVERTISEMENT_IFACE, 'Appearance', appearance)
 
     @dbus.service.method(constants.DBUS_PROP_IFACE,
                          in_signature='s',
@@ -208,7 +202,7 @@ class Advertisement(dbus.service.Object):
         if interface_name != constants.LE_ADVERTISEMENT_IFACE:
             raise InvalidArgsException()
 
-        response = {}
+        response = dict()
         response['Type'] = self.props[interface_name]['Type']
         if self.props[interface_name]['ServiceUUIDs'] is not None:
             response['ServiceUUIDs'] = dbus.Array(
