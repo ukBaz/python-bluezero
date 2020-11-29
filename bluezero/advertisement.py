@@ -95,7 +95,9 @@ class Advertisement(dbus.service.Object):
                 'ManufacturerData': None,
                 'SolicitUUIDs': None,
                 'ServiceData': None,
-                'IncludeTxPower': False
+                'IncludeTxPower': False,
+                'Appearance': None,
+                'LocalName': None
             }
         }
 
@@ -166,6 +168,28 @@ class Advertisement(dbus.service.Object):
     def include_tx_power(self, state):
         return self.Set(constants.LE_ADVERTISEMENT_IFACE,
                         'IncludeTxPower', state)
+    @property
+    def local_name(self):
+        """Local name of the device included in Advertisement."""
+        return self.Get(constants.LE_ADVERTISEMENT_IFACE,
+                        'LocalName')
+
+    @local_name.setter
+    def local_name(self, name):
+        self.Set(constants.LE_ADVERTISEMENT_IFACE,
+                 'LocalName', name)
+
+    @property
+    def appearance(self):
+        """Appearance to be used in the advertising report."""
+        return self.Get(constants.LE_ADVERTISEMENT_IFACE,
+                        'Appearance')
+
+    @appearance.setter
+    def appearance(self, appearance):
+        self.Set(constants.LE_ADVERTISEMENT_IFACE,
+                 'Appearance',
+                 appearance)
 
     @dbus.service.method(constants.DBUS_PROP_IFACE,
                          in_signature='s',
@@ -202,6 +226,12 @@ class Advertisement(dbus.service.Object):
             response['SolicitUUIDs'] = dbus.Array(
                 self.props[interface_name]['SolicitUUIDs'],
                 signature='s')
+        if self.props[interface_name]['LocalName'] is not None:
+            response['LocalName'] = dbus.String(
+                    self.props[interface_name]['LocalName'])
+        if self.props[interface_name]['Appearance'] is not None:
+            response['Appearance'] = dbus.UInt16(
+                    self.props[interface_name]['Appearance'])
         response['IncludeTxPower'] = dbus.Boolean(
             self.props[interface_name]['IncludeTxPower'])
 
