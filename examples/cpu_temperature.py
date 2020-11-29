@@ -127,6 +127,8 @@ class ble:
         advert = advertisement.Advertisement(1, 'peripheral')
 
         advert.service_UUIDs = [CPU_TMP_SRVC]
+        advert.local_name = 'CPU Temp'
+        advert.appearance = 1344
         # eddystone_data = tools.url_to_advert(WEB_BLINKT, 0x10, TX_POWER)
         # advert.service_data = {EDDYSTONE: eddystone_data}
         if not self.dongle.powered:
