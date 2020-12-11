@@ -318,6 +318,12 @@ def get_props(adapter=None,
 
     return get_dbus_iface(dbus.PROPERTIES_IFACE, get_dbus_obj(path_obj))
 
+def get_prop_or_none(props, iface, name):
+    try:
+        return props.Get(iface, name)
+    except dbus.exceptions.DBusException:
+        return None
+
 
 def str_to_dbusarray(word):
     return dbus.Array([dbus.Byte(ord(letter)) for letter in word], 'y')
