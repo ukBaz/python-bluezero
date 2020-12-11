@@ -237,6 +237,22 @@ class Device(object):
             'ServiceData')
 
     @property
+    def gatt_services(self):
+        """
+        UUIDs of GATT services advertised by the device
+        """
+        uuids = []
+        for path, ifaces in dbus_tools.get_managed_objects().items():
+            iface = ifaces.get(constants.GATT_SERVICE_IFACE, None)
+            if iface is None:
+                continue
+            if iface['Device'] != self.remote_device_path:
+                continue
+            uuids.append(iface['UUID'])
+        return uuids
+                
+
+    @property
     def services_resolved(self):
         """Indicate whether or not service discovery has been resolved."""
         return self.remote_device_props.Get(
