@@ -34,11 +34,7 @@ def list_adapters():
     """Return list of adapters address available on system."""
     paths = []
     addresses = []
-    bus = dbus.SystemBus()
-    manager = dbus.Interface(
-        bus.get_object(constants.BLUEZ_SERVICE_NAME, '/'),
-        constants.DBUS_OM_IFACE)
-    manager_obj = manager.GetManagedObjects()
+    manager_obj = dbus_tools.get_managed_objects()
     for path, ifaces in manager_obj.items():
         if constants.ADAPTER_INTERFACE in ifaces:
             paths.append(path)
@@ -228,10 +224,7 @@ class Adapter(object):
     @property
     def devices(self):
         """List of addresses of remote devices associated with this adapter."""
-        manager = dbus.Interface(
-            self.bus.get_object(constants.BLUEZ_SERVICE_NAME, '/'),
-            constants.DBUS_OM_IFACE)
-        manager_object = manager.GetManagedObjects()
+        manager_object = dbus_tools.get_managed_objects()
         addresses = []
         for path, ifaces in manager_object.items():
             iface = ifaces.get(constants.DEVICE_INTERFACE, None)
