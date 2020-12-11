@@ -225,6 +225,23 @@ class Adapter(object):
         return self.adapter_props.Get(
             constants.ADAPTER_INTERFACE, 'UUIDs')
 
+    @property
+    def devices(self):
+        """List of addresses of remote devices associated with this adapter."""
+        manager = dbus.Interface(
+            self.bus.get_object(constants.BLUEZ_SERVICE_NAME, '/'),
+            constants.DBUS_OM_IFACE)
+        manager_object = manager.GetManagedObjects()
+        addresses = []
+        for path, ifaces in manager_object.items():
+            iface = ifaces.get(constants.DEVICE_INTERFACE, None)
+            if iface is None:
+                continue
+            if iface['Adapter'] != self.path:
+                continue
+            addresses.append(iface['Address'])
+        return addresses
+
     def nearby_discovery(self, timeout=10):
         """Start discovery of nearby Bluetooth devices."""
         self._nearby_timeout = timeout
