@@ -74,8 +74,11 @@ class Device(object):
     @property
     def name(self):
         """Return the remote device name."""
-        return self.remote_device_props.Get(
-            constants.DEVICE_INTERFACE, 'Name')
+        try:
+            return self.remote_device_props.Get(
+                constants.DEVICE_INTERFACE, 'Name')
+        except dbus.exceptions.DBusException:
+            return None
 
     @property
     def icon(self):
