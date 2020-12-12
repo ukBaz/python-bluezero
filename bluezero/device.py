@@ -37,6 +37,19 @@ class Device(object):
     Bluetooth device.
     """
 
+    @staticmethod
+    def known():
+        """A generator yielding a Device object for every discovered device."""
+        bus = dbus.SystemBus()
+        mng_objs = dbus_tools.get_managed_objects()
+        for obj in mng_objs.values():
+            device = obj.get(constants.DEVICE_INTERFACE, None)
+            if device:
+                adapter_obj = bus.get_object(constants.BLUEZ_SERVICE_NAME, device['Adapter'])
+                adapter_props = dbus.Interface(adapter_obj, dbus.PROPERTIES_IFACE)
+                adapter_address = adapter_props.Get(constants.ADAPTER_INTERFACE, 'Address')
+                yield Device(adapter_address, device['Address'])
+
     def __init__(self, adapter_addr, device_addr):
         """Default initialiser.
 

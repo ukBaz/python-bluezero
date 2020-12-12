@@ -224,16 +224,14 @@ class Adapter(object):
     @property
     def devices(self):
         """List of addresses of remote devices associated with this adapter."""
-        manager_object = dbus_tools.get_managed_objects()
-        addresses = []
-        for path, ifaces in manager_object.items():
-            iface = ifaces.get(constants.DEVICE_INTERFACE, None)
-            if iface is None:
-                continue
-            if iface['Adapter'] != self.path:
-                continue
-            addresses.append(iface['Address'])
-        return addresses
+        mng_objs = dbus_tools.get_managed_objects()
+        known_devices = []
+        for path, obj in mng_objs.items():
+            if path.startswith(self.path):
+                device = obj.get(constants.DEVICE_INTERFACE, None)
+                if device:
+                    known_devices.append(device['Address'])
+        return known_devices
 
     def nearby_discovery(self, timeout=10):
         """Start discovery of nearby Bluetooth devices."""
