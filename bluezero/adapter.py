@@ -30,21 +30,6 @@ class AdapterError(Exception):
     pass
 
 
-def list_adapters():
-    """Return list of adapters address available on system."""
-    paths = []
-    addresses = []
-    manager_obj = dbus_tools.get_managed_objects()
-    for path, ifaces in manager_obj.items():
-        if constants.ADAPTER_INTERFACE in ifaces:
-            paths.append(path)
-            addresses.append(
-                manager_obj[path][constants.ADAPTER_INTERFACE]['Address'])
-    if len(paths) < 1:
-        raise AdapterError('No Bluetooth adapter found')
-    else:
-        return addresses
-
 
 class Adapter(object):
     """Bluetooth Adapter Class.
@@ -59,6 +44,19 @@ class Adapter(object):
     >>> dongle.powered = True
 
     """
+
+    @staticmethod
+    def available():
+        """A generator yielding an Adapter object for every attached adapter."""
+        mng_objs = dbus_tools.get_managed_objects()
+        found = False
+        for obj in mng_objs.values():
+            adapter = obj.get(constants.ADAPTER_INTERFACE, None)
+            if adapter:
+                found = True
+                yield Adapter(adapter['Address'])
+        if not found:
+            raise AdapterError('No Bluetooth adapter found')
 
     def __init__(self, adapter_addr=None):
         """Default initialiser.
@@ -220,18 +218,6 @@ class Adapter(object):
         """List of 128-bit UUIDs that represent available remote services."""
         return self.adapter_props.Get(
             constants.ADAPTER_INTERFACE, 'UUIDs')
-
-    @property
-    def devices(self):
-        """List of addresses of remote devices associated with this adapter."""
-        mng_objs = dbus_tools.get_managed_objects()
-        known_devices = []
-        for path, obj in mng_objs.items():
-            if path.startswith(self.path):
-                device = obj.get(constants.DEVICE_INTERFACE, None)
-                if device:
-                    known_devices.append(device['Address'])
-        return known_devices
 
     def nearby_discovery(self, timeout=10):
         """Start discovery of nearby Bluetooth devices."""
