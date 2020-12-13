@@ -5,32 +5,21 @@ Current classes include:
 - Characteristic -- Bluetooth Characteristic
 - Descriptor -- Bluetooth Descriptor
 """
-from __future__ import absolute_import, print_function, unicode_literals
-
 # D-Bus imports
 import dbus
 import dbus.exceptions
 import dbus.mainloop.glib
 import dbus.service
 
-import logging
-try:  # Python 2.7+
-    from logging import NullHandler
-except ImportError:
-    class NullHandler(logging.Handler):
-        def emit(self, record):
-            pass
-
 # python-bluezero imports
 from bluezero import constants
 from bluezero import async_tools
+from bluezero import tools
 
 # Initialise the mainloop
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
-logger.addHandler(NullHandler())
+logger = tools.create_module_logger(__name__)
 
 
 ########################################

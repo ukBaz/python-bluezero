@@ -74,6 +74,7 @@ class TestBluezeroAdapter(unittest.TestCase):
 
         modules = {
             'dbus': self.dbus_mock,
+            'dbus.exceptions': self.dbus_mock,
             'dbus.mainloop.glib': self.mainloop_mock,
             'gi.repository': self.gobject_mock,
         }

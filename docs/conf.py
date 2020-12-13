@@ -22,14 +22,13 @@ class Mock(MagicMock):
     def __getattr__(cls, name):
             return MagicMock()
 
+
 MOCK_MODULES = ['dbus',
                 'dbus.service',
                 'dbus.exceptions',
                 'dbus.mainloop',
                 'dbus.mainloop.glib',
-                'gi.repository',
-                'aioblescan',
-                'aioblescan.plugins']
+                'gi.repository']
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 sys.path.insert(0, os.path.abspath("../"))
