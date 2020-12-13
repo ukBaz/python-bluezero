@@ -13,7 +13,7 @@ from os import path
 
 here = path.abspath(path.dirname(__file__))
 
-required_packages = ['aioblescan']
+required_packages = []
 extras_rel = ['bumpversion', 'twine']
 extras_doc = ['sphinx', 'sphinx_rtd_theme']
 extras_test = ['coverage', 'pycodestyle']

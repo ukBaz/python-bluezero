@@ -28,11 +28,8 @@ with the micro:bit
 Scanner: Eddystone
 ------------------
 
-This example scans for beacons in the Eddystone format.
-It will report on `UID beacons` <https://github.com/google/eddystone/tree/master/eddystone-uid>
-and `URL beacons` <https://github.com/google/eddystone/tree/master/eddystone-url>.
-
-This uses the `aioblescan` Python library which requires your code to be run with `sudo`
+This example scans for beacons in the Eddystone URL format.
+It will report on `URL beacons` <https://github.com/google/eddystone/tree/master/eddystone-url>.
 
 .. literalinclude:: ../examples/eddystone-scanner.py
 

@@ -4,30 +4,20 @@ Classes:
 
 - Device -- Remote Bluetooth Device Class
 """
-from __future__ import absolute_import, print_function, unicode_literals
-
 import dbus
+import dbus.exceptions
 import dbus.mainloop.glib
 try:
     from gi.repository import GLib as GObject
 except ImportError:
     import gobject as GObject
 
-import logging
-try:  # Python 2.7+
-    from logging import NullHandler
-except ImportError:
-    class NullHandler(logging.Handler):
-        def emit(self, record):
-            pass
-
 from bluezero import constants
 from bluezero import dbus_tools
+from bluezero import tools
 
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
-logger.addHandler(NullHandler())
+logger = tools.create_module_logger(__name__)
 
 
 class Device(object):
@@ -221,9 +211,12 @@ class Device(object):
 
         Keys are 16 bits Manufacturer ID followed by its byte array value.
         """
-        return self.remote_device_props.Get(
-            constants.DEVICE_INTERFACE,
-            'ManufacturerData')
+        try:
+            mnf_data = self.remote_device_props.Get(constants.DEVICE_INTERFACE,
+                                                    'ManufacturerData')
+        except (dbus.exceptions.DBusException, AttributeError) as err:
+            mnf_data = None
+        return mnf_data
 
     @property
     def service_data(self):
@@ -232,9 +225,14 @@ class Device(object):
 
         Keys are the UUIDs in string format followed by its byte array value.
         """
-        return self.remote_device_props.Get(
-            constants.DEVICE_INTERFACE,
-            'ServiceData')
+        try:
+            srv_data = self.remote_device_props.Get(
+                constants.DEVICE_INTERFACE,
+                'ServiceData')
+        except (dbus.exceptions.DBusException, AttributeError) as err:
+            srv_data = None
+
+        return srv_data
 
     @property
     def services_resolved(self):

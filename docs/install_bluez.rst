@@ -2,6 +2,13 @@
 Installing Bluez
 ################
 
+.. warning::
+    This page is not included in Bluezero documentation any more because the
+    versions in most Linux distributions and new enough that this isn't required.
+    It has been left here in the source tree as a general reference should
+    someone doing development want to move to a newer version that in their
+    Linux distribution.
+
 Overview
 --------
 
@@ -151,3 +158,4 @@ Monitor dbus traffic
 debug probe to print message bus messages::
 
     dbus-monitor --system
+

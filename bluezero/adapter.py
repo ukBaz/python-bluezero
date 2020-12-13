@@ -1,7 +1,5 @@
 """Class and methods that represent a Bluetooth Adapter."""
 
-from __future__ import absolute_import, print_function, unicode_literals
-
 # D-Bus imports
 import dbus
 
@@ -12,18 +10,8 @@ from bluezero import async_tools
 from bluezero import device
 from bluezero import tools
 
-import logging
-try:  # Python 2.7+
-    from logging import NullHandler
-except ImportError:
-    class NullHandler(logging.Handler):
-        def emit(self, record):
-            pass
 
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
-logger.addHandler(NullHandler())
+logger = tools.create_module_logger(__name__)
 
 
 class AdapterError(Exception):
@@ -235,6 +223,22 @@ class Adapter(object):
         self.adapter_methods.StartDiscovery()
         self.mainloop.run()
 
+    def show_duplicates(self):
+        """
+        Show every advertisement from a device during
+        Device Discovery if it contains ManufacturerData and/or
+        ServiceData irrespective of whether they have been
+         discovered previously
+        """
+        self.adapter_methods.SetDiscoveryFilter({'DuplicateData': True})
+
+    def hide_duplicates(self):
+        """
+        Hide advertisements from a device during
+        Device Discovery if it contains information already discovered
+        """
+        self.adapter_methods.SetDiscoveryFilter({'DuplicateData': False})
+
     def start_discovery(self):
         """
         Start discovery of nearby Bluetooth devices.
@@ -246,6 +250,10 @@ class Adapter(object):
     def stop_discovery(self):
         """Stop scanning of nearby Bluetooth devices."""
         self.adapter_methods.StopDiscovery()
+
+    def remove_device(self, device_path):
+        """Removes device at the given D-Bus path"""
+        self.adapter_methods.RemoveDevice(device_path)
 
     def run(self):
         """Start the EventLoop for async operations"""
