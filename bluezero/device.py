@@ -39,7 +39,7 @@ class Device(object):
     """
 
     @staticmethod
-    def known(adapter_address = None):
+    def available(adapter_address = None):
         """A generator yielding a Device object for every discovered device."""
         mng_objs = dbus_tools.get_managed_objects()
         adapters = {

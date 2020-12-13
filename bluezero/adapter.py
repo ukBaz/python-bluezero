@@ -30,6 +30,22 @@ class AdapterError(Exception):
     pass
 
 
+def list_adapters():
+    """(deprecated) Return list of adapters address available on system."""
+    logger.warn("using deprecated function for listing adapters, " +
+                "move to Adapter.available()")
+    paths = []
+    addresses = []
+    manager_obj = dbus_tools.get_managed_objects()
+    for path, ifaces in manager_obj.items():
+        if constants.ADAPTER_INTERFACE in ifaces:
+            paths.append(path)
+            addresses.append(
+                manager_obj[path][constants.ADAPTER_INTERFACE]['Address'])
+    if len(paths) < 1:
+        raise AdapterError('No Bluetooth adapter found')
+    else:
+        return addresses
 
 class Adapter(object):
     """Bluetooth Adapter Class.
