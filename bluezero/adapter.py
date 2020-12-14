@@ -19,14 +19,12 @@ class AdapterError(Exception):
 
 
 def list_adapters():
-    """Return list of adapters address available on system."""
+    """(deprecated) Return list of adapters address available on system."""
+    logger.warn("using deprecated function for listing adapters, " +
+                "move to Adapter.available()")
     paths = []
     addresses = []
-    bus = dbus.SystemBus()
-    manager = dbus.Interface(
-        bus.get_object(constants.BLUEZ_SERVICE_NAME, '/'),
-        constants.DBUS_OM_IFACE)
-    manager_obj = manager.GetManagedObjects()
+    manager_obj = dbus_tools.get_managed_objects()
     for path, ifaces in manager_obj.items():
         if constants.ADAPTER_INTERFACE in ifaces:
             paths.append(path)
@@ -36,7 +34,6 @@ def list_adapters():
         raise AdapterError('No Bluetooth adapter found')
     else:
         return addresses
-
 
 class Adapter(object):
     """Bluetooth Adapter Class.
@@ -51,6 +48,19 @@ class Adapter(object):
     >>> dongle.powered = True
 
     """
+
+    @staticmethod
+    def available():
+        """A generator yielding an Adapter object for every attached adapter."""
+        mng_objs = dbus_tools.get_managed_objects()
+        found = False
+        for obj in mng_objs.values():
+            adapter = obj.get(constants.ADAPTER_INTERFACE, None)
+            if adapter:
+                found = True
+                yield Adapter(adapter['Address'])
+        if not found:
+            raise AdapterError('No Bluetooth adapter found')
 
     def __init__(self, adapter_addr=None):
         """Default initialiser.

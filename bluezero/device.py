@@ -14,6 +14,7 @@ except ImportError:
 
 from bluezero import constants
 from bluezero import dbus_tools
+import bluezero.adapter
 from bluezero import tools
 
 
@@ -26,6 +27,21 @@ class Device(object):
     This class instantiates an object that interacts with a remote
     Bluetooth device.
     """
+
+    @staticmethod
+    def available(adapter_address = None):
+        """A generator yielding a Device object for every discovered device."""
+        mng_objs = dbus_tools.get_managed_objects()
+        adapters = {
+            adapter.path: adapter.address
+            for adapter in bluezero.adapter.Adapter.available()
+        }
+        for obj in mng_objs.values():
+            device = obj.get(constants.DEVICE_INTERFACE, None)
+            if device:
+                adapter = adapters[device['Adapter']]
+                if adapter_address is None or adapter == adapter_address:
+                    yield Device(adapter, device['Address'])
 
     def __init__(self, adapter_addr, device_addr):
         """Default initialiser.
