@@ -18,14 +18,6 @@ from bluezero import central
 from bluezero import tools
 from bluezero import constants
 
-import logging
-try:  # Python 2.7+
-    from logging import NullHandler
-except ImportError:
-    class NullHandler(logging.Handler):
-        def emit(self, record):
-            pass
-
 ACCEL_SRV = 'E95D0753-251D-470A-A062-FA1922DFA9A8'
 ACCEL_DATA = 'E95DCA4B-251D-470A-A062-FA1922DFA9A8'
 ACCEL_PERIOD = 'E95DFB24-251D-470A-A062-FA1922DFA9A8'
@@ -53,9 +45,7 @@ UART_SRV = '6E400001-B5A3-F393-E0A9-E50E24DCCA9E'
 UART_TX = '6E400002-B5A3-F393-E0A9-E50E24DCCA9E'
 UART_RX = '6E400003-B5A3-F393-E0A9-E50E24DCCA9E'
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
-logger.addHandler(NullHandler())
+logger = tools.create_module_logger(__name__)
 
 
 class Microbit:

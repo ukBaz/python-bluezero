@@ -6,51 +6,22 @@ Overview
 --------
 
 Bluezero relies on the dbus interface of BlueZ. This version of Bluezero is
-tested wtih BlueZ version **5.43**.  As the BlueZ DBus API is undergoing
+tested wtih BlueZ version **5.50**.  As the BlueZ DBus API is undergoing
 changes between versions it is best to aim for that version when working
 with Bluezero.
-BlueZ 5.43 was chosen as the version to align with as this is the default version
+BlueZ 5.50 was chosen as the version to align with as this is the default version
 of BlueZ in Debian Stretch which was the latest/popular version at the time of
 release. This means it is likely that the Linux version you have installed will
 have the correct version.
 To check the version use bluetoothctl and type version::
 
     $ bluetoothctl -v
-    5.43
+    5.50
 
 
 More instructions are available in the `Getting Started
 <https://ukbaz.github.io/howto/ubit_workshop.html>`_
 workshop using a Raspberry Pi and a BBC micro:bit
-
-
-Using Bluezero for a Peripheral role or beacon
-----------------------------------------------
-
-The BlueZ DBus API functionality associated with Bluetooth advertising
-requires the Bluetooth daemon to be run with the experimental flag.
-Advertising is used for Beacons and Peripheral role.
-Experimental mode can be switched on by default in the bluetooth.service file
-
-Edit bluetooth.service file to add --experimental flag e.g::
-
-    sudo sed -i '/^ExecStart.*bluetoothd\s*$/ s/$/ --experimental/' /lib/systemd/system/bluetooth.service
-
-
-Restart bluetoothd in experimental mode
-=======================================
-
-You will need to either, reboot or run::
-
-    sudo systemctl daemon-reload
-    sudo service bluetooth restart
-
-The bluetoothd should now be set to run with the experimental flag by default.
-
-To check the bluetoothd is running with the experimental flag::
-
-    service bluetooth status
-
 
 Change DBus permissions for Bluezero
 ------------------------------------

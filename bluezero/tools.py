@@ -1,4 +1,5 @@
 """Utility functions for python-bluezero."""
+import logging
 from sys import version_info
 import inspect
 
@@ -147,3 +148,13 @@ def get_fn_parameters(fn):
             return len(inspect.getfullargspec(fn).args)
         except Exception as e:
             return None
+
+
+def create_module_logger(module_name):
+    logger = logging.getLogger(module_name)
+    ch = logging.StreamHandler()
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+    return logger
