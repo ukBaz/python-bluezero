@@ -68,17 +68,18 @@ class Central:
         """Indicate whether the remote device is currently connected."""
         return self.rmt_device.connected
 
-    def connect(self, profile=None):
+    def connect(self, profile=None, timeout=1):
         """
         Initiate a connection to the remote device and load
         GATT database once resolved
 
         :param profile: (optional) profile to use for the connection.
+        :param timeout: (optional) seconds to wait for connection.
         """
         if profile is None:
-            self.rmt_device.connect()
+            self.rmt_device.connect(timeout=timeout)
         else:
-            self.rmt_device.connect(profile)
+            self.rmt_device.connect(profile, timeout=timeout)
         while not self.rmt_device.services_resolved:
             sleep(0.5)
         self.load_gatt()
