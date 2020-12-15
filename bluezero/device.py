@@ -271,7 +271,7 @@ class Device(object):
         """
         self.remote_device_methods.CancelPairing()
 
-    def connect(self, profile=None, timeout=1):
+    def connect(self, profile=None, timeout=35):
         """
         Initiate a connection to the remote device.
 

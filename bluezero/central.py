@@ -68,7 +68,7 @@ class Central:
         """Indicate whether the remote device is currently connected."""
         return self.rmt_device.connected
 
-    def connect(self, profile=None, timeout=1):
+    def connect(self, profile=None, timeout=35):
         """
         Initiate a connection to the remote device and load
         GATT database once resolved
