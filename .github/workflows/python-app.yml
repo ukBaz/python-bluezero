@@ -30,8 +30,9 @@ jobs:
         pycodestyle -v bluezero
         pycodestyle -v examples
     - name: Test with unittest
+      env:
+        PYTHONPATH: /usr/lib/python3/dist-packages:${PYTHONPATH}
       run: |
-        echo "::set-env name=PYTHONPATH::/usr/lib/python3/dist-packages:${PYTHONPATH}"
         coverage run -m unittest -v tests.test_tools
         coverage run --append -m unittest -v tests.test_async_tools
         coverage run --append -m unittest -v tests.test_async_tools
