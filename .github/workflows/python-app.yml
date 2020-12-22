@@ -28,8 +28,8 @@ jobs:
         if [ -f requirements.txt ]; then /usr/bin/python3 -m pip install -r requirements.txt; fi
     - name: Lint with pycodestyle
       run: |
-        pycodestyle -v bluezero
-        pycodestyle -v examples
+        /usr/bin/python3 -m pycodestyle -v bluezero
+        /usr/bin/python3 -m pycodestyle -v examples
     - name: Test with unittest
       run: |
         echo PYTHONPATH $PYTHONPATH
