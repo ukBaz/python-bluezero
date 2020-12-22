@@ -1,20 +1,11 @@
 import dbus
-import logging
-
-try:  # Python 2.7+
-    from logging import NullHandler
-except ImportError:
-    class NullHandler(logging.Handler):
-        def emit(self, record):
-            pass
 
 # python-bluezero imports
 from bluezero import constants
 from bluezero import dbus_tools
+from bluezero import tools
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
-logger.addHandler(NullHandler())
+logger = tools.create_module_logger(__name__)
 
 
 class MediaPlayerError(Exception):

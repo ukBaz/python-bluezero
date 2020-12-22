@@ -1,29 +1,14 @@
 """Classes that represent the GATT features of a remote device."""
 
 import dbus
-import dbus.mainloop.glib
-try:
-    from gi.repository import GObject
-except ImportError:
-    import gobject as GObject
-
-import logging
-try:  # Python 2.7+
-    from logging import NullHandler
-except ImportError:
-    class NullHandler(logging.Handler):
-        def emit(self, record):
-            pass
 
 from bluezero import constants
 from bluezero import dbus_tools
 from bluezero import device
+from bluezero import tools
 
-dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-logger.addHandler(NullHandler())
+logger = tools.create_module_logger(__name__)
 
 
 class Service:

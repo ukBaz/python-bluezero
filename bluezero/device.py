@@ -6,11 +6,6 @@ Classes:
 """
 import dbus
 import dbus.exceptions
-import dbus.mainloop.glib
-try:
-    from gi.repository import GLib as GObject
-except ImportError:
-    import gobject as GObject
 
 from bluezero import constants
 from bluezero import dbus_tools
@@ -53,8 +48,6 @@ class Device(object):
         :param device_addr: Address of the remote Bluetooth device.
         """
         self.bus = dbus.SystemBus()
-        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-        self.mainloop = GObject.MainLoop()
 
         device_path = dbus_tools.get_dbus_path(adapter_addr, device_addr)
         if not device_path:

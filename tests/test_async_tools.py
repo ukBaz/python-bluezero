@@ -38,6 +38,3 @@ class TestDbusModuleCalls(unittest.TestCase):
 
     def test_call_quit(self):
         self.module_under_test.quit()
-
-    def test_call_timer(self):
-        self.module_under_test.add_timer(1000, print)

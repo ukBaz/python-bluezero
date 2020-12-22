@@ -8,16 +8,15 @@ Current classes include:
 # D-Bus imports
 import dbus
 import dbus.exceptions
-import dbus.mainloop.glib
 import dbus.service
+from dbus.mainloop.glib import DBusGMainLoop
 
 # python-bluezero imports
 from bluezero import constants
 from bluezero import async_tools
 from bluezero import tools
 
-# Initialise the mainloop
-dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+DBusGMainLoop(set_as_default=True)
 
 logger = tools.create_module_logger(__name__)
 

@@ -2,6 +2,7 @@
 
 # D-Bus imports
 import dbus
+import dbus.mainloop.glib
 
 # python-bluezero imports
 from bluezero import constants
@@ -12,6 +13,8 @@ from bluezero import tools
 
 
 logger = tools.create_module_logger(__name__)
+
+dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
 
 class AdapterError(Exception):
@@ -219,7 +222,7 @@ class Adapter(object):
         self._nearby_count = 0
 
         # GLib.timeout_add(1000, self._discovering_timeout)
-        self.mainloop.add_timer(1000, self._discovering_timeout)
+        async_tools.add_timer_ms(1000, self._discovering_timeout)
         self.adapter_methods.StartDiscovery()
         self.mainloop.run()
 

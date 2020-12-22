@@ -3,26 +3,15 @@
 # Standard libraries
 import re
 import subprocess
-import logging
-try:  # Python 2.7+
-    from logging import NullHandler
-except ImportError:
-    class NullHandler(logging.Handler):
-        def emit(self, record):
-            pass
 
 # D-Bus import
 import dbus
-import dbus.mainloop.glib
 
 # python-bluezero constants import
 from bluezero import constants
+from bluezero import tools
 
-dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
-logger.addHandler(NullHandler())
+logger = tools.create_module_logger(__name__)
 
 
 def bluez_version():
