@@ -17,6 +17,8 @@ coverage run --append -m unittest -v tests.test_broadcaster
 test101=$?
 coverage run --append -m unittest -v tests.test_central
 test102=$?
+coverage run --append -m unittest -v tests.test_observer
+test103=$?
 coverage run --append -m unittest -v tests.test_peripheral
 test11=$?
 coverage run --append -m unittest -v tests.test_eddystone
@@ -34,7 +36,7 @@ lint_examples=$?
 
 coverage report
 group100=$((test1001 + test1002 + test1003 + test1004 + test1005 + test1006 + test1007))
-group10=$((test101 + test102))
+group10=$((test101 + test102 + test103))
 group1=$((test11 + test12 + test13))
 group_examples=$((test_example1))
 group_lint=$((lint_bluezero + lint_examples))

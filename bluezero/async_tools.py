@@ -1,20 +1,10 @@
 # Main eventloop import
-try:
-    from gi.repository import GObject
-except ImportError:
-    import gobject as GObject
-
+from gi.repository import GLib
 import logging
-try:  # Python 2.7+
-    from logging import NullHandler
-except ImportError:
-    class NullHandler(logging.Handler):
-        def emit(self, record):
-            pass
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
-logger.addHandler(NullHandler())
+from bluezero import tools
+
+logger = tools.create_module_logger(__name__)
 
 
 class EventLoop:
@@ -27,7 +17,7 @@ class EventLoop:
     #     return object.__new__(cls)
 
     def __init__(self):
-        self.mainloop = GObject.MainLoop()
+        self.mainloop = GLib.MainLoop()
 
     def run(self):
         self.mainloop.run()
@@ -38,5 +28,6 @@ class EventLoop:
     def is_running(self):
         self.mainloop.is_running()
 
-    def add_timer(self, time, callback):
-        GObject.timeout_add(time, callback)
+    @staticmethod
+    def add_timer(time, callback):
+        GLib.timeout_add(time, callback)

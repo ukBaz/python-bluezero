@@ -318,14 +318,17 @@ def get_props(adapter=None,
 
     return get_dbus_iface(dbus.PROPERTIES_IFACE, get_dbus_obj(path_obj))
 
+
 def get(dbus_prop_obj, dbus_iface, prop_name, default=None):
     try:
         return dbus_prop_obj.Get(dbus_iface, prop_name)
     except dbus.exceptions.DBusException as dbus_exception:
-        if dbus_exception.get_dbus_name() == 'org.freedesktop.DBus.Error.InvalidArgs':
+        dbus_invalid_args = 'org.freedesktop.DBus.Error.InvalidArgs'
+        if dbus_exception.get_dbus_name() == dbus_invalid_args:
             return default
         else:
             raise dbus_exception
+
 
 def str_to_dbusarray(word):
     return dbus.Array([dbus.Byte(ord(letter)) for letter in word], 'y')
