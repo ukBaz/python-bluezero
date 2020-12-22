@@ -32,7 +32,10 @@ jobs:
     - name: Test with unittest
       env:
         PYTHONPATH: /usr/lib/python3/dist-packages:${PYTHONPATH}
+        LD_LIBRARY_PATH: /usr/lib/python3/dist-packages:${LD_LIBRARY_PATH}
       run: |
+        echo PYTHONPATH $PYTHONPATH
+        echo LD_LIBRARY_PATH $LD_LIBRARY_PATH
         coverage run -m unittest -v tests.test_tools
         coverage run --append -m unittest -v tests.test_async_tools
         coverage run --append -m unittest -v tests.test_async_tools
