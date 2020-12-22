@@ -11,31 +11,14 @@ Classes:
 import dbus
 import dbus.exceptions
 import dbus.service
-import dbus.mainloop.glib
-try:
-    from gi.repository import GObject
-except ImportError:
-    import gobject as GObject
-
-import logging
-try:  # Python 2.7+
-    from logging import NullHandler
-except ImportError:
-    class NullHandler(logging.Handler):
-        def emit(self, record):
-            pass
 
 from bluezero import constants
 from bluezero import dbus_tools
 from bluezero import async_tools
 from bluezero import adapter
+from bluezero import tools
 
-dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-mainloop = GObject.MainLoop()
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
-logger.addHandler(NullHandler())
+logger = tools.create_module_logger(__name__)
 
 
 ########################################

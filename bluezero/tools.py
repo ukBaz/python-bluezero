@@ -1,6 +1,5 @@
 """Utility functions for python-bluezero."""
 import logging
-from sys import version_info
 import inspect
 
 
@@ -136,18 +135,7 @@ def url_to_advert(url, frame_type, tx_power):
 
 def get_fn_parameters(fn):
     """ return the number of input parameters of the fn , None on error"""
-    if version_info[0] < 3:
-        try:
-            # legacy python 2.x
-            return len(inspect.getargspec(fn).args)
-        except Exception as e:
-            return None
-    else:
-        try:
-            # python 3.x
-            return len(inspect.getfullargspec(fn).args)
-        except Exception as e:
-            return None
+    return len(inspect.getfullargspec(fn).args)
 
 
 def create_module_logger(module_name):

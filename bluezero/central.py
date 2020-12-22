@@ -2,21 +2,12 @@
 
 from time import sleep
 
-import logging
-try:  # Python 2.7+
-    from logging import NullHandler
-except ImportError:
-    class NullHandler(logging.Handler):
-        def emit(self, record):
-            pass
-
 from bluezero import adapter
 from bluezero import device
 from bluezero import GATT
+from bluezero import tools
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
-logger.addHandler(NullHandler())
+logger = tools.create_module_logger(__name__)
 
 
 class Central:

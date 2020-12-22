@@ -1,11 +1,7 @@
-from bluezero import adapter
 import logging
-try:  # Python 2.7+
-    from logging import NullHandler
-except ImportError:
-    class NullHandler(logging.Handler):
-        def emit(self, record):
-            pass
+
+from bluezero import adapter
+from bluezero import tools
 
 
 def main():
@@ -33,7 +29,6 @@ def main():
 
 if __name__ == '__main__':
     print(__name__)
-    logger = logging.getLogger('adapter')
+    logger = tools.create_module_logger('adapter')
     logger.setLevel(logging.DEBUG)
-    logger.addHandler(NullHandler())
     main()

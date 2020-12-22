@@ -14,10 +14,10 @@ This requires BlueZ to have the experimental flag to be enabled
 # D-Bus imports
 import dbus
 import dbus.exceptions
-import dbus.mainloop.glib
 import dbus.service
 
 # python-bluezero imports
+from bluezero import async_tools
 from bluezero import tools
 from bluezero import dbus_tools
 from bluezero import adapter
@@ -26,24 +26,7 @@ from bluezero import constants
 # array import
 import array
 
-import logging
-try:  # Python 2.7+
-    from logging import NullHandler
-except ImportError:
-    class NullHandler(logging.Handler):
-        def emit(self, record):
-            pass
-
-# Main eventloop import
-try:
-    from gi.repository import GObject
-except ImportError:
-    import gobject as GObject
-
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
-logger.addHandler(NullHandler())
+logger = tools.create_module_logger(__name__)
 
 
 ########################################
@@ -130,11 +113,7 @@ class Application(dbus.service.Object):
 
         """
         # Initialise the loop that the application runs in
-        GObject.threads_init()
-        dbus.mainloop.glib.threads_init()
-        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-        self.mainloop = GObject.MainLoop()
-
+        self.mainloop = async_tools.EventLoop()
         # Initialise the D-Bus path and register it
         self.bus = dbus.SystemBus()
         self.path = '/ukBaz/bluezero/application{}'.format(id(self))

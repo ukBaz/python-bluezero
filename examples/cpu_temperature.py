@@ -1,12 +1,10 @@
 # Standard modules
 import os
+import random
 import dbus
-try:
-    from gi.repository import GObject
-except ImportError:
-    import gobject as GObject
 
 # Bluezero modules
+from bluezero import async_tools
 from bluezero import constants
 from bluezero import adapter
 from bluezero import advertisement
@@ -20,9 +18,9 @@ CPU_FMT_DSCP = '2904'
 
 
 def get_cpu_temperature():
-    # return random.randrange(3200, 5310, 10) / 100
-    cpu_temp = os.popen('vcgencmd measure_temp').readline()
-    return float(cpu_temp.replace('temp=', '').replace("'C\n", ''))
+    return random.randrange(3200, 5310, 10) / 100
+    # cpu_temp = os.popen('vcgencmd measure_temp').readline()
+    # return float(cpu_temp.replace('temp=', '').replace("'C\n", ''))
 
 
 def sint16(value):
@@ -66,7 +64,7 @@ class TemperatureChrc(localGATT.Characteristic):
             return
 
         print('Starting timer event')
-        GObject.timeout_add(500, self.temperature_cb)
+        async_tools.add_timer_ms(500, self.temperature_cb)
 
     def ReadValue(self, options):
         reading = [get_cpu_temperature()]
@@ -95,7 +93,8 @@ class TemperatureChrc(localGATT.Characteristic):
 
 class ble:
     def __init__(self):
-        self.bus = dbus.SystemBus()
+        self.mainloop = async_tools.EventLoop()
+
         self.app = localGATT.Application()
         self.srv = localGATT.Service(1, CPU_TMP_SRVC, True)
 
@@ -141,7 +140,10 @@ class ble:
 
     def start_bt(self):
         # self.light.StartNotify()
-        self.app.start()
+        try:
+            self.mainloop.run()
+        except KeyboardInterrupt:
+            self.mainloop.quit()
 
 
 if __name__ == '__main__':
