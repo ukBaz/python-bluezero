@@ -31,8 +31,8 @@ jobs:
         pycodestyle -v examples
     - name: Test with unittest
       env:
-        PYTHONPATH: /usr/lib/python3/dist-packages:${PYTHONPATH}
-        LD_LIBRARY_PATH: /usr/lib/python3/dist-packages:${LD_LIBRARY_PATH}
+        PYTHONPATH: /usr/lib/python3/dist-packages:${{ PYTHONPATH }}
+        LD_LIBRARY_PATH: /usr/lib/python3/dist-packages:${{ LD_LIBRARY_PATH }}
       run: |
         echo PYTHONPATH $PYTHONPATH
         echo LD_LIBRARY_PATH $LD_LIBRARY_PATH
