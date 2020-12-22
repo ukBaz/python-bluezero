@@ -30,9 +30,6 @@ jobs:
         pycodestyle -v bluezero
         pycodestyle -v examples
     - name: Test with unittest
-      env:
-        PYTHONPATH: /usr/lib/python3/dist-packages:${{ PYTHONPATH }}
-        LD_LIBRARY_PATH: /usr/lib/python3/dist-packages:${{ LD_LIBRARY_PATH }}
       run: |
         echo PYTHONPATH $PYTHONPATH
         echo LD_LIBRARY_PATH $LD_LIBRARY_PATH
@@ -46,7 +43,7 @@ jobs:
         coverage run --append -m unittest -v tests.test_gatt
         coverage run --append -m unittest -v tests.test_broadcaster
         coverage run --append -m unittest -v tests.test_central
-        coverage run --append -m unittest -v tests.test_observer
+        # coverage run --append -m unittest -v tests.test_observer
         coverage run --append -m unittest -v tests.test_peripheral
         coverage run --append -m unittest -v tests.test_eddystone
         coverage run --append -m unittest -v tests.test_microbit
