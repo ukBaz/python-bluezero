@@ -23,6 +23,7 @@ jobs:
     - name: Install python dependencies
       run: |
         /usr/bin/python3 -m pip install --upgrade pip
+        /usr/bin/python3 -m pip install setuptools
         /usr/bin/python3 -m pip install .[test]
         if [ -f requirements.txt ]; then /usr/bin/python3 -m pip install -r requirements.txt; fi
     - name: Lint with pycodestyle
