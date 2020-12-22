@@ -3,6 +3,7 @@ from collections import namedtuple
 import uuid
 import dbus
 from bluezero import adapter
+from bluezero import async_tools
 from bluezero import tools
 
 logger = tools.create_module_logger(__name__)
@@ -14,7 +15,8 @@ EDDYSTONE_SRV_UUID = '0000feaa-0000-1000-8000-00805f9b34fb'
 EddyURL = namedtuple('EddyURL', ['url', 'tx_pwr', 'rssi'])
 EddyUID = namedtuple('EddyUID', ['namespace', 'instance', 'tx_pwr', 'rssi'])
 iBeacon = namedtuple('iBeacon', ['UUID', 'major', 'minor', 'tx_pwr', 'rssi'])
-AltBeacon = namedtuple('iBeacon', ['UUID', 'major', 'minor', 'tx_pwr', 'rssi'])
+AltBeacon = namedtuple('AltBeacon',
+                       ['UUID', 'major', 'minor', 'tx_pwr', 'rssi'])
 
 
 class Scanner:
@@ -22,19 +24,26 @@ class Scanner:
     For scanning of Bluetooth Low Energy (BLE) beacons
     """
     remove_list = set()
-    mainloop = GLib.MainLoop()
+    mainloop = async_tools.EventLoop()
     on_eddystone_url = None
     on_eddystone_uid = None
     on_ibeacon = None
     on_altbeacon = None
 
     @classmethod
+    def start_event_loop(cls):
+        """
+        Start the event loop
+        """
+        cls.mainloop.run()
+
+    @classmethod
     def stop_scan(cls):
         """
         Stop scanning for beacons
         """
-        cls.dongle.stop_discovery()
         cls.mainloop.quit()
+        cls.dongle.stop_discovery()
 
     @classmethod
     def clean_beacons(cls):
@@ -110,7 +119,8 @@ class Scanner:
         if beacon_type == 'iBeacon' and cls.on_ibeacon:
             data = iBeacon(beacon_uuid, major, minor, tx_pwr, rssi)
             cls.on_ibeacon(data)
-        elif beacon_uuid == 'AltBeacon' and cls.on_altbeacon:
+        elif beacon_type == 'AltBeacon' and cls.on_altbeacon:
+            data = AltBeacon(beacon_uuid, major, minor, tx_pwr, rssi)
             cls.on_altbeacon(data)
 
     @staticmethod
@@ -187,9 +197,10 @@ class Scanner:
 
         cls.dongle.show_duplicates()
         cls.dongle.start_discovery()
-
-        # mainloop.run()
-        cls.dongle.run()
+        try:
+            cls.start_event_loop()
+        except KeyboardInterrupt:
+            cls.stop_scan()
 
 
 def scan_eddystone(on_data=None):
