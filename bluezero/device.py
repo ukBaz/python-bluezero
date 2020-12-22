@@ -276,17 +276,25 @@ class Device(object):
         Initiate a connection to the remote device.
 
         :param profile: (optional) profile to use for the connection.
-        :param timeout: (optional) the number of seconds to spend trying to connect.
+        :param timeout: (optional) the number of seconds to spend trying
+               to connect.
         """
         try:
             if profile is None:
-                self.bus.call_blocking(constants.BLUEZ_SERVICE_NAME, self.remote_device_path, constants.DEVICE_INTERFACE, 'Connect', '', [], timeout=timeout)
+                self.bus.call_blocking(constants.BLUEZ_SERVICE_NAME,
+                                       self.remote_device_path,
+                                       constants.DEVICE_INTERFACE,
+                                       'Connect', '', [], timeout=timeout)
             else:
-                ## need a device to test next line with.  for now, timeout ignored for profile connections.
-                #self.bus.call_blocking(constants.BLUEZ_SERVICE_NAME, self.remote_device_path, constants.DEVICE_INTERFACE, 'ConnectProfile', 's', [profile], timeout=timeout)
+                # need a device to test next line with.  for now, timeout
+                # ignored for profile connections.
+                # self.bus.call_blocking(constants.BLUEZ_SERVICE_NAME,
+                # self.remote_device_path, constants.DEVICE_INTERFACE,
+                # 'ConnectProfile', 's', [profile], timeout=timeout)
                 self.remote_device_methods.ConnectProfile(profile)
         except dbus.exceptions.DBusException as dbus_exception:
-            if dbus_exception.get_dbus_name() == 'org.freedesktop.DBus.Error.NoReply':
+            dbus_error_type = 'org.freedesktop.DBus.Error.NoReply'
+            if dbus_exception.get_dbus_name() == dbus_error_type:
                 # move driver back from connecting state to disconnected state
                 self.disconnect()
             raise dbus_exception
