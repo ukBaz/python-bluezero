@@ -43,7 +43,7 @@ jobs:
         coverage run --append -m unittest -v tests.test_gatt
         coverage run --append -m unittest -v tests.test_broadcaster
         coverage run --append -m unittest -v tests.test_central
-        # coverage run --append -m unittest -v tests.test_observer
+        coverage run --append -m unittest -v tests.test_observer
         coverage run --append -m unittest -v tests.test_peripheral
         coverage run --append -m unittest -v tests.test_eddystone
         coverage run --append -m unittest -v tests.test_microbit
