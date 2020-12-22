@@ -1,13 +1,9 @@
 ===============
 python-bluezero
 ===============
-.. image:: https://travis-ci.org/ukBaz/python-bluezero.svg
-    :target: https://travis-ci.org/ukBaz/python-bluezero
+.. image:: https://github.com/ukBaz/python-bluezero/workflows/bluezero-tests/badge.svg
+    :target: https://github.com/ukBaz/python-bluezero/actions?query=workflow%3Abluezero-tests
     :alt: Build Status
-
-.. image:: https://img.shields.io/codecov/c/github/ukBaz/python-bluezero/master.svg?maxAge=2592000
-    :target: https://codecov.io/github/ukBaz/python-bluezero
-    :alt: Code Coverage
 
 .. image:: https://img.shields.io/pypi/v/bluezero.svg
    :target: https://pypi.python.org/pypi/bluezero/
@@ -44,7 +40,7 @@ While we want this to be easy to use it does not mean it easy to create.
 This library is still in the early stages so things might change and break. Apologies in advance!
 We will try to make it as stable as possible. However much of the functionality that is in BlueZ is
 still flagged as experimental.
-The library assumes you are using a Linux release with BlueZ 5.43. For example Raspbian Stretch
+The library assumes you are using a Linux release with BlueZ 5.50. For example Raspberry Pi OS Buster
 
 
 Getting Started
@@ -52,7 +48,7 @@ Getting Started
 If you are here for the time, and especially if you are new to Bluetooth Low Energy, then
 a tutorial might be a good place to start.
 The following tutorial has been created based on the readily available hardware of
-a Raspberry Pi 3 and a micro:bit. More details available at:
+a Raspberry Pi and a micro:bit. More details available at:
 https://ukbaz.github.io/howto/ubit_workshop.html
 
 Examples
@@ -81,8 +77,6 @@ Beacon
 
 eddystone-url-beacon.py
 ***********************
-You will need to put the BlueZ bluetoothd into experimental mode for this one.
-More details elsewhere in the documentation.
 A Simple Eddystone URL beacon.
 You can be read the URL being broadcast with any Physical Web application on your Phone
 
@@ -92,23 +86,21 @@ Scanner
 eddystone-scanner.py
 ********************
 
-This example scans for beacons using the Eddystone format.
-It will report on `UID beacons` and `URL beacons`.
-
-This uses the `aioblescan` Python library which requires your code to be run with `sudo`.
+This example scans for beacons using the common beacon formats of Eddystone URL,
+Eddystone UID, AltBeacon and iBeacon.
 
 GATT Server (Peripheral role)
 -----------------------------
-This is starting to be very experimental...
-You will need to have BlueZ in experimental mode and have tweaked the dbus configuration
-file to open the permissions for 'ukBaz.bluezero'
+You will need to have modified the dbus configuration
+file to open the permissions for 'ukBaz.bluezero'. This is covered in the
+System Setup section of the documentation
 
 cpu_temperature.py
 ******************
 
 This example transmits the temperature of the CPU over the single characteristic.
-If your hardware does not support the `vcgencmd` then change the `get_cpu_temperature()`
-function to use the randomly generated temperature.
+The method `get_cpu_temperature()`
+function creates randomly generated temperature values.
 Values are only updated when notification are switched on.
 
 ble_uart.py
