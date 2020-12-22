@@ -16,7 +16,7 @@ here = path.abspath(path.dirname(__file__))
 required_packages = []
 extras_rel = ['bumpversion', 'twine']
 extras_doc = ['sphinx', 'sphinx_rtd_theme']
-extras_test = ['coverage', 'pycodestyle']
+extras_test = ['coverage', 'pycodestyle', 'python-dbusmock']
 extras_dev = extras_rel + extras_doc + extras_test
 
 # Get the long description from the README file
