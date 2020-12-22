@@ -22,9 +22,9 @@ jobs:
         python-version: 3.8
     - name: Install python dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install .[test]
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        /usr/bin/python3 -m pip install --upgrade pip
+        /usr/bin/python3 -m pip install .[test]
+        if [ -f requirements.txt ]; then /usr/bin/python3 -m pip install -r requirements.txt; fi
     - name: Lint with pycodestyle
       run: |
         pycodestyle -v bluezero
@@ -33,18 +33,18 @@ jobs:
       run: |
         echo PYTHONPATH $PYTHONPATH
         echo LD_LIBRARY_PATH $LD_LIBRARY_PATH
-        coverage run -m unittest -v tests.test_tools
-        coverage run --append -m unittest -v tests.test_async_tools
-        coverage run --append -m unittest -v tests.test_async_tools
-        coverage run --append -m unittest -v tests.test_dbus_tools
-        coverage run --append -m unittest -v tests.test_adapter
-        coverage run --append -m unittest -v tests.test_advertisement
-        coverage run --append -m unittest -v tests.test_device
-        coverage run --append -m unittest -v tests.test_gatt
-        coverage run --append -m unittest -v tests.test_broadcaster
-        coverage run --append -m unittest -v tests.test_central
-        # coverage run --append -m unittest -v tests.test_observer
-        coverage run --append -m unittest -v tests.test_peripheral
-        coverage run --append -m unittest -v tests.test_eddystone
-        coverage run --append -m unittest -v tests.test_microbit
-        coverage run --append -m unittest -v tests.test_adapter_example
+        /usr/bin/python3 -m unittest -v tests.test_tools
+        /usr/bin/python3 -m unittest -v tests.test_async_tools
+        /usr/bin/python3 -m unittest -v tests.test_async_tools
+        /usr/bin/python3 -m unittest -v tests.test_dbus_tools
+        /usr/bin/python3 -m unittest -v tests.test_adapter
+        /usr/bin/python3 -m unittest -v tests.test_advertisement
+        /usr/bin/python3 -m unittest -v tests.test_device
+        /usr/bin/python3 -m unittest -v tests.test_gatt
+        /usr/bin/python3 -m unittest -v tests.test_broadcaster
+        /usr/bin/python3 -m unittest -v tests.test_central
+        /usr/bin/python3 -m unittest -v tests.test_observer
+        /usr/bin/python3 -m unittest -v tests.test_peripheral
+        /usr/bin/python3 -m unittest -v tests.test_eddystone
+        /usr/bin/python3 -m unittest -v tests.test_microbit
+        /usr/bin/python3 -m unittest -v tests.test_adapter_example
