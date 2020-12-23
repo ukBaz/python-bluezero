@@ -13,11 +13,6 @@ from examples import eddystone_scanner
 class TestExampleScanner(dbusmock.DBusTestCase):
     """
     Test mocking bluetoothd
-    TODO: Find how to end the spawned server at the end of tests
-    Currently this is not happening at the end of tests and you have lots of
-    processes hanging around. Currently the workaround is to do this manually
-    on your system if this is an issue.
-    kill $(ps aux  | grep "[d]bus-daemon.*dbusmock" | awk '{print $2}')
     """
 
     @classmethod
@@ -36,6 +31,7 @@ class TestExampleScanner(dbusmock.DBusTestCase):
 
     @classmethod
     def tearDownClass(cls):
+        cls.stop_dbus(cls.system_bus_pid)
         cls.p_mock.terminate()
         cls.p_mock.wait()
 
