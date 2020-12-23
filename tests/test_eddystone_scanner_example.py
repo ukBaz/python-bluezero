@@ -3,14 +3,14 @@ import dbusmock
 import io
 from pathlib import Path
 import subprocess
-from unittest import mock
-from tests.mock_eventloop import MockAsync
+# from gi.repository import GLib
+from unittest import mock, skip
+from tests.mock_eventloop import MockAsync, run_pending_events
 
-# Module under test
-from examples import adapter_example
+from examples import eddystone_scanner
 
 
-class TestAdapterExample(dbusmock.DBusTestCase):
+class TestExampleScanner(dbusmock.DBusTestCase):
     """
     Test mocking bluetoothd
     TODO: Find how to end the spawned server at the end of tests
@@ -34,25 +34,17 @@ class TestAdapterExample(dbusmock.DBusTestCase):
         self.dbusmock = dbus.Interface(self.obj_bluez, dbusmock.MOCK_IFACE)
         self.dbusmock_bluez = dbus.Interface(self.obj_bluez, 'org.bluez.Mock')
 
-
     @classmethod
     def tearDownClass(cls):
         cls.p_mock.terminate()
         cls.p_mock.wait()
 
-    def test_on_device_found(self):
-
-        class ForTest:
-            found_address = None
-
-            @classmethod
-            def new_dev(cls, device):
-                cls.found_address = device.address
-
+    def test_scanner_eddy_url2(self):
+        expected = 'Eddystone URL: https://www.bluetooth.com ↗ 8 ↘ -61'
         self.dbusmock_bluez.AddAdapter('hci0', 'My-Test-Device')
-
-        with mock.patch('bluezero.async_tools.EventLoop', MockAsync):
+        with mock.patch('bluezero.async_tools.EventLoop.run', MockAsync.run):
             with mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
-                adapter_example.main()
-                self.assertIn('address:  00:01:02:03:04:05',
+                eddystone_scanner.main()
+                self.assertIn(expected,
                               fake_out.getvalue())
+

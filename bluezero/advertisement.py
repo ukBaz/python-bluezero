@@ -10,6 +10,7 @@ Classes:
 """
 import dbus
 import dbus.exceptions
+import dbus.mainloop.glib
 import dbus.service
 
 from bluezero import constants
@@ -19,6 +20,8 @@ from bluezero import adapter
 from bluezero import tools
 
 logger = tools.create_module_logger(__name__)
+
+dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
 
 ########################################
@@ -66,7 +69,7 @@ class Advertisement(dbus.service.Object):
         # Setup D-Bus object paths and register service
         self.path = '/ukBaz/bluezero/advertisement{0:04d}'.format(advert_id)
         self.bus = dbus.SystemBus()
-        self.eventloop = async_tools.EventLoop()
+        self.mainloop = async_tools.EventLoop()
         self.interface = constants.LE_ADVERTISEMENT_IFACE
         dbus.service.Object.__init__(self, self.bus, self.path)
         self.props = {
@@ -83,10 +86,10 @@ class Advertisement(dbus.service.Object):
         }
 
     def start(self):
-        self.eventloop.run()
+        self.mainloop.run()
 
     def stop(self):
-        self.eventloop.quit()
+        self.mainloop.quit()
 
     def get_path(self):
         """Return the DBus object path"""
@@ -270,10 +273,15 @@ class AdvertisingManager:
         self.bus = dbus.SystemBus()
 
         if adapter_addr is None:
-            adapters = adapter.list_adapters()
+            adapters = list(adapter.Adapter.available())
             if len(adapters) > 0:
-                adapter_addr = adapters[0]
+                use_adapter = adapters[0]
+                adapter_addr = use_adapter.address
+        else:
+            use_adapter = adapter.Adapter(adapter_addr)
 
+        if not use_adapter.discoverable:
+            use_adapter.discoverable = True
         self.advert_mngr_path = dbus_tools.get_dbus_path(adapter=adapter_addr)
         self.advert_mngr_obj = self.bus.get_object(
             constants.BLUEZ_SERVICE_NAME,

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+python3 dev_tools/check_tests_included.py
+dev1=$?
 coverage run -m unittest -v tests.test_tools
 test1001=$?
 coverage run --append -m unittest -v tests.test_async_tools
@@ -29,6 +31,10 @@ coverage run --append -m unittest -v tests.test_adapter_example
 test_example1=$?
 coverage run --append -m unittest -v tests.test_adapter_example_db_mock
 test_example2=$?
+coverage run --append -m unittest -v tests.test_beacon_db_mock
+test_example3=$?
+coverage run --append -m unittest -v tests.test_eddystone_scanner_example
+test_example4=$?
 pycodestyle -v bluezero
 lint_bluezero=$?
 pycodestyle -v examples
@@ -43,7 +49,8 @@ group10=$((test101 + test102 + test103))
 group1=$((test11 + test12 + test13))
 group_examples=$((test_example1 + test_example2))
 group_lint=$((lint_bluezero + lint_examples))
-if [ $((group1 + group10 + group100 + group_examples + group_lint)) -ne 0 ]; then
+group_dev=$((dev1))
+if [ $((group1 + group10 + group100 + group_examples + group_lint + group_dev)) -ne 0 ]; then
    echo -e "\n\n###  A test has failed!!  ###\n"
 else
     echo -e "\n\nSuccess!!!\n"

@@ -1,3 +1,4 @@
+import io
 import unittest
 from unittest.mock import MagicMock
 from unittest.mock import patch
@@ -47,4 +48,20 @@ class TestBluezeroExampleAdapter(unittest.TestCase):
         self.module_patcher.stop()
 
     def test_run(self):
-        self.module_under_test.main()
+        expected = ["dongles available:  ['00:00:00:00:5A:AD']",
+                    "address:  00:00:00:00:5A:AD",
+                    "name:  linaro-alip",
+                    "alias:  linaro-alip",
+                    "powered:  True",
+                    "pairable:  True",
+                    "pairable timeout:  0",
+                    "discoverable:  False",
+                    "discoverable timeout:  180",
+                    "discovering:  False",
+                    "Powered:  True",
+                    "Start discovering"]
+        with patch('sys.stdout', new=io.StringIO()) as fake_out:
+            self.module_under_test.main()
+            for entry in expected:
+                with self.subTest(entry.split()[0]):
+                    self.assertIn(entry, fake_out.getvalue())

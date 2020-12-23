@@ -49,3 +49,5 @@ jobs:
         /usr/bin/python3 -m unittest -v tests.test_eddystone
         /usr/bin/python3 -m unittest -v tests.test_microbit
         /usr/bin/python3 -m unittest -v tests.test_adapter_example
+        /usr/bin/python3 -m unittest -v tests.test_adapter_example_db_mock
+        /usr/bin/python3 -m unittest -v tests.test_eddystone_scanner_example
