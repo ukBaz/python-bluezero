@@ -2,12 +2,25 @@ import dbus
 import dbusmock
 import io
 from pathlib import Path
+from pprint import pprint
 import subprocess
 from unittest import mock
-from tests.mock_eventloop import MockAsync
+from gi.repository import GLib
 
 # Module under test
-from examples import adapter_example
+from examples import eddystone_url_beacon
+
+
+class MockAsync:
+
+    def __init__(self):
+        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+        self.mainloop = GLib.MainLoop()
+
+    def run(self):
+        main_context = GLib.MainContext.default()
+        while main_context.pending():
+            main_context.iteration(False)
 
 
 class TestAdapterExample(dbusmock.DBusTestCase):
@@ -34,25 +47,23 @@ class TestAdapterExample(dbusmock.DBusTestCase):
         self.dbusmock = dbus.Interface(self.obj_bluez, dbusmock.MOCK_IFACE)
         self.dbusmock_bluez = dbus.Interface(self.obj_bluez, 'org.bluez.Mock')
 
-
     @classmethod
     def tearDownClass(cls):
         cls.p_mock.terminate()
         cls.p_mock.wait()
 
-    def test_on_device_found(self):
+    def test_eddystone_url_beacon(self):
+        # TODO: A very light test at the moment. Needs to do more checking
+        path = self.dbusmock_bluez.AddAdapter('hci0', 'My-Test-Device')
+        # self.mngr = dbus.Interface(self.dbus_con.get_object('org.bluez', '/'),
+        #                            'org.freedesktop.DBus.ObjectManager')
+        # pprint(self.mngr.GetManagedObjects())
 
-        class ForTest:
-            found_address = None
-
-            @classmethod
-            def new_dev(cls, device):
-                cls.found_address = device.address
-
-        self.dbusmock_bluez.AddAdapter('hci0', 'My-Test-Device')
-
+        dongle = self.dbus_con.get_object('org.bluez', path)
+        self.assertFalse(dongle.Get('org.bluez.Adapter1', 'Discoverable'))
         with mock.patch('bluezero.async_tools.EventLoop', MockAsync):
-            with mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
-                adapter_example.main()
-                self.assertIn('address:  00:01:02:03:04:05',
-                              fake_out.getvalue())
+            eddystone_url_beacon.main()
+        # print(self.dbusmock_bluez.GetCalls())
+
+        self.assertTrue(dongle.Get('org.bluez.Adapter1', 'Discoverable'))
+        # pprint(self.mngr.GetManagedObjects())

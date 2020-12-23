@@ -35,6 +35,7 @@ PROFILE_MANAGER_IFACE = 'org.bluez.ProfileManager1'
 ADAPTER_IFACE = 'org.bluez.Adapter1'
 MEDIA_IFACE = 'org.bluez.Media1'
 NETWORK_SERVER_IFACE = 'org.bluez.Network1'
+LEDADVERTISING_MNGR_IFACE = 'org.bluez.GattManager1'
 DEVICE_IFACE = 'org.bluez.Device1'
 
 
@@ -78,7 +79,7 @@ def AddAdapter(self, device_name, system_name):
             # Audio/Video Remote Control Profile (target)
             '0000110c-0000-1000-8000-00805f9b34fb',
         ], variant_level=1),
-        'Discoverable': dbus.Boolean(True, variant_level=1),
+        'Discoverable': dbus.Boolean(False, variant_level=1),
         'Discovering': dbus.Boolean(True, variant_level=1),
         'Pairable': dbus.Boolean(True, variant_level=1),
         'Powered': dbus.Boolean(True, variant_level=1),
@@ -105,8 +106,8 @@ def AddAdapter(self, device_name, system_name):
                        ('StopDiscovery', '', '', ''),
                        ('SetDiscoveryFilter', 'a{sv}', '', '')
                    ])
-
     adapter = mockobject.objects[path]
+
     adapter.AddMethods(MEDIA_IFACE, [
         ('RegisterEndpoint', 'oa{sv}', '', ''),
         ('UnregisterEndpoint', 'o', '', ''),
@@ -115,12 +116,36 @@ def AddAdapter(self, device_name, system_name):
         ('Register', 'ss', '', ''),
         ('Unregister', 's', '', ''),
     ])
+    adapter.AddMethods(LEDADVERTISING_MNGR_IFACE, [
+        ('RegisterAdvertisement', 'oa{sv}', '', ''),
+        ('UnregisterAdvertisement', 'o', '', '')
+    ])
+    lea_mngr_properties = {
+        'ActiveInstances': dbus.Byte(1),
+        'SupportedIncludes': dbus.Array(["appearance", "local-name"], signature='s'),
+        'SupportedInstances': dbus.Byte(4),
+    }
+    self.AddProperties(LEDADVERTISING_MNGR_IFACE,
+                       dbus.Dictionary(
+                           lea_mngr_properties
+                       )
+                       )
+    """
+    org.bluez.LEAdvertisingManager1     interface -         -                                        -
+    .RegisterAdvertisement              method    oa{sv}    -                                        -
+    .UnregisterAdvertisement            method    o         -                                        -
+    .ActiveInstances                    property  y         1                                        emits-change
+    .SupportedIncludes                  property  as        2 "appearance" "local-name"              emits-change
+    .SupportedInstances                 property  y         4                                        emits-change
+    .SupportedSecondaryChannels         property  as        -                                        emits-change
+    """
 
     manager = mockobject.objects['/']
     manager.EmitSignal(OBJECT_MANAGER_IFACE, 'InterfacesAdded',
                        'oa{sa{sv}}', [
                            dbus.ObjectPath(path),
-                           {ADAPTER_IFACE: adapter_properties},
+                           {ADAPTER_IFACE: adapter_properties,
+                            LEDADVERTISING_MNGR_IFACE: lea_mngr_properties}
                        ])
 
     return path

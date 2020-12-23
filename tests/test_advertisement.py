@@ -8,11 +8,11 @@ adapter_props = tests.obj_data.full_ubits
 
 
 def mock_get(iface, prop):
-    return tests.obj_data.full_ubits['/org/bluez/hci0/dev_D4_AE_95_4C_3E_A4'][iface][prop]
+    return tests.obj_data.full_ubits['/org/bluez/hci0'][iface][prop]
 
 
 def mock_set(iface, prop, value):
-    tests.obj_data.full_ubits['/org/bluez/hci0/'][iface][prop] = value
+    tests.obj_data.full_ubits['/org/bluez/hci0'][iface][prop] = value
 
 
 def mock_register_advertisement(advert_obj, options):
@@ -61,7 +61,7 @@ class TestBluezeroAdvertisement(unittest.TestCase):
         beacon.service_data = {'FEAA': [0x10, 0x00, 0x00, 0x63, 0x73,
                                         0x72, 0x00, 0x61, 0x62, 0x6f,
                                         0x75, 0x74]}
-        ad_manager = self.module_under_test.AdvertisingManager('/org/bluez/hci0')
+        ad_manager = self.module_under_test.AdvertisingManager('00:00:00:00:5A:AD')
         ad_manager.register_advertisement(beacon, {})
         result = self.module_tools.get_managed_objects()['/org/bluez/hci0']['org.bluez.LEAdvertisingManager1']
         self.assertDictEqual({}, result)

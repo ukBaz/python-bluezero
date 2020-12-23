@@ -75,7 +75,7 @@ You will need a buzzer attached to pin 0 to get play_beep to work.
 Beacon
 ------
 
-eddystone-url-beacon.py
+eddystone_url_beacon.py
 ***********************
 A Simple Eddystone URL beacon.
 You can be read the URL being broadcast with any Physical Web application on your Phone
@@ -83,7 +83,7 @@ You can be read the URL being broadcast with any Physical Web application on you
 Scanner
 -------
 
-eddystone-scanner.py
+eddystone_scanner.py
 ********************
 
 This example scans for beacons using the common beacon formats of Eddystone URL,

@@ -1,4 +1,5 @@
 """Utility functions for python-bluezero."""
+from enum import Enum
 import logging
 import inspect
 
@@ -146,3 +147,34 @@ def create_module_logger(module_name):
     ch.setFormatter(formatter)
     logger.addHandler(ch)
     return logger
+
+# Improve the above logger helper so that report level can be easily changed
+# by users. This is not ready for inclusion but leaving it here in case anyone
+# has some ideas
+#
+# class DebugLevels(Enum):
+#     CRITICAL = 50
+#     ERROR = 40
+#     WARNING = 30
+#     INFO = 20
+#     DEBUG = 10
+#     NOTSET = 0
+#
+#
+# class BluezeroLogger:
+#     def __init__(self, module_name):
+#         self.logger = logging.getLogger(module_name)
+#         ch = logging.StreamHandler()
+#         formatter = logging.Formatter(
+#             '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+#         ch.setFormatter(formatter)
+#         self.logger.addHandler(ch)
+#         return self.logger
+#
+#     @property
+#     def level(self):
+#         return DebugLevels(self.logger.getEffectiveLevel()).name
+#
+#     @level.setter
+#     def level(self, logger_level):
+#         self.logger.setLevel()

@@ -1,12 +1,16 @@
 import dbus
 import dbusmock
+import io
 from pathlib import Path
 import subprocess
-from unittest.mock import MagicMock
+# from gi.repository import GLib
+from unittest import mock, skip
+from tests.mock_eventloop import MockAsync, run_pending_events
+
 from bluezero import adapter
 from bluezero.adapter import AdapterError
 from bluezero import observer
-from gi.repository import GLib
+from examples import eddystone_scanner
 
 
 class TestBlueZ5(dbusmock.DBusTestCase):
@@ -87,17 +91,11 @@ class TestBlueZ5(dbusmock.DBusTestCase):
         self.dbusmock_bluez.AddDevice('hci0',
                                       device_address,
                                       'My-Peripheral-Device')
-        main_context = GLib.MainContext.default()
-        while main_context.pending():
-            main_context.iteration(False)
+        run_pending_events()
+
         self.assertEqual(device_address, ForTest.found_address)
 
     def test_scanner_altbeacon(self):
-        def run_test_loop():
-            main_context = GLib.MainContext.default()
-            while main_context.pending():
-                main_context.iteration(False)
-
         class ForTest:
             found_data = None
 
@@ -106,19 +104,12 @@ class TestBlueZ5(dbusmock.DBusTestCase):
                 cls.found_data = device.major
 
         self.dbusmock_bluez.AddAdapter('hci0', 'My-Test-Device')
-        observer.Scanner.start_event_loop = run_test_loop
-        observer.Scanner.start_beacon_scan(
-            on_altbeacon=ForTest.new_dev)
-        # self.dbusmock_bluez.AddBeacon('hci0', device_address)
-        # observer.Scanner.start_event_loop()
+        with mock.patch('bluezero.async_tools.EventLoop.run', MockAsync.run):
+            observer.Scanner.start_beacon_scan(on_altbeacon=ForTest.new_dev)
         self.assertEqual(24931, ForTest.found_data)
 
+    # @skip("demonstrating skipping")
     def test_scanner_iBeacon(self):
-        def run_test_loop():
-            main_context = GLib.MainContext.default()
-            while main_context.pending():
-                main_context.iteration(False)
-
         class ForTest:
             found_data = None
 
@@ -127,16 +118,11 @@ class TestBlueZ5(dbusmock.DBusTestCase):
                 cls.found_data = device.major
 
         self.dbusmock_bluez.AddAdapter('hci0', 'My-Test-Device')
-        observer.Scanner.start_event_loop = run_test_loop
-        observer.Scanner.start_beacon_scan(
-            on_ibeacon=ForTest.new_dev)
+        with mock.patch('bluezero.async_tools.EventLoop.run', MockAsync.run):
+            observer.Scanner.start_beacon_scan(on_ibeacon=ForTest.new_dev)
         self.assertEqual(278, ForTest.found_data)
 
     def test_scanner_eddy_url(self):
-        def run_test_loop():
-            main_context = GLib.MainContext.default()
-            while main_context.pending():
-                main_context.iteration(False)
 
         class ForTest:
             found_data = None
@@ -146,17 +132,13 @@ class TestBlueZ5(dbusmock.DBusTestCase):
                 cls.found_data = device.url
 
         self.dbusmock_bluez.AddAdapter('hci0', 'My-Test-Device')
-        observer.Scanner.start_event_loop = run_test_loop
-        observer.Scanner.start_beacon_scan(
-            on_eddystone_url=ForTest.new_dev)
+        with mock.patch('bluezero.async_tools.EventLoop.run', MockAsync.run):
+            observer.Scanner.start_beacon_scan(
+                on_eddystone_url=ForTest.new_dev)
         self.assertEqual('https://www.bluetooth.com',
                          ForTest.found_data)
 
     def test_scanner_eddy_url2(self):
-        def run_test_loop():
-            main_context = GLib.MainContext.default()
-            while main_context.pending():
-                main_context.iteration(False)
 
         class ForTest:
             found_data = None
@@ -166,17 +148,13 @@ class TestBlueZ5(dbusmock.DBusTestCase):
                 cls.found_data = device.url
 
         self.dbusmock_bluez.AddAdapter('hci0', 'My-Test-Device')
-        observer.Scanner.start_event_loop = run_test_loop
-        observer.scan_eddystone(
-            on_data=ForTest.new_dev)
+        with mock.patch('bluezero.async_tools.EventLoop.run', MockAsync.run):
+            observer.scan_eddystone(
+                on_data=ForTest.new_dev)
         self.assertEqual('https://www.bluetooth.com',
                          ForTest.found_data)
 
     def test_scanner_eddy_uid(self):
-        def run_test_loop():
-            main_context = GLib.MainContext.default()
-            while main_context.pending():
-                main_context.iteration(False)
 
         class ForTest:
             found_data = None
@@ -186,8 +164,8 @@ class TestBlueZ5(dbusmock.DBusTestCase):
                 cls.found_data = device.namespace
 
         self.dbusmock_bluez.AddAdapter('hci0', 'My-Test-Device')
-        observer.Scanner.start_event_loop = run_test_loop
-        observer.Scanner.start_beacon_scan(
-            on_eddystone_uid=ForTest.new_dev)
+        with mock.patch('bluezero.async_tools.EventLoop.run', MockAsync.run):
+            observer.Scanner.start_beacon_scan(
+                on_eddystone_uid=ForTest.new_dev)
         self.assertEqual(297987634280,
                          ForTest.found_data)
