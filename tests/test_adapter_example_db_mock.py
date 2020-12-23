@@ -23,7 +23,7 @@ class TestAdapterExample(dbusmock.DBusTestCase):
     @classmethod
     def setUpClass(cls):
         here = Path(__file__).parent
-        template = str(here.joinpath('dbusmock_bluez_scan.py'))
+        template = str(here.joinpath('dbusmock_templates', 'bluez_scan.py'))
         cls.start_system_bus()
         cls.dbus_con = cls.get_dbus(True)
         (cls.p_mock, cls.obj_bluez) = cls.spawn_server_template(
