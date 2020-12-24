@@ -51,20 +51,19 @@ def run_debug(ref_files, compare_files):
         if len(list(set(ref_files) - set(test_files))) == 0:
             logger.info('All files are called during %s' % run_type)
         # some files not called
-        elif len(list(set(ref_files) - set(test_files))) != 0:
+        if len(list(set(ref_files) - set(test_files))) != 0:
             names = ':'.join([name for name in list(set(ref_files) - set(test_files))])
             logger.error('Files not called during %s are %s' % (run_type, names))
         # files called that do not exist
-        elif len(list(set(ref_files) - set(test_files))) != 0:
+        if len(list(set(ref_files) - set(test_files))) != 0:
             names = ':'.join([name for name in list(set(ref_files) - set(test_files))])
             logger.error('Extra files called during %s are %s' % (run_type, names))
         # files called multiple times
-        else:
-            duplicates = ''
-            for test, count in collections.Counter(test_files).items():
-                if count > 1:
-                    duplicates += test
-            # duplicates = [test for test, count in collections.Counter(test_files).items() if count > 1]
+        duplicates = ''
+        for test, count in collections.Counter(test_files).items():
+            if count > 1:
+                duplicates += test
+        if duplicates:
             logger.error('%s has the following duplicates: %s' % (run_type,
                                                                   duplicates))
 
@@ -79,7 +78,7 @@ def run_checks(tests_dir, local_run_file, git_run_file, debug=False):
         logger.info('All match')
     else:
         logger.error('There is a mismatch. Running debug...')
-        run_debug(files_test, {'git run': git_run,
+        run_debug(files_test, {'GitHub run': git_run,
                                'local run': local_run})
         exit(1)
 

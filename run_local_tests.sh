@@ -35,6 +35,8 @@ coverage run --append -m unittest -v tests.test_beacon_db_mock
 test_example3=$?
 coverage run --append -m unittest -v tests.test_eddystone_scanner_example
 test_example4=$?
+coverage run --append -m unittest -v tests.test_microbit_poll_example
+test_example5=$?
 pycodestyle -v bluezero
 lint_bluezero=$?
 pycodestyle -v examples
@@ -44,10 +46,12 @@ lint_examples=$?
 
 coverage report
 coverage html
+echo file://`pwd`/htmlcov/index.html
+# google-chrome `pwd`/htmlcov/index.html &
 group100=$((test1001 + test1002 + test1003 + test1004 + test1005 + test1006 + test1007))
 group10=$((test101 + test102 + test103))
 group1=$((test11 + test12 + test13))
-group_examples=$((test_example1 + test_example2))
+group_examples=$((test_example1 + test_example2 + test_example3 + test_example4 + test_example5))
 group_lint=$((lint_bluezero + lint_examples))
 group_dev=$((dev1))
 if [ $((group1 + group10 + group100 + group_examples + group_lint + group_dev)) -ne 0 ]; then
