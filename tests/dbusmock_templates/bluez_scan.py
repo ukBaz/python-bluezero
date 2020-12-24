@@ -24,6 +24,9 @@ import dbus
 
 from dbusmock import OBJECT_MANAGER_IFACE, mockobject
 
+import json
+from pathlib import Path
+
 BUS_NAME = 'org.bluez'
 MAIN_OBJ = '/'
 SYSTEM_BUS = True
@@ -37,6 +40,14 @@ MEDIA_IFACE = 'org.bluez.Media1'
 NETWORK_SERVER_IFACE = 'org.bluez.Network1'
 LEDADVERTISING_MNGR_IFACE = 'org.bluez.GattManager1'
 DEVICE_IFACE = 'org.bluez.Device1'
+GATT_SRVC_IFACE = 'org.bluez.GattService1'
+GATT_CHRC_IFACE = 'org.bluez.GattCharacteristic1'
+GATT_DSCR_IFACE = 'org.bluez.GattDescriptor1'
+
+# here = Path(__file__).parent
+# device_json = Path.joinpath('device_db.json')
+# with device_json.open() as input_db:
+#     microbit_data = json.load(input_db)
 
 
 def load(mock, parameters):
@@ -174,19 +185,22 @@ def AddDevice(self, adapter_device_name, device_address, alias):
             'Adapter %s does not exist.' % adapter_device_name,
             name=BLUEZ_MOCK_IFACE + '.NoSuchAdapter')
 
-    properties = {
-        'UUIDs': dbus.Array([], signature='s', variant_level=1),
-        'Blocked': dbus.Boolean(False, variant_level=1),
-        'Connected': dbus.Boolean(False, variant_level=1),
-        'LegacyPairing': dbus.Boolean(False, variant_level=1),
-        'Paired': dbus.Boolean(False, variant_level=1),
-        'Trusted': dbus.Boolean(False, variant_level=1),
-        'RSSI': dbus.Int16(-79, variant_level=1),  # arbitrary
-        'Adapter': dbus.ObjectPath(adapter_path, variant_level=1),
-        'Address': dbus.String(device_address, variant_level=1),
-        'Alias': dbus.String(alias, variant_level=1),
-        'Name': dbus.String(alias, variant_level=1),
-    }
+    if path in microbit_data.keys():
+        properties = microbit_data.get(path, {}).get(DEVICE_IFACE, {})
+    else:
+        properties = {
+            'UUIDs': dbus.Array([], signature='s', variant_level=1),
+            'Blocked': dbus.Boolean(False, variant_level=1),
+            'Connected': dbus.Boolean(False, variant_level=1),
+            'LegacyPairing': dbus.Boolean(False, variant_level=1),
+            'Paired': dbus.Boolean(False, variant_level=1),
+            'Trusted': dbus.Boolean(False, variant_level=1),
+            'RSSI': dbus.Int16(-79, variant_level=1),  # arbitrary
+            'Adapter': dbus.ObjectPath(adapter_path, variant_level=1),
+            'Address': dbus.String(device_address, variant_level=1),
+            'Alias': dbus.String(alias, variant_level=1),
+            'Name': dbus.String(alias, variant_level=1),
+        }
 
     self.AddObject(path,
                    DEVICE_IFACE,
@@ -195,7 +209,7 @@ def AddDevice(self, adapter_device_name, device_address, alias):
                    # Methods
                    [
                        ('CancelPairing', '', '', ''),
-                       ('Connect', '', '', ''),
+                       ('Connect', '', '', ConnectMicroBit),
                        ('ConnectProfile', 's', '', ''),
                        ('Disconnect', '', '', ''),
                        ('DisconnectProfile', 's', '', ''),
@@ -381,6 +395,55 @@ def ConnectDevice(self, adapter_device_name, device_address):
 
 
 @dbus.service.method(BLUEZ_MOCK_IFACE,
+                     in_signature='oa{sv}', out_signature='s')
+def AddGattService(self,
+                   path,
+                   service_props):
+    self.AddObject(path,
+                   GATT_SRVC_IFACE,
+                   # Properties
+                   service_props,
+                   # Methods
+                   [])
+
+    print('Adding props', service_props)
+    manager = mockobject.objects['/']
+    manager.EmitSignal(OBJECT_MANAGER_IFACE, 'InterfacesAdded',
+                       'oa{sa{sv}}', [
+                           dbus.ObjectPath(path),
+                           {DEVICE_IFACE: service_props},
+                       ])
+
+    return path
+
+
+@dbus.service.method(BLUEZ_MOCK_IFACE,
+                     in_signature='sa{sv}', out_signature='s')
+def AddGattCharacteristic(self, path, charc_props):
+    self.AddObject(path,
+                   GATT_CHRC_IFACE,
+                   # Properties
+                   charc_props,
+                   # Methods
+                   [
+                       ('AcquireNotify', 'a{sv}', 'hq', ''),
+                       ('AcquireWrite', 'a{sv}', 'hq', ''),
+                       ('ReadValue', 'a{sv}', 'ay', 'ret = self.GattReadValue("%s")' % path),
+                       ('StartNotify', '', '', ''),
+                       ('StopNotify', '', '', ''),
+                       ('WriteValue', 'aya{sv}',   '', 'ret = self.GattWriteValue("%s", args[0])' % path),
+                   ])
+
+    manager = mockobject.objects['/']
+    manager.EmitSignal(OBJECT_MANAGER_IFACE, 'InterfacesAdded',
+                       'oa{sa{sv}}', [
+                           dbus.ObjectPath(path),
+                           {DEVICE_IFACE: charc_props},
+                       ])
+
+    return path
+
+@dbus.service.method(BLUEZ_MOCK_IFACE,
                      in_signature='ss', out_signature='')
 def DisconnectDevice(self, adapter_device_name, device_address):
     '''Convenience method to mark an existing device as disconnected.
@@ -478,7 +541,7 @@ def AddBeacon(self,
                    # Methods
                    [
                        ('CancelPairing', '', '', ''),
-                       ('Connect', '', '', ''),
+                       ('Connect', '', '', ""),
                        ('ConnectProfile', 's', '', ''),
                        ('Disconnect', '', '', ''),
                        ('DisconnectProfile', 's', '', ''),
@@ -518,3 +581,314 @@ def DeviceDiscovery(self):
                    manf_data=[2, 21, 106, 177, 124, 23, 244, 123, 77, 65, 128,
                               54, 82, 106, 238, 210, 47, 115, 1, 22, 3, 104,
                               191])
+
+
+@dbus.service.method(BLUEZ_MOCK_IFACE,
+                     in_signature='', out_signature='')
+def ConnectMicroBit(self):
+    print('In connect microbit')
+    device = mockobject.objects['/org/bluez/hci0/dev_E9_06_4D_45_FC_8D']
+
+    self.ConnectDevice('hci0', 'E9:06:4D:45:FC:8D')
+
+    for path in microbit_data:
+        srvc_props = microbit_data[path].get(GATT_SRVC_IFACE)
+        if srvc_props:
+            del srvc_props['Includes']
+            print('adding service', srvc_props)
+            self.AddGattService(dbus.ObjectPath(path),
+                                dbus.Dictionary(srvc_props,
+                                                signature='sv'))
+        chrc_props = microbit_data[path].get(GATT_CHRC_IFACE)
+        if chrc_props:
+            print('add characteristic')
+            chrc_props = dbus.Dictionary(chrc_props, signature='sv')
+            chrc_props['Value'] = dbus.Array(chrc_props['Value'], signature='y')
+            self.AddGattCharacteristic(dbus.ObjectPath(path), chrc_props)
+
+    device.props[DEVICE_IFACE]['ServicesResolved'] = dbus.Boolean(True, variant_level=1)
+
+    device.EmitSignal(dbus.PROPERTIES_IFACE, 'PropertiesChanged', 'sa{sv}as', [
+        DEVICE_IFACE,
+        {
+            'ServicesResolved': dbus.Boolean(True, variant_level=1),
+        },
+        [],
+    ])
+
+
+@dbus.service.method(BLUEZ_MOCK_IFACE,
+                     in_signature='o', out_signature='ay')
+def GattReadValue(self, path):
+    return microbit_data[path].get(GATT_CHRC_IFACE, {}).get('Value')
+
+
+@dbus.service.method(BLUEZ_MOCK_IFACE,
+                     in_signature='oay', out_signature='')
+def GattWriteValue(self, path, value):
+    microbit_data[path][GATT_CHRC_IFACE]['Value'] = dbus.Array(value)
+
+
+microbit_data = {
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D": {'org.freedesktop.DBus.Introspectable': {},
+                                              'org.bluez.Device1': {'Address': 'E9:06:4D:45:FC:8D',
+                                                                    'AddressType': 'random',
+                                                                    'Name': 'BBC micro:bit [tetog]',
+                                                                    'Alias': 'BBC micro:bit [tetog]', 'Paired': False,
+                                                                    'Trusted': False, 'Blocked': False,
+                                                                    'LegacyPairing': False, 'Connected': False,
+                                                                    'UUIDs': ['00001800-0000-1000-8000-00805f9b34fb',
+                                                                              '00001801-0000-1000-8000-00805f9b34fb',
+                                                                              '0000180a-0000-1000-8000-00805f9b34fb',
+                                                                              '0000fe59-0000-1000-8000-00805f9b34fb',
+                                                                              'e95d0753-251d-470a-a062-fa1922dfa9a8',
+                                                                              'e95d6100-251d-470a-a062-fa1922dfa9a8',
+                                                                              'e95d93af-251d-470a-a062-fa1922dfa9a8',
+                                                                              'e95d9882-251d-470a-a062-fa1922dfa9a8',
+                                                                              'e95dd91d-251d-470a-a062-fa1922dfa9a8',
+                                                                              'e97dd91d-251d-470a-a062-fa1922dfa9a8'],
+                                                                    'Adapter': '/org/bluez/hci0',
+                                                                    'ServicesResolved': False},
+                                              'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service003c": {'org.freedesktop.DBus.Introspectable': {},
+                                                          'org.bluez.GattService1': {
+                                                              'UUID': 'e95d6100-251d-470a-a062-fa1922dfa9a8',
+                                                              'Device': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D',
+                                                              'Primary': True, 'Includes': []},
+                                                          'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service003c/char0040": {'org.freedesktop.DBus.Introspectable': {},
+                                                                   'org.bluez.GattCharacteristic1': {
+                                                                       'UUID': 'e95d1b25-251d-470a-a062-fa1922dfa9a8',
+                                                                       'Service': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service003c',
+                                                                       'Value': [], 'Flags': ['read', 'write']},
+                                                                   'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service003c/char003d": {'org.freedesktop.DBus.Introspectable': {},
+                                                                   'org.bluez.GattCharacteristic1': {
+                                                                       'UUID': 'e95d9250-251d-470a-a062-fa1922dfa9a8',
+                                                                       'Service': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service003c',
+                                                                       'Value': [27], 'Notifying': False,
+                                                                       'Flags': ['read', 'notify'],
+                                                                       'NotifyAcquired': False},
+                                                                   'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service003c/char003d/desc003f": {'org.freedesktop.DBus.Introspectable': {},
+                                                                            'org.bluez.GattDescriptor1': {
+                                                                                'UUID': '00002902-0000-1000-8000-00805f9b34fb',
+                                                                                'Characteristic': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service003c/char003d',
+                                                                                'Value': []},
+                                                                            'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0035": {'org.freedesktop.DBus.Introspectable': {},
+                                                          'org.bluez.GattService1': {
+                                                              'UUID': 'e95dd91d-251d-470a-a062-fa1922dfa9a8',
+                                                              'Device': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D',
+                                                              'Primary': True, 'Includes': []},
+                                                          'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0035/char003a": {'org.freedesktop.DBus.Introspectable': {},
+                                                                   'org.bluez.GattCharacteristic1': {
+                                                                       'UUID': 'e95d0d2d-251d-470a-a062-fa1922dfa9a8',
+                                                                       'Service': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0035',
+                                                                       'Value': [20, 0], 'Flags': ['read', 'write']},
+                                                                   'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0035/char0038": {'org.freedesktop.DBus.Introspectable': {},
+                                                                   'org.bluez.GattCharacteristic1': {
+                                                                       'UUID': 'e95d93ee-251d-470a-a062-fa1922dfa9a8',
+                                                                       'Service': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0035',
+                                                                       'Value': [], 'Flags': ['write']},
+                                                                   'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0035/char0036": {'org.freedesktop.DBus.Introspectable': {},
+                                                                   'org.bluez.GattCharacteristic1': {
+                                                                       'UUID': 'e95d7b77-251d-470a-a062-fa1922dfa9a8',
+                                                                       'Service': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0035',
+                                                                       'Value': [14, 16, 16, 16, 14],
+                                                                       'Flags': ['read', 'write']},
+                                                                   'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service002e": {'org.freedesktop.DBus.Introspectable': {},
+                                                          'org.bluez.GattService1': {
+                                                              'UUID': 'e95d9882-251d-470a-a062-fa1922dfa9a8',
+                                                              'Device': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D',
+                                                              'Primary': True, 'Includes': []},
+                                                          'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service002e/char0032": {'org.freedesktop.DBus.Introspectable': {},
+                                                                   'org.bluez.GattCharacteristic1': {
+                                                                       'UUID': 'e95dda91-251d-470a-a062-fa1922dfa9a8',
+                                                                       'Service': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service002e',
+                                                                       'Value': [1], 'Notifying': False,
+                                                                       'Flags': ['read', 'notify'],
+                                                                       'NotifyAcquired': False},
+                                                                   'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service002e/char0032/desc0034": {'org.freedesktop.DBus.Introspectable': {},
+                                                                            'org.bluez.GattDescriptor1': {
+                                                                                'UUID': '00002902-0000-1000-8000-00805f9b34fb',
+                                                                                'Characteristic': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service002e/char0032',
+                                                                                'Value': []},
+                                                                            'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service002e/char002f": {'org.freedesktop.DBus.Introspectable': {},
+                                                                   'org.bluez.GattCharacteristic1': {
+                                                                       'UUID': 'e95dda90-251d-470a-a062-fa1922dfa9a8',
+                                                                       'Service': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service002e',
+                                                                       'Value': [1], 'Notifying': False,
+                                                                       'Flags': ['read', 'notify'],
+                                                                       'NotifyAcquired': False},
+                                                                   'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service002e/char002f/desc0031": {'org.freedesktop.DBus.Introspectable': {},
+                                                                            'org.bluez.GattDescriptor1': {
+                                                                                'UUID': '00002902-0000-1000-8000-00805f9b34fb',
+                                                                                'Characteristic': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service002e/char002f',
+                                                                                'Value': []},
+                                                                            'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0028": {'org.freedesktop.DBus.Introspectable': {},
+                                                          'org.bluez.GattService1': {
+                                                              'UUID': 'e95d0753-251d-470a-a062-fa1922dfa9a8',
+                                                              'Device': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D',
+                                                              'Primary': True, 'Includes': []},
+                                                          'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0028/char002c": {'org.freedesktop.DBus.Introspectable': {},
+                                                                   'org.bluez.GattCharacteristic1': {
+                                                                       'UUID': 'e95dfb24-251d-470a-a062-fa1922dfa9a8',
+                                                                       'Service': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0028',
+                                                                       'Value': [], 'Flags': ['read', 'write']},
+                                                                   'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0028/char0029": {'org.freedesktop.DBus.Introspectable': {},
+                                                                   'org.bluez.GattCharacteristic1': {
+                                                                       'UUID': 'e95dca4b-251d-470a-a062-fa1922dfa9a8',
+                                                                       'Service': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0028',
+                                                                       'Value': [140, 1, 140, 3, 144, 255],
+                                                                       'Notifying': False, 'Flags': ['read', 'notify'],
+                                                                       'NotifyAcquired': False},
+                                                                   'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0028/char0029/desc002b": {'org.freedesktop.DBus.Introspectable': {},
+                                                                            'org.bluez.GattDescriptor1': {
+                                                                                'UUID': '00002902-0000-1000-8000-00805f9b34fb',
+                                                                                'Characteristic': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0028/char0029',
+                                                                                'Value': []},
+                                                                            'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service001d": {'org.freedesktop.DBus.Introspectable': {},
+                                                          'org.bluez.GattService1': {
+                                                              'UUID': 'e95d93af-251d-470a-a062-fa1922dfa9a8',
+                                                              'Device': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D',
+                                                              'Primary': True, 'Includes': []},
+                                                          'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service001d/char0025": {'org.freedesktop.DBus.Introspectable': {},
+                                                                   'org.bluez.GattCharacteristic1': {
+                                                                       'UUID': 'e95db84c-251d-470a-a062-fa1922dfa9a8',
+                                                                       'Service': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service001d',
+                                                                       'Value': [], 'Notifying': False,
+                                                                       'Flags': ['read', 'notify'],
+                                                                       'NotifyAcquired': False},
+                                                                   'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service001d/char0025/desc0027": {'org.freedesktop.DBus.Introspectable': {},
+                                                                            'org.bluez.GattDescriptor1': {
+                                                                                'UUID': '00002902-0000-1000-8000-00805f9b34fb',
+                                                                                'Characteristic': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service001d/char0025',
+                                                                                'Value': []},
+                                                                            'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service001d/char0023": {'org.freedesktop.DBus.Introspectable': {},
+                                                                   'org.bluez.GattCharacteristic1': {
+                                                                       'UUID': 'e95d23c4-251d-470a-a062-fa1922dfa9a8',
+                                                                       'Service': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service001d',
+                                                                       'Value': [], 'Flags': ['write']},
+                                                                   'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service001d/char0021": {'org.freedesktop.DBus.Introspectable': {},
+                                                                   'org.bluez.GattCharacteristic1': {
+                                                                       'UUID': 'e95d5404-251d-470a-a062-fa1922dfa9a8',
+                                                                       'Service': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service001d',
+                                                                       'Value': [],
+                                                                       'Flags': ['write-without-response', 'write'],
+                                                                       'WriteAcquired': False},
+                                                                   'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service001d/char001e": {'org.freedesktop.DBus.Introspectable': {},
+                                                                   'org.bluez.GattCharacteristic1': {
+                                                                       'UUID': 'e95d9775-251d-470a-a062-fa1922dfa9a8',
+                                                                       'Service': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service001d',
+                                                                       'Value': [], 'Notifying': False,
+                                                                       'Flags': ['read', 'notify'],
+                                                                       'NotifyAcquired': False},
+                                                                   'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service001d/char001e/desc0020": {'org.freedesktop.DBus.Introspectable': {},
+                                                                            'org.bluez.GattDescriptor1': {
+                                                                                'UUID': '00002902-0000-1000-8000-00805f9b34fb',
+                                                                                'Characteristic': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service001d/char001e',
+                                                                                'Value': []},
+                                                                            'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0016": {'org.freedesktop.DBus.Introspectable': {},
+                                                          'org.bluez.GattService1': {
+                                                              'UUID': '0000180a-0000-1000-8000-00805f9b34fb',
+                                                              'Device': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D',
+                                                              'Primary': True, 'Includes': []},
+                                                          'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0016/char001b": {'org.freedesktop.DBus.Introspectable': {},
+                                                                   'org.bluez.GattCharacteristic1': {
+                                                                       'UUID': '00002a26-0000-1000-8000-00805f9b34fb',
+                                                                       'Service': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0016',
+                                                                       'Value': [], 'Flags': ['read']},
+                                                                   'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0016/char0019": {'org.freedesktop.DBus.Introspectable': {},
+                                                                   'org.bluez.GattCharacteristic1': {
+                                                                       'UUID': '00002a25-0000-1000-8000-00805f9b34fb',
+                                                                       'Service': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0016',
+                                                                       'Value': [], 'Flags': ['read']},
+                                                                   'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0016/char0017": {'org.freedesktop.DBus.Introspectable': {},
+                                                                   'org.bluez.GattCharacteristic1': {
+                                                                       'UUID': '00002a24-0000-1000-8000-00805f9b34fb',
+                                                                       'Service': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0016',
+                                                                       'Value': [], 'Flags': ['read']},
+                                                                   'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0012": {'org.freedesktop.DBus.Introspectable': {},
+                                                          'org.bluez.GattService1': {
+                                                              'UUID': 'e97dd91d-251d-470a-a062-fa1922dfa9a8',
+                                                              'Device': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D',
+                                                              'Primary': True, 'Includes': []},
+                                                          'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0012/char0013": {'org.freedesktop.DBus.Introspectable': {},
+                                                                   'org.bluez.GattCharacteristic1': {
+                                                                       'UUID': 'e97d3b10-251d-470a-a062-fa1922dfa9a8',
+                                                                       'Service': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0012',
+                                                                       'Value': [], 'Notifying': False,
+                                                                       'Flags': ['write-without-response', 'notify'],
+                                                                       'WriteAcquired': False, 'NotifyAcquired': False},
+                                                                   'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0012/char0013/desc0015": {'org.freedesktop.DBus.Introspectable': {},
+                                                                            'org.bluez.GattDescriptor1': {
+                                                                                'UUID': '00002902-0000-1000-8000-00805f9b34fb',
+                                                                                'Characteristic': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service0012/char0013',
+                                                                                'Value': []},
+                                                                            'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service000e": {'org.freedesktop.DBus.Introspectable': {},
+                                                          'org.bluez.GattService1': {
+                                                              'UUID': '0000fe59-0000-1000-8000-00805f9b34fb',
+                                                              'Device': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D',
+                                                              'Primary': True, 'Includes': []},
+                                                          'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service000e/char000f": {'org.freedesktop.DBus.Introspectable': {},
+                                                                   'org.bluez.GattCharacteristic1': {
+                                                                       'UUID': '8ec90004-f315-4f60-9fb8-838830daea50',
+                                                                       'Service': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service000e',
+                                                                       'Value': [], 'Notifying': False,
+                                                                       'Flags': ['write', 'indicate']},
+                                                                   'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service000e/char000f/desc0011": {'org.freedesktop.DBus.Introspectable': {},
+                                                                            'org.bluez.GattDescriptor1': {
+                                                                                'UUID': '00002902-0000-1000-8000-00805f9b34fb',
+                                                                                'Characteristic': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service000e/char000f',
+                                                                                'Value': []},
+                                                                            'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service000a": {'org.freedesktop.DBus.Introspectable': {},
+                                                          'org.bluez.GattService1': {
+                                                              'UUID': '00001801-0000-1000-8000-00805f9b34fb',
+                                                              'Device': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D',
+                                                              'Primary': True, 'Includes': []},
+                                                          'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service000a/char000b": {'org.freedesktop.DBus.Introspectable': {},
+                                                                   'org.bluez.GattCharacteristic1': {
+                                                                       'UUID': '00002a05-0000-1000-8000-00805f9b34fb',
+                                                                       'Service': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service000a',
+                                                                       'Value': [], 'Notifying': False,
+                                                                       'Flags': ['indicate']},
+                                                                   'org.freedesktop.DBus.Properties': {}},
+    "/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service000a/char000b/desc000d": {'org.freedesktop.DBus.Introspectable': {},
+                                                                            'org.bluez.GattDescriptor1': {
+                                                                                'UUID': '00002902-0000-1000-8000-00805f9b34fb',
+                                                                                'Characteristic': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service000a/char000b',
+                                                                                'Value': []},
+                                                                            'org.freedesktop.DBus.Properties': {}},
+}

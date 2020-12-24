@@ -36,7 +36,6 @@ jobs:
         echo LD_LIBRARY_PATH $LD_LIBRARY_PATH
         /usr/bin/python3 -m unittest -v tests.test_tools
         /usr/bin/python3 -m unittest -v tests.test_async_tools
-        /usr/bin/python3 -m unittest -v tests.test_async_tools
         /usr/bin/python3 -m unittest -v tests.test_dbus_tools
         /usr/bin/python3 -m unittest -v tests.test_adapter
         /usr/bin/python3 -m unittest -v tests.test_advertisement
@@ -51,3 +50,5 @@ jobs:
         /usr/bin/python3 -m unittest -v tests.test_adapter_example
         /usr/bin/python3 -m unittest -v tests.test_adapter_example_db_mock
         /usr/bin/python3 -m unittest -v tests.test_eddystone_scanner_example
+        /usr/bin/python3 -m unittest -v tests.test_beacon_db_mock
+        /usr/bin/python3 -m unittest -v tests.test_microbit_poll_example
