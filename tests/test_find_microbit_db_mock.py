@@ -1,16 +1,14 @@
 import dbus
 import dbusmock
 import io
+import logging
 from pathlib import Path
-from pprint import pprint
 import subprocess
 from unittest import mock
-from gi.repository import GLib
-
-from tests.mock_eventloop import MockAsync, run_pending_events
+from tests.mock_eventloop import MockAsync
 
 # Module under test
-from examples import eddystone_url_beacon
+from examples import find_microbit_services
 
 
 class TestAdapterExample(dbusmock.DBusTestCase):
@@ -38,18 +36,14 @@ class TestAdapterExample(dbusmock.DBusTestCase):
         cls.p_mock.terminate()
         cls.p_mock.wait()
 
-    def test_eddystone_url_beacon(self):
-        # TODO: A very light test at the moment. Needs to do more checking
-        path = self.dbusmock_bluez.AddAdapter('hci0', 'My-Test-Device')
-        # self.mngr = dbus.Interface(self.dbus_con.get_object('org.bluez', '/'),
-        #                            'org.freedesktop.DBus.ObjectManager')
-        # pprint(self.mngr.GetManagedObjects())
+    def test_on_device_found(self):
+        self.dbusmock_bluez.AddAdapter('hci0', 'My-Test-Device')
+        path = self.dbusmock_bluez.AddDevice('hci0',
+                                             'E9:06:4D:45:FC:8D',
+                                             'micro:bit[test]')
 
-        dongle = self.dbus_con.get_object('org.bluez', path)
-        self.assertFalse(dongle.Get('org.bluez.Adapter1', 'Discoverable'))
         with mock.patch('bluezero.async_tools.EventLoop', MockAsync):
-            eddystone_url_beacon.main()
-        # print(self.dbusmock_bluez.GetCalls())
-
-        self.assertTrue(dongle.Get('org.bluez.Adapter1', 'Discoverable'))
-        # pprint(self.mngr.GetManagedObjects())
+            with mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
+                find_microbit_services.main()
+                self.assertIn('[E9:06:4D:45:FC:8D] Temperature: 27',
+                              fake_out.getvalue())

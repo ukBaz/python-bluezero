@@ -45,6 +45,22 @@ UART_SRV = '6E400001-B5A3-F393-E0A9-E50E24DCCA9E'
 UART_TX = '6E400002-B5A3-F393-E0A9-E50E24DCCA9E'
 UART_RX = '6E400003-B5A3-F393-E0A9-E50E24DCCA9E'
 
+MICROBIT = {ACCEL_SRV: [ACCEL_DATA, ACCEL_PERIOD],
+            BTN_SRV: [BTN_A_STATE, BTN_B_STATE],
+            LED_SRV: [LED_STATE, LED_TEXT, LED_SCROLL],
+            MAGNETO_SRV: [MAGNETO_DATA, MAGNETO_PERIOD,
+                          MAGNETO_BEARING, MAGNETO_CALIBRATE],
+            IO_PIN_SRV: [IO_PIN_DATA, IO_AD_CONFIG, IO_PIN_CONFIG, IO_PIN_PWM],
+            TEMP_SRV: [TEMP_DATA, TEMP_PERIOD],
+            UART_SRV: [UART_TX, UART_RX]}
+SERVICE_NAMES = {ACCEL_SRV: 'Accelerometer Service',
+                 BTN_SRV: 'Button Service',
+                 LED_SRV: 'LED Service',
+                 MAGNETO_SRV: 'Magnetometer Service',
+                 IO_PIN_SRV: 'IO Pin Service',
+                 TEMP_SRV: 'Temperature Service',
+                 UART_SRV: 'Nordic Semiconductor UART service',
+                 }
 logger = tools.create_module_logger(__name__)
 
 
@@ -52,20 +68,25 @@ class Microbit:
     """
     Class to simplify interacting with a micro:bit over Bluetooth Low Energy
     """
-    def __init__(self, device_addr, adapter_addr=None,
-                 accelerometer_service=True,
-                 button_service=True,
-                 led_service=True,
-                 magnetometer_service=False,
-                 pin_service=False,
-                 temperature_service=True,
-                 uart_service=False):
+    def __init__(self, device_addr, adapter_addr=None, **kwargs):
         """
         Initialization of an instance of a remote micro:bit
         :param device_addr: Discovered microbit device with this address
         :param adapter_addr: Optional unless you have more than one adapter
                              on your machine
         """
+        LEGACY_PARAMS = ['accelerometer_service', 'button_service',
+                         'led_service', 'magnetometer_service',
+                         'pin_service', 'temperature_service',
+                         'uart_service']
+        for kwarg in kwargs:
+            if kwarg in LEGACY_PARAMS:
+                logger.warning('The parameter %s has been deprecated. There '
+                               'is no longer a requirement to specify which '
+                               'services the micro:bit has.\nYou will get an '
+                               'Error in the log if you access a '
+                               'characteristic that does not exist on '
+                               'micro:bit')
         self.ubit = central.Central(adapter_addr=adapter_addr,
                                     device_addr=device_addr)
 
@@ -76,55 +97,86 @@ class Microbit:
         self.uart_tx_cb = None
 
         # Micro:bit Characteristics
-        if accelerometer_service:
-            self._accel_data = self.ubit.add_characteristic(ACCEL_SRV,
-                                                            ACCEL_DATA)
-            self._accel_period = self.ubit.add_characteristic(ACCEL_SRV,
-                                                              ACCEL_PERIOD)
-        if button_service:
-            self._btn_a_state = self.ubit.add_characteristic(BTN_SRV,
-                                                             BTN_A_STATE)
-            self._btn_b_state = self.ubit.add_characteristic(BTN_SRV,
-                                                             BTN_B_STATE)
-        if led_service:
-            self._led_state = self.ubit.add_characteristic(LED_SRV,
-                                                           LED_STATE)
-            self._led_text = self.ubit.add_characteristic(LED_SRV,
-                                                          LED_TEXT)
-            self._led_scroll = self.ubit.add_characteristic(LED_SRV,
-                                                            LED_SCROLL)
-        if magnetometer_service:
-            self._magneto_data = self.ubit.add_characteristic(
-                MAGNETO_SRV,
-                MAGNETO_DATA)
-            self._magneto_period = self.ubit.add_characteristic(
-                MAGNETO_SRV,
-                MAGNETO_PERIOD)
-            self._magneto_bearing = self.ubit.add_characteristic(
-                MAGNETO_SRV,
-                MAGNETO_BEARING)
-            self._magneto_calibrate = self.ubit.add_characteristic(
-                MAGNETO_SRV,
-                MAGNETO_CALIBRATE)
-        if pin_service:
-            self._io_pin_data = self.ubit.add_characteristic(IO_PIN_SRV,
-                                                             IO_PIN_DATA)
-            self._io_ad_config = self.ubit.add_characteristic(IO_PIN_SRV,
-                                                              IO_AD_CONFIG)
-            self._io_pin_config = self.ubit.add_characteristic(IO_PIN_SRV,
-                                                               IO_PIN_CONFIG)
-            self._io_pin_pwm = self.ubit.add_characteristic(IO_PIN_SRV,
-                                                            IO_PIN_PWM)
-        if temperature_service:
-            self._temp_data = self.ubit.add_characteristic(TEMP_SRV,
-                                                           TEMP_DATA)
-            self._temp_period = self.ubit.add_characteristic(TEMP_SRV,
-                                                             TEMP_PERIOD)
-        if uart_service:
-            self._uart_tx = self.ubit.add_characteristic(UART_SRV,
-                                                         UART_TX)
-            self._uart_rx = self.ubit.add_characteristic(UART_SRV,
-                                                         UART_RX)
+        # if accelerometer_service:
+        self._accel_data = self.ubit.add_characteristic(ACCEL_SRV,
+                                                        ACCEL_DATA)
+        self._accel_period = self.ubit.add_characteristic(ACCEL_SRV,
+                                                          ACCEL_PERIOD)
+        # if button_service:
+        self._btn_a_state = self.ubit.add_characteristic(BTN_SRV,
+                                                         BTN_A_STATE)
+        self._btn_b_state = self.ubit.add_characteristic(BTN_SRV,
+                                                         BTN_B_STATE)
+        # if led_service:
+        self._led_state = self.ubit.add_characteristic(LED_SRV,
+                                                       LED_STATE)
+        self._led_text = self.ubit.add_characteristic(LED_SRV,
+                                                      LED_TEXT)
+        self._led_scroll = self.ubit.add_characteristic(LED_SRV,
+                                                        LED_SCROLL)
+        # if magnetometer_service:
+        self._magneto_data = self.ubit.add_characteristic(
+            MAGNETO_SRV,
+            MAGNETO_DATA)
+        self._magneto_period = self.ubit.add_characteristic(
+            MAGNETO_SRV,
+            MAGNETO_PERIOD)
+        self._magneto_bearing = self.ubit.add_characteristic(
+            MAGNETO_SRV,
+            MAGNETO_BEARING)
+        self._magneto_calibrate = self.ubit.add_characteristic(
+            MAGNETO_SRV,
+            MAGNETO_CALIBRATE)
+        # if pin_service:
+        self._io_pin_data = self.ubit.add_characteristic(IO_PIN_SRV,
+                                                         IO_PIN_DATA)
+        self._io_ad_config = self.ubit.add_characteristic(IO_PIN_SRV,
+                                                          IO_AD_CONFIG)
+        self._io_pin_config = self.ubit.add_characteristic(IO_PIN_SRV,
+                                                           IO_PIN_CONFIG)
+        self._io_pin_pwm = self.ubit.add_characteristic(IO_PIN_SRV,
+                                                        IO_PIN_PWM)
+        # if temperature_service:
+        self._temp_data = self.ubit.add_characteristic(TEMP_SRV,
+                                                       TEMP_DATA)
+        self._temp_period = self.ubit.add_characteristic(TEMP_SRV,
+                                                         TEMP_PERIOD)
+        # if uart_service:
+        self._uart_tx = self.ubit.add_characteristic(UART_SRV,
+                                                     UART_TX)
+        self._uart_rx = self.ubit.add_characteristic(UART_SRV,
+                                                     UART_RX)
+
+    @staticmethod
+    def available(adapter_address=None):
+        """
+        Generator to find already discovered micro:bit's and return a tuple
+        of their address and name
+        :param adapter_address: Optional if you want o find devices on specific
+                                adapter
+        :return: tuple of
+        """
+        for ubit in central.Central.available(adapter_address):
+            if ubit.name and 'micro:bit' in ubit.name:
+                yield Microbit(ubit.address, ubit.dongle.address)
+
+    def services_available(self):
+        """Return a list of service names available on this micro:bit"""
+        named_services = []
+        for service in self.ubit.services_available:
+            if service.upper() in SERVICE_NAMES:
+                named_services.append(SERVICE_NAMES[service.upper()])
+        return named_services
+
+    @property
+    def name(self):
+        """Read the devices Bluetooth address"""
+        return self.ubit.rmt_device.name
+
+    @property
+    def address(self):
+        """Read the devices Bluetooth address"""
+        return self.ubit.rmt_device.address
 
     @property
     def connected(self):

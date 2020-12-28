@@ -281,8 +281,10 @@ def get_methods(adapter=None,
                       service,
                       characteristic,
                       descriptor)
-
-    return get_dbus_iface(iface, get_dbus_obj(path_obj))
+    if path_obj is not None:
+        return get_dbus_iface(iface, get_dbus_obj(path_obj))
+    else:
+        return None
 
 
 def get_props(adapter=None,
@@ -304,8 +306,45 @@ def get_props(adapter=None,
                              service,
                              characteristic,
                              descriptor)
+    if path_obj is not None:
+        return get_dbus_iface(dbus.PROPERTIES_IFACE, get_dbus_obj(path_obj))
+    else:
+        return None
 
-    return get_dbus_iface(dbus.PROPERTIES_IFACE, get_dbus_obj(path_obj))
+
+def get_services(path_obj):
+    found_services = []
+    valid_structure = re.match(r'/org/bluez/hci\d+/dev(_([0-9A-Fa-f]){2}){6}',
+                               path_obj)
+    if not valid_structure:
+        return found_services
+    else:
+        mngd_obj = get_managed_objects()
+        for path in mngd_obj:
+            if path.startswith(path_obj):
+                srv_uuid = mngd_obj[path].get(
+                    constants.GATT_SERVICE_IFACE, {}).get('UUID')
+                if srv_uuid:
+                    found_services.append(str(srv_uuid))
+        return found_services
+
+
+def get_device_addresses(name_contains):
+    """
+    Finds device whose name contains the string
+    :param name_contains: String to be found in device name
+    :return: List of dictionaries wth Device address and name
+    """
+    found = []
+    mngd_obj = get_managed_objects()
+    for path in mngd_obj:
+        dev_name = mngd_obj[path].get(
+            constants.DEVICE_INTERFACE, {}).get('Name')
+        if dev_name and name_contains in dev_name:
+            dev_addr = mngd_obj[path].get(
+                constants.DEVICE_INTERFACE, {}).get('Address')
+            found.append({dev_addr: dev_name})
+    return found
 
 
 def get(dbus_prop_obj, dbus_iface, prop_name, default=None):

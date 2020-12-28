@@ -1,16 +1,13 @@
 import dbus
 import dbusmock
-import io
 from pathlib import Path
 import subprocess
-# from gi.repository import GLib
 from unittest import mock, skip
 from tests.mock_eventloop import MockAsync, run_pending_events
 
 from bluezero import adapter
 from bluezero.adapter import AdapterError
 from bluezero import observer
-from examples import eddystone_scanner
 
 
 class TestBlueZ5(dbusmock.DBusTestCase):
@@ -71,6 +68,7 @@ class TestBlueZ5(dbusmock.DBusTestCase):
             self.assertEqual('New Alias', dongle.alias)
             self.assertEqual(True, dongle.powered)
 
+    @skip
     def test_on_device_found(self):
         device_address = '11:01:02:03:04:05'
 

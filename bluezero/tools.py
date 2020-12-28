@@ -50,7 +50,7 @@ def int_to_uint32(value_in):
 
 
 def bitwise_or_2lists(list1, list2):
-    list_len = len(list1)
+    list_len = len(list2)
     return_list = [None] * list_len
     for i in range(list_len):
         return_list[i] = list1[i] | list2[i]
@@ -58,7 +58,7 @@ def bitwise_or_2lists(list1, list2):
 
 
 def bitwise_and_2lists(list1, list2):
-    list_len = len(list1)
+    list_len = len(list2)
     return_list = [None] * list_len
     for i in range(list_len):
         return_list[i] = list1[i] & list2[i]

@@ -4,13 +4,7 @@ from bluezero import microbit
 
 def main():
     ubit = microbit.Microbit(adapter_addr='00:01:02:03:04:05',
-                             device_addr='E9:06:4D:45:FC:8D',
-                             accelerometer_service=True,
-                             button_service=True,
-                             led_service=True,
-                             magnetometer_service=False,
-                             pin_service=False,
-                             temperature_service=True)
+                             device_addr='E9:06:4D:45:FC:8D')
 
     ubit.connect()
 
