@@ -295,10 +295,11 @@ class Adapter(object):
         """
         dev_iface = constants.DEVICE_INTERFACE
         if constants.DEVICE_INTERFACE in device_info:
-            if self.on_device_found is not None:
+            dev_addr = device_info[dev_iface]['Address']
+            if self.on_device_found is not None and dev_addr:
                 new_dev = device.Device(
                     adapter_addr=self.address,
-                    device_addr=device_info[dev_iface]['Address'])
+                    device_addr=dev_addr)
                 self.on_device_found(new_dev)
 
     def _interfaces_removed(self, path, device_info):

@@ -23,5 +23,4 @@ class MockAsync:
             main_context.iteration(False)
 
     def quit(self):
-        print('xxxxxxxxcallledxxxxxxxxxxxxxxxxxxx')
         self.mainloop.quit()

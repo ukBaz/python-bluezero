@@ -2,14 +2,7 @@ from bluezero import microbit
 from bluezero import async_tools
 
 ubit = microbit.Microbit(adapter_addr='02:00:AA:48:25:29',
-                         device_addr='F1:55:90:65:29:DC',
-                         accelerometer_service=False,
-                         button_service=False,
-                         led_service=False,
-                         magnetometer_service=False,
-                         pin_service=False,
-                         temperature_service=False,
-                         uart_service=True)
+                         device_addr='F1:55:90:65:29:DC')
 eloop = async_tools.EventLoop()
 ubit.connect()
 

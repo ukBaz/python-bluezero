@@ -191,31 +191,53 @@ class Characteristic:
                             org.bluez.Error.NotAuthorized
                             org.bluez.Error.NotSupported
         """
-        return self.characteristic_methods.ReadValue(dbus.Array())
+        try:
+            return self.characteristic_methods.ReadValue(dbus.Array())
+        except AttributeError:
+            logger.error('Service: %s with Characteristic: %s not defined on '
+                         'device: %s' % (self.srv_uuid, self.chrc_uuid,
+                                         self.device_addr))
+            return []
 
     def write_value(self, value, flags=''):
         """
         Write a new value to the characteristic.
 
-        :param value:
-        :param flags:
-        :return:
+        :param value: A list of byte values
+        :param flags: Optional dictionary.
+        Typically empty. Values defined at:
+        https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/gatt-api.txt
         """
-        self.characteristic_methods.WriteValue(value, dbus.Array(flags))
+        try:
+            self.characteristic_methods.WriteValue(value, dbus.Array(flags))
+        except AttributeError:
+            logger.error('Service: %s with Characteristic: %s not defined on'
+                         'on device: %s. Cannot write_value' % (
+                             self.srv_uuid, self.chrc_uuid, self.device_addr))
 
     def start_notify(self):
         """Initialise notifications for this characteristic."""
-        self.characteristic_methods.StartNotify(
-            reply_handler=self.start_notify_cb,
-            error_handler=generic_error_cb,
-            dbus_interface=constants.GATT_CHRC_IFACE)
+        try:
+            self.characteristic_methods.StartNotify(
+                reply_handler=self.start_notify_cb,
+                error_handler=generic_error_cb,
+                dbus_interface=constants.GATT_CHRC_IFACE)
+        except AttributeError:
+            logger.error('Service: %s with Characteristic: %s not defined '
+                         'on device: %s. Cannot start_notify' % (
+                             self.srv_uuid, self.chrc_uuid, self.device_addr))
 
     def stop_notify(self):
         """Stop notifications for this characteristic."""
-        self.characteristic_methods.StopNotify(
-            reply_handler=self.stop_notify_cb,
-            error_handler=generic_error_cb,
-            dbus_interface=constants.GATT_CHRC_IFACE)
+        try:
+            self.characteristic_methods.StopNotify(
+                reply_handler=self.stop_notify_cb,
+                error_handler=generic_error_cb,
+                dbus_interface=constants.GATT_CHRC_IFACE)
+        except AttributeError:
+            logger.error('Service: %s with Characteristic: %s not defined on'
+                         'on device: %s' % (self.srv_uuid, self.chrc_uuid,
+                                            self.device_addr))
 
     def add_characteristic_cb(self, callback=None):
         """

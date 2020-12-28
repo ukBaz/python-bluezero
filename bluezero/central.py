@@ -26,6 +26,11 @@ class Central:
 
         self._characteristics = []
 
+    @staticmethod
+    def available(adapter_address=None):
+        """Generator for getting a list of devices"""
+        return device.Device.available()
+
     def add_characteristic(self, srv_uuid, chrc_uuid):
         """
         Specify a characteristic of interest on the remote device by using
@@ -48,10 +53,23 @@ class Central:
         :return:
         """
         for chrc in self._characteristics:
-            chrc.resolve_gatt()
+            available = chrc.resolve_gatt()
+            if available:
+                logger.info('Service: %s and characteristic: %s added' %
+                            (chrc.srv_uuid, chrc.chrc_uuid))
+            else:
+                logger.warning('Service: %s and characteristic: %s not '
+                               'available on device: %s' %
+                               (chrc.srv_uuid, chrc.chrc_uuid,
+                                chrc.device_addr))
+
+    @property
+    def services_available(self):
+        return self.rmt_device.services_available
 
     @property
     def services_resolved(self):
+        """Return a list of UIDDs that are available on the device"""
         return self.rmt_device.services_resolved
 
     @property

@@ -52,3 +52,4 @@ jobs:
         /usr/bin/python3 -m unittest -v tests.test_eddystone_scanner_example
         /usr/bin/python3 -m unittest -v tests.test_beacon_db_mock
         /usr/bin/python3 -m unittest -v tests.test_microbit_poll_example
+        /usr/bin/python3 -m unittest -v tests.test_find_microbit_db_mock
