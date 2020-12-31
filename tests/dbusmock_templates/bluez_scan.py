@@ -20,12 +20,11 @@ __email__ = 'philip.withnall@collabora.co.uk'
 __copyright__ = '(c) 2013 Collabora Ltd.'
 __license__ = 'LGPL 3+'
 
+import time
+
 import dbus
 
 from dbusmock import OBJECT_MANAGER_IFACE, mockobject
-
-import json
-from pathlib import Path
 
 BUS_NAME = 'org.bluez'
 MAIN_OBJ = '/'
@@ -209,7 +208,8 @@ def AddDevice(self, adapter_device_name, device_address, alias):
                    # Methods
                    [
                        ('CancelPairing', '', '', ''),
-                       ('Connect', '', '', ConnectMicroBit),
+                       ('Connect', '', '',
+                        'ret = self.ConnectMicroBit("%s", "%s")' % (adapter_device_name, device_address)),
                        ('ConnectProfile', 's', '', ''),
                        ('Disconnect', '', '', ''),
                        ('DisconnectProfile', 's', '', ''),
@@ -411,7 +411,7 @@ def AddGattService(self,
     manager.EmitSignal(OBJECT_MANAGER_IFACE, 'InterfacesAdded',
                        'oa{sa{sv}}', [
                            dbus.ObjectPath(path),
-                           {DEVICE_IFACE: service_props},
+                           {GATT_SRVC_IFACE: service_props},
                        ])
 
     return path
@@ -428,17 +428,19 @@ def AddGattCharacteristic(self, path, charc_props):
                    [
                        ('AcquireNotify', 'a{sv}', 'hq', ''),
                        ('AcquireWrite', 'a{sv}', 'hq', ''),
-                       ('ReadValue', 'a{sv}', 'ay', 'ret = self.GattReadValue("%s")' % path),
+                       ('ReadValue', 'a{sv}', 'ay',
+                        'ret = self.GattReadValue("%s", args[0])' % path),
                        ('StartNotify', '', '', ''),
                        ('StopNotify', '', '', ''),
-                       ('WriteValue', 'aya{sv}',   '', 'ret = self.GattWriteValue("%s", args[0])' % path),
+                       ('WriteValue', 'aya{sv}',   '',
+                        'ret = self.GattWriteValue("%s", args[0], args[1])' % path),
                    ])
 
     manager = mockobject.objects['/']
     manager.EmitSignal(OBJECT_MANAGER_IFACE, 'InterfacesAdded',
                        'oa{sa{sv}}', [
                            dbus.ObjectPath(path),
-                           {DEVICE_IFACE: charc_props},
+                           {GATT_CHRC_IFACE: charc_props},
                        ])
 
     return path
@@ -584,12 +586,14 @@ def DeviceDiscovery(self):
 
 
 @dbus.service.method(BLUEZ_MOCK_IFACE,
-                     in_signature='', out_signature='')
-def ConnectMicroBit(self):
+                     in_signature='ss', out_signature='')
+def ConnectMicroBit(self, adapter_name, device_address):
     print('In connect microbit')
-    device = mockobject.objects['/org/bluez/hci0/dev_E9_06_4D_45_FC_8D']
+    upper_address = device_address.upper().replace(":", "_")
+    dev_path = f'/org/bluez/{adapter_name}/dev_{upper_address}'
+    device = mockobject.objects[dev_path]
 
-    self.ConnectDevice('hci0', 'E9:06:4D:45:FC:8D')
+    self.ConnectDevice(adapter_name, upper_address)
 
     for path in microbit_data:
         srvc_props = microbit_data[path].get(GATT_SRVC_IFACE)
@@ -618,15 +622,33 @@ def ConnectMicroBit(self):
 
 
 @dbus.service.method(BLUEZ_MOCK_IFACE,
-                     in_signature='o', out_signature='ay')
-def GattReadValue(self, path):
-    return microbit_data[path].get(GATT_CHRC_IFACE, {}).get('Value')
+                     in_signature='oa{sv}', out_signature='ay')
+def GattReadValue(self, path, options):
+    gatt_chrc = mockobject.objects[path]
+    gatt_chrc.call_log.append((int(time.time()), 'ReadValue', [options]))
+    # return microbit_data[path].get(GATT_CHRC_IFACE, {}).get('Value')
+    return gatt_chrc.Get(GATT_CHRC_IFACE, 'Value')
 
 
 @dbus.service.method(BLUEZ_MOCK_IFACE,
-                     in_signature='oay', out_signature='')
-def GattWriteValue(self, path, value):
-    microbit_data[path][GATT_CHRC_IFACE]['Value'] = dbus.Array(value)
+                     in_signature='oaya{sv}', out_signature='')
+def GattWriteValue(self, path, value, options):
+    # microbit_data[path][GATT_CHRC_IFACE]['Value'] = dbus.Array(value)
+    gatt_chrc = mockobject.objects[path]
+    gatt_chrc.Set(GATT_CHRC_IFACE, 'Value', value)
+    gatt_chrc.call_log.append((int(time.time()), 'WriteValue', [value, options]))
+    if path == '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0028/char0029':
+        tx_path = '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0028/char002b'
+        tx_obj = mockobject.objects[tx_path]
+        tx_obj.EmitSignal(dbus.PROPERTIES_IFACE,
+                          'PropertiesChanged',
+                          'sa{sv}as', [
+                              GATT_CHRC_IFACE,
+                              {
+                                  'Value': dbus.Array(value, variant_level=1),
+                              },
+                              [],
+                          ])
 
 
 microbit_data = {
@@ -891,4 +913,198 @@ microbit_data = {
                                                                                 'Characteristic': '/org/bluez/hci0/dev_E9_06_4D_45_FC_8D/service000a/char000b',
                                                                                 'Value': []},
                                                                             'org.freedesktop.DBus.Properties': {}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02': {
+        'org.bluez.Device1': {'Address': 'DD:02:02:02:02:02', 'AddressType': 'random',
+                              'Name': 'BBC micro:bit',
+                              'Alias': 'BBC micro:bit', 'Paired': True, 'Trusted': False, 'Blocked': False,
+                              'LegacyPairing': False, 'Connected': False,
+                              'UUIDs': ['00001800-0000-1000-8000-00805f9b34fb', '00001801-0000-1000-8000-00805f9b34fb',
+                                        '0000180a-0000-1000-8000-00805f9b34fb', '0000fe59-0000-1000-8000-00805f9b34fb',
+                                        '6e400001-b5a3-f393-e0a9-e50e24dcca9e', 'e95d0753-251d-470a-a062-fa1922dfa9a8',
+                                        'e95d127b-251d-470a-a062-fa1922dfa9a8', 'e95d6100-251d-470a-a062-fa1922dfa9a8',
+                                        'e95d93af-251d-470a-a062-fa1922dfa9a8', 'e95d9882-251d-470a-a062-fa1922dfa9a8',
+                                        'e95dd91d-251d-470a-a062-fa1922dfa9a8', 'e97dd91d-251d-470a-a062-fa1922dfa9a8'],
+                              'Adapter': '/org/bluez/hci0', 'ServicesResolved': False}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service004c': {
+        'org.bluez.GattService1': {'UUID': 'e95d6100-251d-470a-a062-fa1922dfa9a8',
+                                   'Device': '/org/bluez/hci0/dev_DD_02_02_02_02_02', 'Primary': True, 'Includes': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service004c/char0050': {
+        'org.bluez.GattCharacteristic1': {'UUID': 'e95d1b25-251d-470a-a062-fa1922dfa9a8',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service004c',
+                                          'Value': [0xe8, 0x03], 'Flags': ['read', 'write']}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service004c/char004d': {
+        'org.bluez.GattCharacteristic1': {'UUID': 'e95d9250-251d-470a-a062-fa1922dfa9a8',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service004c', 'Value': [],
+                                          'Notifying': False, 'Flags': ['read', 'notify'], 'NotifyAcquired': False}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service004c/char004d/desc004f': {
+        'org.bluez.GattDescriptor1': {'UUID': '00002902-0000-1000-8000-00805f9b34fb',
+                                      'Characteristic': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service004c/char004d',
+                                      'Value': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0045': {
+        'org.bluez.GattService1': {'UUID': 'e95dd91d-251d-470a-a062-fa1922dfa9a8',
+                                   'Device': '/org/bluez/hci0/dev_DD_02_02_02_02_02', 'Primary': True, 'Includes': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0045/char004a': {
+        'org.bluez.GattCharacteristic1': {'UUID': 'e95d0d2d-251d-470a-a062-fa1922dfa9a8',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0045', 'Value': [],
+                                          'Flags': ['read', 'write']}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0045/char0048': {
+        'org.bluez.GattCharacteristic1': {'UUID': 'e95d93ee-251d-470a-a062-fa1922dfa9a8',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0045', 'Value': [],
+                                          'Flags': ['write']}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0045/char0046': {
+        'org.bluez.GattCharacteristic1': {'UUID': 'e95d7b77-251d-470a-a062-fa1922dfa9a8',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0045', 'Value': [],
+                                          'Flags': ['read', 'write']}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service003b': {
+        'org.bluez.GattService1': {'UUID': 'e95d127b-251d-470a-a062-fa1922dfa9a8',
+                                   'Device': '/org/bluez/hci0/dev_DD_02_02_02_02_02', 'Primary': True, 'Includes': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service003b/char0042': {
+        'org.bluez.GattCharacteristic1': {'UUID': 'e95d8d00-251d-470a-a062-fa1922dfa9a8',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service003b', 'Value': [],
+                                          'Notifying': False, 'Flags': ['read', 'write', 'notify'],
+                                          'NotifyAcquired': False}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service003b/char0042/desc0044': {
+        'org.bluez.GattDescriptor1': {'UUID': '00002902-0000-1000-8000-00805f9b34fb',
+                                      'Characteristic': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service003b/char0042',
+                                      'Value': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service003b/char0040': {
+        'org.bluez.GattCharacteristic1': {'UUID': 'e95dd822-251d-470a-a062-fa1922dfa9a8',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service003b', 'Value': [],
+                                          'Flags': ['write']}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service003b/char003e': {
+        'org.bluez.GattCharacteristic1': {'UUID': 'e95db9fe-251d-470a-a062-fa1922dfa9a8',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service003b', 'Value': [],
+                                          'Flags': ['read', 'write']}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service003b/char003c': {
+        'org.bluez.GattCharacteristic1': {'UUID': 'e95d5899-251d-470a-a062-fa1922dfa9a8',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service003b', 'Value': [],
+                                          'Flags': ['read', 'write']}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0034': {
+        'org.bluez.GattService1': {'UUID': 'e95d9882-251d-470a-a062-fa1922dfa9a8',
+                                   'Device': '/org/bluez/hci0/dev_DD_02_02_02_02_02', 'Primary': True, 'Includes': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0034/char0038': {
+        'org.bluez.GattCharacteristic1': {'UUID': 'e95dda91-251d-470a-a062-fa1922dfa9a8',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0034', 'Value': [],
+                                          'Notifying': False, 'Flags': ['read', 'notify'], 'NotifyAcquired': False}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0034/char0038/desc003a': {
+        'org.bluez.GattDescriptor1': {'UUID': '00002902-0000-1000-8000-00805f9b34fb',
+                                      'Characteristic': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0034/char0038',
+                                      'Value': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0034/char0035': {
+        'org.bluez.GattCharacteristic1': {'UUID': 'e95dda90-251d-470a-a062-fa1922dfa9a8',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0034', 'Value': [],
+                                          'Notifying': False, 'Flags': ['read', 'notify'], 'NotifyAcquired': False}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0034/char0035/desc0037': {
+        'org.bluez.GattDescriptor1': {'UUID': '00002902-0000-1000-8000-00805f9b34fb',
+                                      'Characteristic': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0034/char0035',
+                                      'Value': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service002e': {
+        'org.bluez.GattService1': {'UUID': 'e95d0753-251d-470a-a062-fa1922dfa9a8',
+                                   'Device': '/org/bluez/hci0/dev_DD_02_02_02_02_02', 'Primary': True, 'Includes': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service002e/char0032': {
+        'org.bluez.GattCharacteristic1': {'UUID': 'e95dfb24-251d-470a-a062-fa1922dfa9a8',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service002e', 'Value': [],
+                                          'Flags': ['read', 'write']}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service002e/char002f': {
+        'org.bluez.GattCharacteristic1': {'UUID': 'e95dca4b-251d-470a-a062-fa1922dfa9a8',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service002e', 'Value': [],
+                                          'Notifying': False, 'Flags': ['read', 'notify'], 'NotifyAcquired': False}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service002e/char002f/desc0031': {
+        'org.bluez.GattDescriptor1': {'UUID': '00002902-0000-1000-8000-00805f9b34fb',
+                                      'Characteristic': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service002e/char002f',
+                                      'Value': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0028': {
+        'org.bluez.GattService1': {'UUID': '6e400001-b5a3-f393-e0a9-e50e24dcca9e',
+                                   'Device': '/org/bluez/hci0/dev_DD_02_02_02_02_02', 'Primary': True, 'Includes': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0028/char002b': {
+        'org.bluez.GattCharacteristic1': {'UUID': '6e400002-b5a3-f393-e0a9-e50e24dcca9e',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0028', 'Value': [51],
+                                          'Notifying': False, 'Flags': ['indicate']},
+        'org.freedesktop.DBus.Properties': {}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0028/char002b/desc002d': {
+        'org.bluez.GattDescriptor1': {'UUID': '00002902-0000-1000-8000-00805f9b34fb',
+                                      'Characteristic': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0028/char002b',
+                                      'Value': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0028/char0029': {
+        'org.bluez.GattCharacteristic1': {'UUID': '6e400003-b5a3-f393-e0a9-e50e24dcca9e',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0028', 'Value': [],
+                                          'Flags': ['write-without-response', 'write'], 'WriteAcquired': False},
+        'org.freedesktop.DBus.Properties': {}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service001d': {
+        'org.bluez.GattService1': {'UUID': 'e95d93af-251d-470a-a062-fa1922dfa9a8',
+                                   'Device': '/org/bluez/hci0/dev_DD_02_02_02_02_02', 'Primary': True, 'Includes': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service001d/char0025': {
+        'org.bluez.GattCharacteristic1': {'UUID': 'e95db84c-251d-470a-a062-fa1922dfa9a8',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service001d', 'Value': [],
+                                          'Notifying': False, 'Flags': ['read', 'notify'], 'NotifyAcquired': False}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service001d/char0025/desc0027': {
+        'org.bluez.GattDescriptor1': {'UUID': '00002902-0000-1000-8000-00805f9b34fb',
+                                      'Characteristic': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service001d/char0025',
+                                      'Value': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service001d/char0023': {
+        'org.bluez.GattCharacteristic1': {'UUID': 'e95d23c4-251d-470a-a062-fa1922dfa9a8',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service001d', 'Value': [],
+                                          'Flags': ['write']}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service001d/char0021': {
+        'org.bluez.GattCharacteristic1': {'UUID': 'e95d5404-251d-470a-a062-fa1922dfa9a8',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service001d', 'Value': [],
+                                          'Flags': ['write-without-response', 'write'], 'WriteAcquired': False}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service001d/char001e': {
+        'org.bluez.GattCharacteristic1': {'UUID': 'e95d9775-251d-470a-a062-fa1922dfa9a8',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service001d', 'Value': [],
+                                          'Notifying': False, 'Flags': ['read', 'notify'], 'NotifyAcquired': False}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service001d/char001e/desc0020': {
+        'org.bluez.GattDescriptor1': {'UUID': '00002902-0000-1000-8000-00805f9b34fb',
+                                      'Characteristic': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service001d/char001e',
+                                      'Value': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0016': {
+        'org.bluez.GattService1': {'UUID': '0000180a-0000-1000-8000-00805f9b34fb',
+                                   'Device': '/org/bluez/hci0/dev_DD_02_02_02_02_02', 'Primary': True, 'Includes': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0016/char001b': {
+        'org.bluez.GattCharacteristic1': {'UUID': '00002a26-0000-1000-8000-00805f9b34fb',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0016', 'Value': [],
+                                          'Flags': ['read']}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0016/char0019': {
+        'org.bluez.GattCharacteristic1': {'UUID': '00002a25-0000-1000-8000-00805f9b34fb',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0016', 'Value': [],
+                                          'Flags': ['read']}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0016/char0017': {
+        'org.bluez.GattCharacteristic1': {'UUID': '00002a24-0000-1000-8000-00805f9b34fb',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0016', 'Value': [],
+                                          'Flags': ['read']}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0012': {
+        'org.bluez.GattService1': {'UUID': 'e97dd91d-251d-470a-a062-fa1922dfa9a8',
+                                   'Device': '/org/bluez/hci0/dev_DD_02_02_02_02_02', 'Primary': True, 'Includes': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0012/char0013': {
+        'org.bluez.GattCharacteristic1': {'UUID': 'e97d3b10-251d-470a-a062-fa1922dfa9a8',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0012', 'Value': [],
+                                          'Notifying': False, 'Flags': ['write-without-response', 'notify'],
+                                          'WriteAcquired': False, 'NotifyAcquired': False}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0012/char0013/desc0015': {
+        'org.bluez.GattDescriptor1': {'UUID': '00002902-0000-1000-8000-00805f9b34fb',
+                                      'Characteristic': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service0012/char0013',
+                                      'Value': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service000e': {
+        'org.bluez.GattService1': {'UUID': '0000fe59-0000-1000-8000-00805f9b34fb',
+                                   'Device': '/org/bluez/hci0/dev_DD_02_02_02_02_02', 'Primary': True, 'Includes': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service000e/char000f': {
+        'org.bluez.GattCharacteristic1': {'UUID': '8ec90004-f315-4f60-9fb8-838830daea50',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service000e', 'Value': [],
+                                          'Notifying': False, 'Flags': ['write', 'indicate']}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service000e/char000f/desc0011': {
+        'org.bluez.GattDescriptor1': {'UUID': '00002902-0000-1000-8000-00805f9b34fb',
+                                      'Characteristic': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service000e/char000f',
+                                      'Value': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service000a': {
+        'org.bluez.GattService1': {'UUID': '00001801-0000-1000-8000-00805f9b34fb',
+                                   'Device': '/org/bluez/hci0/dev_DD_02_02_02_02_02', 'Primary': True, 'Includes': []}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service000a/char000b': {
+        'org.bluez.GattCharacteristic1': {'UUID': '00002a05-0000-1000-8000-00805f9b34fb',
+                                          'Service': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service000a', 'Value': [],
+                                          'Notifying': False, 'Flags': ['indicate']}},
+    '/org/bluez/hci0/dev_DD_02_02_02_02_02/service000a/char000b/desc000d': {
+        'org.bluez.GattDescriptor1': {'UUID': '00002902-0000-1000-8000-00805f9b34fb',
+                                      'Characteristic': '/org/bluez/hci0/dev_DD_02_02_02_02_02/service000a/char000b',
+                                      'Value': []}},
+
 }
