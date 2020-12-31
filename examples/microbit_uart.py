@@ -1,25 +1,34 @@
+import sys
+from bluezero import adapter
 from bluezero import microbit
 from bluezero import async_tools
 
-ubit = microbit.Microbit(adapter_addr='02:00:AA:48:25:29',
-                         device_addr='F1:55:90:65:29:DC')
-eloop = async_tools.EventLoop()
-ubit.connect()
+
+def main(adapter_addrss, device_address):
+    ubit = microbit.Microbit(adapter_addr=adapter_addrss,
+                             device_addr=device_address)
+
+    def goodbye(data):
+        print(data)
+        ubit.quit_async()
+        ubit.disconnect()
+        return True
+
+    ubit.connect()
+    ubit.subscribe_uart(goodbye)
+    ubit.uart = 'Ping#'
+
+    ubit.run_async()
 
 
-def ping():
-    ubit.uart = 'ping#'
-    return True
-
-
-def goodbye():
-    ubit.quit_async()
-    ubit.disconnect()
-    return False
-
-
-ubit.subscribe_uart(print)
-eloop.add_timer(10000, ping)
-eloop.add_timer(30000, goodbye)
-
-ubit.run_async()
+if __name__ == '__main__':
+    args = sys.argv
+    if len(args) == 3:
+        main(args[1], args[2])
+    else:
+        print('Needs to be called with Adapter Address and micro:bit address')
+        print('Suggestions:')
+        for dongle in adapter.Adapter.available():
+            for mbit in microbit.Microbit.available(dongle.address):
+                print(f'\tpython3 {sys.argv[0]} '
+                      f'{dongle.address} {mbit.address}')

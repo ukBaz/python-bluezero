@@ -158,7 +158,8 @@ class Microbit:
         """
         for ubit in central.Central.available(adapter_address):
             if ubit.name and 'micro:bit' in ubit.name:
-                yield Microbit(ubit.address, ubit.dongle.address)
+                yield Microbit(device_addr=ubit.address,
+                               adapter_addr=ubit.adapter)
 
     def services_available(self):
         """Return a list of service names available on this micro:bit"""

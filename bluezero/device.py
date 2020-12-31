@@ -48,7 +48,6 @@ class Device(object):
         :param device_addr: Address of the remote Bluetooth device.
         """
         self.bus = dbus.SystemBus()
-        self.dongle = bluezero.adapter.Adapter(adapter_addr)
         device_path = dbus_tools.get_dbus_path(adapter_addr, device_addr)
         if not device_path:
             raise ValueError("Cannot find a device: " + device_addr +
@@ -162,10 +161,19 @@ class Device(object):
             new_alias)
 
     @property
-    def adapter(self):
-        """The object path of the adapter the device belongs to."""
+    def _adapter(self):
+        """The D-Bus object path of the adapter the device belongs to."""
         return self.remote_device_props.Get(
             constants.DEVICE_INTERFACE, 'Adapter')
+
+    @property
+    def adapter(self):
+        """The address of the adapter the device belongs to."""
+        adapter_obj = dbus_tools.get_dbus_obj(self._adapter)
+        adapter_props = dbus_tools.get_dbus_iface(dbus.PROPERTIES_IFACE,
+                                                  adapter_obj)
+        return dbus_tools.get(adapter_props,  constants.ADAPTER_INTERFACE,
+                              'Address')
 
     @property
     def legacy_pairing(self):

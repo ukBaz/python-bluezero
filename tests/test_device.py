@@ -1,3 +1,4 @@
+import sys
 import unittest
 from unittest.mock import MagicMock
 from unittest.mock import patch
@@ -118,7 +119,7 @@ class TestBluezeroDevice(unittest.TestCase):
 
     def test_adapter(self):
         ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)
-        self.assertEqual(ble_dev.adapter, self.adapter_path)
+        self.assertEqual(ble_dev._adapter, self.adapter_path)
 
     def test_legacy_pairing(self):
         ble_dev = self.module_under_test.Device(self.adapter_addr, self.device_addr)

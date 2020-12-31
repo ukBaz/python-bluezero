@@ -348,6 +348,15 @@ def get_device_addresses(name_contains):
 
 
 def get(dbus_prop_obj, dbus_iface, prop_name, default=None):
+    """
+    Get a property from a D-Bus object and provide a default if the property
+    does not exist. Similar to the "get" functionality on a python dictionary.
+    :param dbus_prop_obj: The output object from dbus_tools.get_props
+    :param dbus_iface: D-Bus Interface name e.g. 'org.bluez.Device1'
+    :param prop_name: The name of the property
+    :param default: What value to return if the property does not exist.
+    :return: The property value if it exists or the default value
+    """
     try:
         return dbus_prop_obj.Get(dbus_iface, prop_name)
     except dbus.exceptions.DBusException as dbus_exception:

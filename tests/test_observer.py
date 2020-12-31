@@ -102,7 +102,6 @@ class TestBlueZ5(dbusmock.DBusTestCase):
             observer.Scanner.start_beacon_scan(on_altbeacon=ForTest.new_dev)
         self.assertEqual(24931, ForTest.found_data)
 
-    # @skip("demonstrating skipping")
     def test_scanner_iBeacon(self):
         class ForTest:
             found_data = None
