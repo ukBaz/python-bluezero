@@ -271,9 +271,10 @@ class Adapter(object):
         Handle DBus PropertiesChanged signal and
         call appropriate user callback
         """
-        macaddr = dbus_tools.get_mac_addr_from_dbus_path(path)
+        macaddr = dbus_tools.get_device_address_from_dbus_path(path)
+        adapter_addr = dbus_tools.get_adapter_address_from_dbus_path(path)
         if 'Connected' in changed:
-            if changed['Connected']:
+            if changed['Connected'] and self.address == adapter_addr:
                 new_dev = device.Device(
                     adapter_addr=self.address,
                     device_addr=macaddr)

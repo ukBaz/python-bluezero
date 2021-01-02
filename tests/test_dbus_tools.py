@@ -105,7 +105,7 @@ class TestDbusModuleCalls(unittest.TestCase):
             with self.subTest(i=i):
                 self.assertEqual(
                     test_data[i][1],
-                    self.module_under_test.get_mac_addr_from_dbus_path(
+                    self.module_under_test.get_device_address_from_dbus_path(
                         test_data[i][0]
                     ))
 

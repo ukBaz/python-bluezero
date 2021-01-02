@@ -95,11 +95,24 @@ def get_managed_objects():
 
 
 def get_mac_addr_from_dbus_path(path):
-    """Return the mac addres from a dev_XX_XX_XX_XX_XX_XX dbus path"""
+    logger.warning('get_mac_addr_from_dbus_path has been deprecated and has'
+                   'been replaced with get_device_address_from_dbus_path')
+    return get_device_address_from_dbus_path(path)
+
+
+def get_device_address_from_dbus_path(path):
+    """Return the mac address from a dev_XX_XX_XX_XX_XX_XX dbus path"""
     for path_elem in path.split('/'):
         if path_elem.startswith('dev_'):
             return path_elem.replace("dev_", '').replace("_", ":")
     return ''
+
+
+def get_adapter_address_from_dbus_path(path):
+    """Return the address of the adapter from the a DBus path"""
+    result = re.match(r'/org/bluez/hci\d+', path)
+    mngd_objs = get_managed_objects()
+    return mngd_objs[result.group(0)][constants.ADAPTER_INTERFACE]['Address']
 
 
 def _get_dbus_path2(objects, parent_path, iface_in, prop, value):

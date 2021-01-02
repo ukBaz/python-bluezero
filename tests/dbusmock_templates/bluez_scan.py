@@ -39,6 +39,7 @@ MEDIA_IFACE = 'org.bluez.Media1'
 NETWORK_SERVER_IFACE = 'org.bluez.Network1'
 LEDADVERTISING_MNGR_IFACE = 'org.bluez.GattManager1'
 DEVICE_IFACE = 'org.bluez.Device1'
+GATT_MNGR_IFACE = 'org.bluez.GattManager1'
 GATT_SRVC_IFACE = 'org.bluez.GattService1'
 GATT_CHRC_IFACE = 'org.bluez.GattCharacteristic1'
 GATT_DSCR_IFACE = 'org.bluez.GattDescriptor1'
@@ -105,6 +106,9 @@ def AddAdapter(self, device_name, system_name):
         'PairableTimeout': dbus.UInt32(180, variant_level=1),
     }
 
+    if device_name == 'hci1':
+        adapter_properties['Address'] = 'AA:01:02:03:04:05'
+
     self.AddObject(path,
                    ADAPTER_IFACE,
                    # Properties
@@ -130,12 +134,17 @@ def AddAdapter(self, device_name, system_name):
         ('RegisterAdvertisement', 'oa{sv}', '', ''),
         ('UnregisterAdvertisement', 'o', '', '')
     ])
+    adapter.AddMethods(GATT_MNGR_IFACE, [
+        ('RegisterApplication', 'oa{sv}', '', ''),
+        ('UnregisterApplication', 'o', '', '')
+    ])
     lea_mngr_properties = {
-        'ActiveInstances': dbus.Byte(1),
-        'SupportedIncludes': dbus.Array(["appearance", "local-name"], signature='s'),
-        'SupportedInstances': dbus.Byte(4),
+        'ActiveInstances': dbus.Byte(0),
+        'SupportedIncludes': dbus.Array(["appearance", "local-name"],
+                                        signature='s'),
+        'SupportedInstances': dbus.Byte(5),
     }
-    self.AddProperties(LEDADVERTISING_MNGR_IFACE,
+    adapter.AddProperties(LEDADVERTISING_MNGR_IFACE,
                        dbus.Dictionary(
                            lea_mngr_properties
                        )
@@ -154,8 +163,10 @@ def AddAdapter(self, device_name, system_name):
     manager.EmitSignal(OBJECT_MANAGER_IFACE, 'InterfacesAdded',
                        'oa{sa{sv}}', [
                            dbus.ObjectPath(path),
-                           {ADAPTER_IFACE: adapter_properties,
-                            LEDADVERTISING_MNGR_IFACE: lea_mngr_properties}
+                           {
+                               ADAPTER_IFACE: adapter_properties,
+                               LEDADVERTISING_MNGR_IFACE: lea_mngr_properties
+                            }
                        ])
 
     return path
@@ -444,6 +455,7 @@ def AddGattCharacteristic(self, path, charc_props):
                        ])
 
     return path
+
 
 @dbus.service.method(BLUEZ_MOCK_IFACE,
                      in_signature='ss', out_signature='')

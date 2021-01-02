@@ -92,7 +92,7 @@ class TemperatureChrc(localGATT.Characteristic):
 
 
 class ble:
-    def __init__(self):
+    def __init__(self, adapter_address=None):
         self.mainloop = async_tools.EventLoop()
 
         self.app = localGATT.Application()
@@ -121,8 +121,10 @@ class ble:
 
         self.srv_mng = GATT.GattManager(adapter.list_adapters()[0])
         self.srv_mng.register_application(self.app, {})
-
-        self.dongle = adapter.Adapter(adapter.list_adapters()[0])
+        if adapter_address:
+            self.dongle = adapter.Adapter(adapter_address)
+        else:
+            self.dongle = adapter.Adapter(adapter.list_adapters()[0])
         advert = advertisement.Advertisement(1, 'peripheral')
 
         advert.service_UUIDs = [CPU_TMP_SRVC]
@@ -146,8 +148,13 @@ class ble:
             self.mainloop.quit()
 
 
-if __name__ == '__main__':
+def main(adapter_address=None, test_mode=False):
     print('CPU temperature is {}C'.format(get_cpu_temperature()))
-    print(sint16(get_cpu_temperature()))
-    pi_cpu_monitor = ble()
-    pi_cpu_monitor.start_bt()
+    print(cpu_temp_sint16([get_cpu_temperature()]))
+    pi_cpu_monitor = ble(adapter_address)
+    if not test_mode:
+        pi_cpu_monitor.start_bt()
+
+
+if __name__ == '__main__':
+    main('00:AA:01:01:00:24')
