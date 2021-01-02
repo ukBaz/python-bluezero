@@ -44,7 +44,7 @@ def interfaces_added(path, interfaces):
     :return:
     """
     if constants.DEVICE_INTERFACE in interfaces:
-        logger.debug('Device added at {}'.format(path))
+        logger.debug('Device added at %s', path)
 
 
 def properties_changed(interface, changed, invalidated, path):
@@ -58,11 +58,8 @@ def properties_changed(interface, changed, invalidated, path):
     """
     if constants.DEVICE_INTERFACE in interface:
         for prop in changed:
-            logger.debug(
-                '{}:{} Property {} new value {}'.format(interface,
-                                                        path,
-                                                        prop,
-                                                        changed[prop]))
+            logger.debug('%s:%s Property %s new value %s', interface, path,
+                         prop, changed[prop])
 
 
 def get_dbus_obj(dbus_path):

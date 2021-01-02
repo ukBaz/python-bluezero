@@ -16,6 +16,8 @@ computer. It also checks to see if it is enabled (powered) before scanning for
 nearby Bluetooth devices:
 
 .. literalinclude:: ../examples/adapter_example.py
+    :language: python
+
 
 Central Role
 ------------
@@ -23,6 +25,7 @@ This example uses the micro:bit API that has been written in Bluezero to interac
 with the micro:bit
 
 .. literalinclude:: ../examples/microbit_poll.py
+    :language: python
 
 
 Scanner: Eddystone
@@ -31,7 +34,9 @@ Scanner: Eddystone
 This example scans for beacons in the Eddystone URL format.
 It will report on `URL beacons` <https://github.com/google/eddystone/tree/master/eddystone-url>.
 
-.. literalinclude:: ../examples/eddystone-scanner.py
+.. literalinclude:: ../examples/eddystone_scanner.py
+    :language: python
+
 
 Beacon: Eddystone URL
 ---------------------
@@ -40,7 +45,8 @@ This example broadcasts a given URL in a format for the `Physical Web
 <https://google.github.io/physical-web/>`_:
 You will need to put the BlueZ bluetoothd into experimental mode for this one.
 
-.. literalinclude:: ../examples/eddystone-url-beacon.py
+.. literalinclude:: ../examples/eddystone_url_beacon.py
+    :language: python
 
 
 Peripheral Role
@@ -54,6 +60,7 @@ You will need to have BlueZ in experimental mode and have modified the DBus conf
 file to open the permissions for 'ukBaz.bluezero'
 
 .. literalinclude:: ../examples/cpu_temperature.py
+    :language: python
 
 
 Peripheral - Nordic UART Service
@@ -69,6 +76,7 @@ It uses the Bluezero peripheral file (level 10) so should be easier than the pre
 Temperature example that was a level 100.
 
 .. literalinclude:: ../examples/ble_uart.py
+    :language: python
 
 
 Control Media Player over Bluetooth
@@ -78,3 +86,4 @@ This script displays information about the current track being playered by
 the connected media player
 
 .. literalinclude:: ../examples/control_media_player.py
+    :language: python
