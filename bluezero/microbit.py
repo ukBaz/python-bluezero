@@ -152,9 +152,10 @@ class Microbit:
         """
         Generator to find already discovered micro:bit's and return a tuple
         of their address and name
+
         :param adapter_address: Optional if you want o find devices on specific
-                                adapter
-        :return: tuple of
+         adapter
+        :return: Microbit Object
         """
         for ubit in central.Central.available(adapter_address):
             if ubit.name and 'micro:bit' in ubit.name:
@@ -223,6 +224,7 @@ class Microbit:
         """
         Specify text to be displayed. Limit of 20 characters.
         The content will be restricted to that number of characters.
+
         :param words:
         """
         pass
@@ -232,6 +234,7 @@ class Microbit:
         """
         Specify text to be displayed. Limit of 20 characters.
         The content will be restricted to that number of characters.
+
         :param words:
         """
         data = []
@@ -247,6 +250,7 @@ class Microbit:
     def _write_pixels(self, data):
         """
         Utility function for the different display functions
+
         :param data: list of 5 numbers in the range 0 to 255
         (e.g. [0xff, 0x00, 0, 255, 0b10101]
         """
@@ -264,6 +268,7 @@ class Microbit:
         """
         Returns a list of 5 binary numbers. Each number represents a row
         from top to bottom
+
         :return: Example [0b01110, 0b01000, 0b10000, 0b10000, 0b01110]
         """
         rows = self._led_state.value
@@ -277,6 +282,7 @@ class Microbit:
         0b11111 will turn all LEDs in specified row on
         0b10101 will turn alternate LEDs on
         0b00000 will turn all LEDs in row off
+
         :param row0: top row
         :param row1:
         :param row2: middle row
@@ -289,6 +295,7 @@ class Microbit:
     def temperature(self):
         """
         Temperature from sensors in micro:bit processors
+
         :return: Integer of temperature in Celsius
         """
         tmp_val = self._temp_data.value
@@ -301,6 +308,7 @@ class Microbit:
         Read the state of button A on a micro:bit
         3 button states are defined and represented by a simple numeric
         enumeration:  0 = not pressed, 1 = pressed, 2 = long press.
+
         :return: integer representing button value
         """
         btn_val = self._btn_a_state.value
@@ -313,6 +321,7 @@ class Microbit:
         Read the state of button B on a micro:bit
         3 button states are defined and represented by a simple numeric
         enumeration:  0 = not pressed, 1 = pressed, 2 = long press.
+
         :return: integer representing button value
         """
         btn_val = self._btn_b_state.value
@@ -332,6 +341,7 @@ class Microbit:
     def subscribe_button_a(self, user_callback):
         """
         Execute user_callback on Button A being press on micro:bit
+
         :param user_callback: User callback method receiving the button state
         :return:
         """
@@ -342,6 +352,7 @@ class Microbit:
     def subscribe_button_b(self, user_callback):
         """
         Execute user_callback on Button B being press on micro:bit
+
         :param user_callback: User callback method receiving the button state
         :return:
         """
@@ -359,6 +370,7 @@ class Microbit:
     def subscribe_pins(self, user_callback):
         """
         Execute user_callback on input pin being changed on micro:bit
+
         :param user_callback:
         :return:
         """
@@ -370,6 +382,7 @@ class Microbit:
     def accelerometer(self):
         """
         Read the values of the accelerometer on the microbit
+
         :return: return a list in the order of x, y & z
         """
         # [16, 0, 64, 0, 32, 252]
@@ -384,6 +397,7 @@ class Microbit:
         Exposes magnetometer data.
         A magnetometer measures a magnetic field such
         as the earth's magnetic field in 3 axes.
+
         :return: List of x, y & z value
         """
         mag_bytes = self._magneto_data.value
@@ -394,6 +408,7 @@ class Microbit:
     def bearing(self):
         """
         Compass bearing in degrees from North.
+
         :return: degrees in integer
         """
         mag_bear_val = self._magneto_bearing.value
@@ -410,6 +425,7 @@ class Microbit:
     def subscribe_calibrate(self, user_callback):
         """
         Execute user_callback when calibration of magnetometer is complete
+
         :param user_callback:
         :return:
         """
@@ -523,6 +539,7 @@ class Microbit:
     def pin_values(self):
         """
         Get the values of all the pins that are set as inputs
+
         :return: Dictionary (keys are pins)
         """
         xx = self._io_pin_data.value
@@ -536,6 +553,7 @@ class Microbit:
     def _pin_pwm_control(self):
         """
         Write only method to set the PWM control data
+
         :param pin: pin number [range 0-19]
         :param value: Value is in the range 0 to 1024, per the current DAL API
             (e.g. setAnalogValue). 0 means OFF.
@@ -548,6 +566,7 @@ class Microbit:
     def _pin_pwm_control(self, data):
         """
         Write only method to set the PWM control data
+
         :param pin: pin number [range 0-19]
         :param value: Value is in the range 0 to 1024, per the current DAL API
             (e.g. setAnalogValue). 0 means OFF.
@@ -617,6 +636,7 @@ class Microbit:
     def run_async(self):
         """
         Puts the code into asynchronous mode
+
         :return:
         """
         self.ubit.run()
@@ -624,6 +644,7 @@ class Microbit:
     def quit_async(self):
         """
         Stops asynchronous mode
+
         :return:
         """
         self.ubit.quit()
@@ -641,6 +662,7 @@ class MIpower(Microbit):
         """
         Initialization of an instance of a remote bit:bot
         with a MI:power board attached
+
         :param device_addr: Connect to a BLE device with this address
         :param adapter_addr: Use the adapter with this address
         """
@@ -655,6 +677,7 @@ class MIpower(Microbit):
     def beep(self, duration=1):
         """
         If a buzzer is attached to pin 0 then a beep will be played
+
         :param duration: time in seconds
         """
         self._pin_pwm_control = [0, 512, 2094]
@@ -677,6 +700,7 @@ class BitBot:
                  temperature_service=False):
         """
         Initialization of an instance of a remote bit:bot
+
         :param name: Will look for a BLE device with this string in its name
         :param device_addr: Will look for a BLE device with this address
         """
@@ -701,6 +725,7 @@ class BitBot:
     def clean_up(self):
         """
         Stop bitbot and turn buzzer is off
+
         :return:
         """
         if self.connected:
@@ -813,6 +838,7 @@ class BitBot:
     def drive(self, left=100, right=100):
         """
         Set the drive power of both wheels at same time
+
         :param left: percentage of power (negative numbers are reverse)
         :param right: percentage of power (negative numbers are reverse)
         """
@@ -852,6 +878,7 @@ class BitBot:
     def left_line_senor(self):
         """
         Value ofthe left line sensor
+
         :return: False = No line  True = Line
         """
         return bool(self._get_pin_value(11))
@@ -860,6 +887,7 @@ class BitBot:
     def right_line_sensor(self):
         """
         Value of the right line sensor
+
         :return: False = No line  True = Line
         """
         return bool(self._get_pin_value(5))
@@ -868,6 +896,7 @@ class BitBot:
     def line_sensors(self):
         """
         Get the value of both line sensors
+
         :return: (left, right)
         """
         if not self._pins_configured:
@@ -928,6 +957,7 @@ class BitCommander:
                  temperature_service=True):
         """
         Initialization of an instance of a remote bit:bot
+
         :param name: Will look for a BLE device with this string in its name
         :param device_addr: Will look for a BLE device with this address
         """
@@ -991,6 +1021,7 @@ class BitCommander:
     def subscribe_pins(self, user_cb):
         """
         Get notification when pins configured as input values change
+
         :param user_cb: User callback to call when change happens
         :return:
         """
@@ -1013,6 +1044,7 @@ class BitCommander:
     def dial(self):
         """
         The value of the dial.
+
         :return: integer in range 0 - 255
         """
         values = self.ubit.pin_values
@@ -1029,6 +1061,7 @@ class BitCommander:
     def button_a(self):
         """
         The state of button a of bit:commander
+
         :return: when pressed returns 1
         """
         return self._read_button('12')
@@ -1037,6 +1070,7 @@ class BitCommander:
     def button_b(self):
         """
         The state of button b of bit:commander
+
         :return: when pressed returns 1
         """
         return self._read_button('14')
@@ -1045,6 +1079,7 @@ class BitCommander:
     def button_c(self):
         """
         The state of button c of bit:commander
+
         :return: when pressed returns 1
         """
         return self._read_button('16')
@@ -1053,6 +1088,7 @@ class BitCommander:
     def button_d(self):
         """
         The state of button d of bit:commander
+
         :return: when pressed returns 1
         """
         return self._read_button('15')
@@ -1060,6 +1096,7 @@ class BitCommander:
     def run_async(self):
         """
         Puts the code into asynchronous mode
+
         :return:
         """
         self.ubit.run_async()
@@ -1067,6 +1104,7 @@ class BitCommander:
     def quit_async(self):
         """
         Stops asynchronose mode
+
         :return:
         """
         self.ubit.quit_async()
