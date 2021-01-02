@@ -101,7 +101,7 @@ class Characteristic:
         Get the methods and properties for the discovered characteristics
         :return: Boolean of if characteristics have been resolved
         """
-        logger.info('Resolving GATT database for {}'.format(self.chrc_uuid))
+        logger.info('Resolving GATT database for %s', self.chrc_uuid)
         if self.rmt_device.services_resolved:
             self.characteristic_methods = dbus_tools.get_methods(
                 self.adapter_addr,
@@ -195,8 +195,8 @@ class Characteristic:
             return self.characteristic_methods.ReadValue(dbus.Array())
         except AttributeError:
             logger.error('Service: %s with Characteristic: %s not defined on '
-                         'device: %s' % (self.srv_uuid, self.chrc_uuid,
-                                         self.device_addr))
+                         'device: %s', self.srv_uuid, self.chrc_uuid,
+                         self.device_addr)
             return []
 
     def write_value(self, value, flags=''):
@@ -212,8 +212,8 @@ class Characteristic:
             self.characteristic_methods.WriteValue(value, dbus.Array(flags))
         except AttributeError:
             logger.error('Service: %s with Characteristic: %s not defined on'
-                         'on device: %s. Cannot write_value' % (
-                             self.srv_uuid, self.chrc_uuid, self.device_addr))
+                         'on device: %s. Cannot write_value',  self.srv_uuid,
+                         self.chrc_uuid, self.device_addr)
 
     def start_notify(self):
         """Initialise notifications for this characteristic."""
@@ -224,8 +224,8 @@ class Characteristic:
                 dbus_interface=constants.GATT_CHRC_IFACE)
         except AttributeError:
             logger.error('Service: %s with Characteristic: %s not defined '
-                         'on device: %s. Cannot start_notify' % (
-                             self.srv_uuid, self.chrc_uuid, self.device_addr))
+                         'on device: %s. Cannot start_notify',  self.srv_uuid,
+                         self.chrc_uuid, self.device_addr)
 
     def stop_notify(self):
         """Stop notifications for this characteristic."""
@@ -236,8 +236,8 @@ class Characteristic:
                 dbus_interface=constants.GATT_CHRC_IFACE)
         except AttributeError:
             logger.error('Service: %s with Characteristic: %s not defined on'
-                         'on device: %s' % (self.srv_uuid, self.chrc_uuid,
-                                            self.device_addr))
+                         'on device: %s', self.srv_uuid, self.chrc_uuid,
+                         self.device_addr)
 
     def add_characteristic_cb(self, callback=None):
         """
@@ -430,7 +430,7 @@ class Profile:
 
 def generic_error_cb(error):
     """Generic Error Callback function."""
-    logger.error('D-Bus call failed: ' + str(error))
+    logger.error('D-Bus call failed: %s', str(error))
 
 
 def register_app_cb():
@@ -440,7 +440,7 @@ def register_app_cb():
 
 def register_app_error_cb(error):
     """Application registration error callback."""
-    logger.warning('Failed to register application: ' + str(error))
+    logger.warning('Failed to register application: ', str(error))
     # mainloop.quit()
 
 

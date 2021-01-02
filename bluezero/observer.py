@@ -53,7 +53,7 @@ class Scanner:
         """
         not_found = set()
         for rm_dev in cls.remove_list:
-            logger.debug('Remove %s' % rm_dev)
+            logger.debug('Remove %s', rm_dev)
             try:
                 cls.dongle.remove_device(rm_dev)
             except dbus.exceptions.DBusException as dbus_err:
@@ -80,8 +80,8 @@ class Scanner:
         if data[0] == 0x00:
             namespace_id = int.from_bytes(data[2:12], 'big')
             instance_id = int.from_bytes(data[12:18], 'big')
-            logger.info(f'\t\tEddystone UID: {namespace_id} - {instance_id} '
-                        f'\u2197 {tx_pwr}')
+            logger.info('\t\tEddystone UID: %s - %s \u2197 %s', namespace_id,
+                        instance_id, tx_pwr)
             data = EddyUID(namespace_id, instance_id, tx_pwr, rssi)
             if cls.on_eddystone_uid:
                 cls.on_eddystone_uid(data)
@@ -94,9 +94,8 @@ class Scanner:
                     full_url += _url_encoding[letter]
                 else:
                     full_url += chr(letter)
-            logger.info(f'\t\tEddystone URL: {full_url} '
-                        f'\u2197 {tx_pwr} '
-                        f'\u2198 {rssi}')
+            logger.info('\t\tEddystone URL: %s  \u2197 %s  \u2198 %s',
+                        full_url, tx_pwr, rssi)
             data = EddyURL(url=full_url, tx_pwr=tx_pwr, rssi=int(rssi))
             if cls.on_eddystone_url:
                 cls.on_eddystone_url(data)
@@ -114,8 +113,8 @@ class Scanner:
         major = int.from_bytes(bytearray(data[18:20]), 'big', signed=False)
         minor = int.from_bytes(bytearray(data[20:22]), 'big', signed=False)
         tx_pwr = int.from_bytes([data[22]], 'big', signed=True)
-        logger.info(f'{beacon_type}: {beacon_uuid} - {major} - {minor} '
-                    f'\u2197 {tx_pwr} \u2198 {rssi}')
+        logger.info('%s: %s - %s - %s  \u2197 %s \u2198 %s', beacon_type,
+                    beacon_uuid, major, minor, tx_pwr, rssi)
         if beacon_type == 'iBeacon' and cls.on_ibeacon:
             data = iBeacon(beacon_uuid, major, minor, tx_pwr, rssi)
             cls.on_ibeacon(data)

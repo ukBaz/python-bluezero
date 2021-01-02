@@ -16,7 +16,7 @@ class Central:
     def __init__(self, device_addr, adapter_addr=None):
         if adapter_addr is None:
             self.dongle = adapter.Adapter()
-            logger.debug('Adapter is: {}'.format(self.dongle.address))
+            logger.debug('Adapter is: %s', self.dongle.address)
         else:
             self.dongle = adapter.Adapter(adapter_addr)
         if not self.dongle.powered:
@@ -55,13 +55,12 @@ class Central:
         for chrc in self._characteristics:
             available = chrc.resolve_gatt()
             if available:
-                logger.info('Service: %s and characteristic: %s added' %
+                logger.info('Service: %s and characteristic: %s added',
                             (chrc.srv_uuid, chrc.chrc_uuid))
             else:
                 logger.warning('Service: %s and characteristic: %s not '
-                               'available on device: %s' %
-                               (chrc.srv_uuid, chrc.chrc_uuid,
-                                chrc.device_addr))
+                               'available on device: %s', chrc.srv_uuid,
+                               chrc.chrc_uuid, chrc.device_addr)
 
     @property
     def services_available(self):
