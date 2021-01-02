@@ -31,7 +31,7 @@ from bluezero import media_player
 mac_addr = None
 for dbus_path in dbus_tools.get_managed_objects():
     if dbus_path.endswith('player0'):
-        mac_addr = dbus_tools.get_mac_addr_from_dbus_path(dbus_path)
+        mac_addr = dbus_tools.get_device_address_from_dbus_path(dbus_path)
 
 if mac_addr:
     mp = media_player.MediaPlayer(mac_addr)

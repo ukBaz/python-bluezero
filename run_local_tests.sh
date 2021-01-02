@@ -31,6 +31,7 @@ coverage run --append -m unittest -v tests.test_eddystone
 test12=$?
 coverage run --append -m unittest -v tests.test_microbit
 test13=$?
+# Tests for code in examples
 coverage run --append -m unittest -v tests.test_adapter_example
 test_example1=$?
 coverage run --append -m unittest -v tests.test_adapter_example_db_mock
@@ -45,6 +46,8 @@ coverage run --append -m unittest -v tests.test_find_microbit_db_mock
 test_example6=$?
 coverage run --append -m unittest -v tests.test_microbit_uart_db_mock
 test_example7=$?
+coverage run --append -m unittest -v tests.test_peripheral_db_mock
+test_example8=$?
 
 
 pycodestyle -v bluezero
@@ -62,7 +65,7 @@ group100=$((test1001 + test1002 + test1003 + test1004 + test1005 + test1006 + te
 group10=$((test101 + test102 + test103))
 group1=$((test11 + test12 + test13))
 group_examples=$((test_example1 + test_example2 + test_example3 + test_example4 + \
-                  test_example5 + test_example6 + test_example7))
+                  test_example5 + test_example6 + test_example7 + test_example8))
 group_lint=$((lint_bluezero + lint_examples))
 group_dev=$((dev1))
 if [ $((group1 + group10 + group100 + group_examples + group_lint + group_dev)) -ne 0 ]; then

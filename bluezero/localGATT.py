@@ -63,7 +63,7 @@ class Application(dbus.service.Object):
         """
         # Initialise the D-Bus path and register it
         self.bus = dbus.SystemBus()
-        self.path = '/ukBaz/bluezero'
+        self.path = dbus.ObjectPath('/ukBaz/bluezero')
         self.bus_name = dbus.service.BusName('ukBaz.bluezero', self.bus)
         dbus.service.Object.__init__(self, self.bus_name, self.path)
 

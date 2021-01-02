@@ -21,7 +21,8 @@ def _find_player_path(device_address):
             player_path_list.append(path)
 
     for path in player_path_list:
-        if device_address == dbus_tools.get_mac_addr_from_dbus_path(path):
+        found_address = dbus_tools.get_device_address_from_dbus_path(path)
+        if device_address == found_address:
             return path
     raise MediaPlayerError("No player found for the device")
 
