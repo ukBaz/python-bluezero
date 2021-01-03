@@ -18,6 +18,7 @@ dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
 
 class AdapterError(Exception):
+    """Custom exception for missing Bluetooth adapter"""
     pass
 
 
@@ -26,7 +27,7 @@ def list_adapters():
     return [dongle.address for dongle in Adapter.available()]
 
 
-class Adapter(object):
+class Adapter:
     """Bluetooth Adapter Class.
 
     This class instantiates an object that interacts with the physical

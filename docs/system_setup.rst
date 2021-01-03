@@ -29,9 +29,17 @@ Change DBus permissions for Bluezero
 An application that is in the role of a Peripheral will be registered on the System
 DBus. This requires for some modification of permissions so Bluezero will be using
 the bus name of ``ukBaz.bluezero``. An example dbus configuration file is provided
-and will need to be copied to the correct location::
+and will need to be copied to the correct location.
+
+If you have done a ``git clone`` of the library then the command is::
 
     sudo cp examples/ukBaz.bluezero.conf /etc/dbus-1/system.d/.
+
+If you have done a ``pip3 install bluezero`` then you will need to get a copy
+of the example D-Bus configuration file. This can be done with::
+
+    curl https://raw.githubusercontent.com/ukBaz/python-bluezero/master/examples/ukBaz.bluezero.conf > ukBaz.bluezero.conf
+    sudo cp ukBaz.bluezero.conf /etc/dbus-1/system.d/
 
 
 Notes for getting debug information

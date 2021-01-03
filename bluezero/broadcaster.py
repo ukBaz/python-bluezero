@@ -53,7 +53,7 @@ class Beacon:
         :return:
         """
         if show_power is None:
-            self.broadcaster.include_tx_power
+            return self.broadcaster.include_tx_power
         else:
             self.broadcaster.include_tx_power = show_power
 

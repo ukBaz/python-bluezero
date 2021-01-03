@@ -1,3 +1,4 @@
+"""Access BlueZ Media Player functionality"""
 import dbus
 
 # python-bluezero imports
@@ -9,6 +10,7 @@ logger = tools.create_module_logger(__name__)
 
 
 class MediaPlayerError(Exception):
+    """Custom exception"""
     pass
 
 
@@ -131,7 +133,7 @@ class MediaPlayer:
         """Return the player subtype"""
         return self.player_props.Get(constants.MEDIA_PLAYER_IFACE, 'Subtype')
 
-    def type(self, type):
+    def type(self, player_type):
         """Player type
             Possible values:
                 "Audio"
@@ -140,7 +142,7 @@ class MediaPlayer:
                 "Video Broadcasting"
         """
         self.player_props.Set(
-            constants.MEDIA_PLAYER_IFACE, 'Type', type)
+            constants.MEDIA_PLAYER_IFACE, 'Type', player_type)
 
     @property
     def position(self):
