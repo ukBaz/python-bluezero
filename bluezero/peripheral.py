@@ -10,6 +10,8 @@ Current classes include:
 
 This requires BlueZ to have the experimental flag to be enabled
 """
+# python import
+import array
 
 # D-Bus imports
 import dbus
@@ -23,8 +25,6 @@ from bluezero import dbus_tools
 from bluezero import adapter
 from bluezero import constants
 
-# array import
-import array
 
 logger = tools.create_module_logger(__name__)
 
@@ -148,7 +148,7 @@ class Application(dbus.service.Object):
 
     @dbus.service.method(constants.DBUS_OM_IFACE,
                          out_signature='a{oa{sa{sv}}}')
-    def GetManagedObjects(self):
+    def GetManagedObjects(self):  # pylint: disable=invalid-name
         """Get all objects that are managed by the application.
 
         Return type is a dictionary whose keys are each registered object and
@@ -280,7 +280,7 @@ class Service(dbus.service.Object):
 
     PATH_BASE = '/ukBaz/bluezero/service1'
 
-    def __init__(self, uuid, primary, type='peripheral'):
+    def __init__(self, uuid, primary, ad_type='peripheral'):
         """Default initialiser.
 
         1. Registers the service on the D-Bus.
@@ -299,15 +299,15 @@ class Service(dbus.service.Object):
         # Setup UUID, primary flag
         self.uuid = uuid
         self.primary = primary
-        self.type = type
+        self.type = ad_type
         self.service_data = None
 
         # Initialise characteristics within the service
         self.characteristics = []
 
-    def UUID(self):
+    def UUID(self):  # pylint: disable=invalid-name
         """Return Service UUID"""
-        return self.service.Get(constants.GATT_SERVICE_IFACE, 'UUID')
+        return self.Get(constants.GATT_SERVICE_IFACE, 'UUID')
 
     def get_properties(self):
         """Return a dictionary of the service properties.
@@ -367,7 +367,7 @@ class Service(dbus.service.Object):
     @dbus.service.method(constants.DBUS_PROP_IFACE,
                          in_signature='s',
                          out_signature='a{sv}')
-    def GetAll(self, interface):
+    def GetAll(self, interface):  # pylint: disable=invalid-name
         """Return the service properties.
 
         This method is registered with the D-Bus at
@@ -385,7 +385,7 @@ class Service(dbus.service.Object):
 
     @dbus.service.method(constants.DBUS_OM_IFACE,
                          out_signature='a{oa{sa{sv}}}')
-    def GetManagedObjects(self):
+    def GetManagedObjects(self):  # pylint: disable=invalid-name
         """Get all objects that are managed by the service.
 
         Return type is a dictionary whose keys are each registered object and
@@ -506,7 +506,7 @@ class Characteristic(dbus.service.Object):
     @dbus.service.method(constants.DBUS_PROP_IFACE,
                          in_signature='s',
                          out_signature='a{sv}')
-    def GetAll(self, interface):
+    def GetAll(self, interface):  # pylint: disable=invalid-name
         """Return the characteristic properties.
 
         This method is registered with the D-Bus at
@@ -525,7 +525,7 @@ class Characteristic(dbus.service.Object):
     @dbus.service.method(constants.GATT_CHRC_IFACE,
                          in_signature='a{sv}',
                          out_signature='ay')
-    def ReadValue(self, options):
+    def ReadValue(self, options):  # pylint: disable=invalid-name
         """Return the characteristic value.
 
         This method is registered with the D-Bus at
@@ -540,7 +540,7 @@ class Characteristic(dbus.service.Object):
         return self.value
 
     @dbus.service.method(constants.GATT_CHRC_IFACE, in_signature='aya{sv}')
-    def WriteValue(self, value, options):
+    def WriteValue(self, value, options):  # pylint: disable=invalid-name
         """Set the characteristic value.
 
         This method is registered with the D-Bus at
@@ -569,7 +569,7 @@ class Characteristic(dbus.service.Object):
         self.write_cb = object_id
 
     @dbus.service.method(constants.GATT_CHRC_IFACE)
-    def StartNotify(self):
+    def StartNotify(self):  # pylint: disable=invalid-name
         """Start BLE notifications for the characteristic.
 
         This method is registered with the D-Bus at
@@ -584,7 +584,7 @@ class Characteristic(dbus.service.Object):
             self.notify_cb()
 
     @dbus.service.method(constants.GATT_CHRC_IFACE)
-    def StopNotify(self):
+    def StopNotify(self):  # pylint: disable=invalid-name
         """Stop BLE notifications for the characteristic.
 
         This method is registered with the D-Bus at
@@ -712,7 +712,7 @@ class Descriptor(dbus.service.Object):
     @dbus.service.method(constants.DBUS_PROP_IFACE,
                          in_signature='s',
                          out_signature='a{sv}')
-    def GetAll(self, interface):
+    def GetAll(self, interface):  # pylint: disable=invalid-name
         """Return the descriptor properties.
 
         This method is registered with the D-Bus at
@@ -731,7 +731,7 @@ class Descriptor(dbus.service.Object):
     @dbus.service.method(constants.GATT_DESC_IFACE,
                          in_signature='a{sv}',
                          out_signature='ay')
-    def ReadValue(self, options):
+    def ReadValue(self, options):  # pylint: disable=invalid-name
         """Return the descriptor value.
 
         This method is registered with the D-Bus at
@@ -743,7 +743,7 @@ class Descriptor(dbus.service.Object):
         raise NotSupportedException()
 
     @dbus.service.method(constants.GATT_DESC_IFACE, in_signature='aya{sv}')
-    def WriteValue(self, value, options):
+    def WriteValue(self, value, options):  # pylint: disable=invalid-name
         """Set the descriptor value.
 
         This method is registered with the D-Bus at
@@ -930,7 +930,7 @@ class Advertisement(dbus.service.Object):
     @dbus.service.method(constants.DBUS_PROP_IFACE,
                          in_signature='s',
                          out_signature='a{sv}')
-    def GetAll(self, interface):
+    def GetAll(self, interface):  # pylint: disable=invalid-name
         """Return the advert properties.
 
         This method is registered with the D-Bus at
@@ -950,7 +950,7 @@ class Advertisement(dbus.service.Object):
     @dbus.service.method(constants.LE_ADVERTISEMENT_IFACE,
                          in_signature='',
                          out_signature='')
-    def Release(self):
+    def Release(self):  # pylint: disable=invalid-name
         """Release an advert.
 
         This method is registered with the D-Bus at

@@ -86,9 +86,11 @@ class Advertisement(dbus.service.Object):
         }
 
     def start(self):
+        """Start GLib event loop"""
         self.mainloop.run()
 
     def stop(self):
+        """Stop GLib event loop"""
         self.mainloop.quit()
 
     def get_path(self):
@@ -98,7 +100,7 @@ class Advertisement(dbus.service.Object):
     @dbus.service.method(constants.LE_ADVERTISEMENT_IFACE,
                          in_signature='',
                          out_signature='')
-    def Release(self):
+    def Release(self):  # pylint: disable=invalid-name
         """
         This method gets called when the service daemon
         removes the Advertisement. A client can use it to do
@@ -110,13 +112,13 @@ class Advertisement(dbus.service.Object):
         pass
 
     @property
-    def service_UUIDs(self):
+    def service_UUIDs(self):  # pylint: disable=invalid-name
         """List of UUIDs that represent available services."""
         return self.Get(constants.LE_ADVERTISEMENT_IFACE,
                         'ServiceUUIDs')
 
     @service_UUIDs.setter
-    def service_UUIDs(self, UUID):
+    def service_UUIDs(self, UUID):  # pylint: disable=invalid-name
         self.Set(constants.LE_ADVERTISEMENT_IFACE,
                  'ServiceUUIDs',
                  UUID)
@@ -125,7 +127,7 @@ class Advertisement(dbus.service.Object):
         """Manufacturer Data to be broadcast (Currently not supported)"""
         pass
 
-    def solicit_UUIDs(self):
+    def solicit_UUIDs(self):  # pylint: disable=invalid-name
         """Manufacturer Data to be broadcast (Currently not supported)"""
         pass
 
@@ -137,10 +139,10 @@ class Advertisement(dbus.service.Object):
 
     @service_data.setter
     def service_data(self, data):
-        for UUID in data:
+        for uuid in data:
             self.Set(constants.LE_ADVERTISEMENT_IFACE,
                      'ServiceData',
-                     {UUID: dbus.Array(data[UUID], signature='y')})
+                     {uuid: dbus.Array(data[uuid], signature='y')})
 
     @property
     def include_tx_power(self):
@@ -174,7 +176,7 @@ class Advertisement(dbus.service.Object):
     @dbus.service.method(constants.DBUS_PROP_IFACE,
                          in_signature='s',
                          out_signature='a{sv}')
-    def GetAll(self, interface_name):
+    def GetAll(self, interface_name):  # pylint: disable=invalid-name
         """Return the advertisement properties.
 
         This method is registered with the D-Bus at
@@ -219,7 +221,8 @@ class Advertisement(dbus.service.Object):
 
     @dbus.service.method(dbus.PROPERTIES_IFACE,
                          in_signature='ss', out_signature='v')
-    def Get(self, interface_name, property_name):
+    def Get(self, interface_name,  # pylint: disable=invalid-name
+            property_name):
         """DBus API for getting a property value"""
 
         if interface_name != constants.LE_ADVERTISEMENT_IFACE:
@@ -234,7 +237,8 @@ class Advertisement(dbus.service.Object):
 
     @dbus.service.method(dbus.PROPERTIES_IFACE,
                          in_signature='ssv', out_signature='')
-    def Set(self, interface_name, property_name, value, *args, **kwargs):
+    def Set(self, interface_name, property_name, value,
+            *args, **kwargs):  # pylint: disable=invalid-name
         """Standard D-Bus API for setting a property value"""
 
         try:

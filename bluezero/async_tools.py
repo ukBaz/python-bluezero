@@ -1,3 +1,6 @@
+"""
+Collection of functions to work with the GLib Event Loop
+"""
 # Main eventloop import
 import dbus
 import dbus.mainloop.glib
@@ -9,6 +12,7 @@ logger = tools.create_module_logger(__name__)
 
 
 def add_timer_ms(time, callback, data=None):
+    """Call given callback every x milliseconds"""
     if data:
         GLib.timeout_add(time, callback, data)
     else:
@@ -16,6 +20,7 @@ def add_timer_ms(time, callback, data=None):
 
 
 def add_timer_seconds(time, callback, data=None):
+    """Call given callback every x seconds"""
     if data:
         GLib.timeout_add_seconds(time, callback, data)
     else:
@@ -23,6 +28,7 @@ def add_timer_seconds(time, callback, data=None):
 
 
 class EventLoop:
+    """Facade class to help with using GLib event loop"""
     # def generic_error_cb(self, error):
     #     """Generic Error Callback function."""
     #     logger.error('D-Bus call failed: ' + str(error))
@@ -36,10 +42,13 @@ class EventLoop:
         self.mainloop = GLib.MainLoop()
 
     def run(self):
+        """Run event loop"""
         self.mainloop.run()
 
     def quit(self):
+        """Stop event loop"""
         self.mainloop.quit()
 
     def is_running(self):
+        """Check if event loop is running"""
         self.mainloop.is_running()

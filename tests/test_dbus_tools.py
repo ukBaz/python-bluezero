@@ -1,3 +1,4 @@
+import subprocess
 import unittest
 from unittest.mock import MagicMock
 from unittest.mock import patch
@@ -37,7 +38,8 @@ class TestDbusModuleCalls(unittest.TestCase):
         }
         self.dbus_mock.Interface.return_value.GetManagedObjects.return_value = tests.obj_data.full_ubits
         self.process_mock.check_output = self.get_bluetooth_service
-        self.process_mock.Popen.return_value.communicate.return_value = (b'5.43\n', None)
+        self.process_mock.run.return_value = subprocess.CompletedProcess(
+            args=['bluetoothctl', '-v'], returncode=0, stdout=b'bluetoothctl: 5.53\n', stderr=b'')
         self.module_patcher = patch.dict('sys.modules', modules)
         self.module_patcher.start()
         from bluezero import dbus_tools
@@ -78,7 +80,7 @@ class TestDbusModuleCalls(unittest.TestCase):
 
     def test_bluez_version(self):
         bluez_ver = self.module_under_test.bluez_version()
-        self.assertEqual('5.43', bluez_ver)
+        self.assertEqual('5.53', bluez_ver)
 
     def test_bluez_service_experimental(self):
         TestDbusModuleCalls.experimental = True

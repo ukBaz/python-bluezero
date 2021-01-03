@@ -1,4 +1,6 @@
-from gi.repository import GLib
+"""
+Code for create a Bluetooth Low Energy Observer (beacon scanner) application
+"""
 from collections import namedtuple
 import uuid
 import dbus
@@ -14,7 +16,8 @@ EDDYSTONE_SRV_UUID = '0000feaa-0000-1000-8000-00805f9b34fb'
 
 EddyURL = namedtuple('EddyURL', ['url', 'tx_pwr', 'rssi'])
 EddyUID = namedtuple('EddyUID', ['namespace', 'instance', 'tx_pwr', 'rssi'])
-iBeacon = namedtuple('iBeacon', ['UUID', 'major', 'minor', 'tx_pwr', 'rssi'])
+iBeacon = namedtuple('iBeacon',  # pylint: disable=invalid-name
+                     ['UUID', 'major', 'minor', 'tx_pwr', 'rssi'])
 AltBeacon = namedtuple('AltBeacon',
                        ['UUID', 'major', 'minor', 'tx_pwr', 'rssi'])
 

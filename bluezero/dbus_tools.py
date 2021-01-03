@@ -17,11 +17,13 @@ logger = tools.create_module_logger(__name__)
 def bluez_version():
     """
     get the version of the BlueZ daemon being used on the system
+
     :return: String of BlueZ version
     """
-    p = subprocess.Popen(['bluetoothctl', '-v'], stdout=subprocess.PIPE)
-    ver = p.communicate()
-    return str(ver[0].decode().rstrip())
+    cmd = ['bluetoothctl', '-v']
+    cmd_output = subprocess.run(cmd, capture_output=True, check=True)
+    version = cmd_output.stdout.decode('utf-8').split()
+    return version[1]
 
 
 def bluez_experimental_mode():
@@ -92,13 +94,22 @@ def get_managed_objects():
 
 
 def get_mac_addr_from_dbus_path(path):
+    """
+    [Deprecated] Function to get the address of a remote device from
+    a given D-Bus path. Path must include device part
+    (e.g. dev_XX_XX_XX_XX_XX_XX)
+    """
     logger.warning('get_mac_addr_from_dbus_path has been deprecated and has'
                    'been replaced with get_device_address_from_dbus_path')
     return get_device_address_from_dbus_path(path)
 
 
 def get_device_address_from_dbus_path(path):
-    """Return the mac address from a dev_XX_XX_XX_XX_XX_XX dbus path"""
+    """
+    [Deprecated] Function to get the address of a remote device from
+    a given D-Bus path. Path must include device part
+    (e.g. dev_XX_XX_XX_XX_XX_XX)
+    """
     for path_elem in path.split('/'):
         if path_elem.startswith('dev_'):
             return path_elem.replace("dev_", '').replace("_", ":")
@@ -323,6 +334,12 @@ def get_props(adapter=None,
 
 
 def get_services(path_obj):
+    """
+    Return a list of GATT Service UUIDs for a given Bluetooth device D-Bus path
+
+    :param path_obj: D-Bus path for remote Bluetooth device
+    :return: List of GATT Service UUIDs
+    """
     found_services = []
     valid_structure = re.match(r'/org/bluez/hci\d+/dev(_([0-9A-Fa-f]){2}){6}',
                                path_obj)
@@ -378,8 +395,10 @@ def get(dbus_prop_obj, dbus_iface, prop_name, default=None):
 
 
 def str_to_dbusarray(word):
+    """Helper function to represent Python string as D-Dbus Byte array"""
     return dbus.Array([dbus.Byte(ord(letter)) for letter in word], 'y')
 
 
 def bytes_to_dbusarray(bytesarray):
+    """Helper function to represent Python bytearray as D-Bus Byte array"""
     return dbus.Array([dbus.Byte(elem) for elem in bytesarray], 'y')

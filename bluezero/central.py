@@ -29,7 +29,7 @@ class Central:
     @staticmethod
     def available(adapter_address=None):
         """Generator for getting a list of devices"""
-        return device.Device.available()
+        return device.Device.available(adapter_address)
 
     def add_characteristic(self, srv_uuid, chrc_uuid):
         """
@@ -56,7 +56,7 @@ class Central:
             available = chrc.resolve_gatt()
             if available:
                 logger.info('Service: %s and characteristic: %s added',
-                            (chrc.srv_uuid, chrc.chrc_uuid))
+                            chrc.srv_uuid, chrc.chrc_uuid)
             else:
                 logger.warning('Service: %s and characteristic: %s not '
                                'available on device: %s', chrc.srv_uuid,
@@ -64,6 +64,7 @@ class Central:
 
     @property
     def services_available(self):
+        """Get a list of Service UUIDs available on this device"""
         return self.rmt_device.services_available
 
     @property
@@ -97,7 +98,9 @@ class Central:
         self.rmt_device.disconnect()
 
     def run(self):
+        """Start event loop"""
         self.dongle.run()
 
     def quit(self):
+        """Stop event loop"""
         self.dongle.quit()

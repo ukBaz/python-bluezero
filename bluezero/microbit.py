@@ -75,12 +75,12 @@ class Microbit:
         :param adapter_addr: Optional unless you have more than one adapter
                              on your machine
         """
-        LEGACY_PARAMS = ['accelerometer_service', 'button_service',
+        legacy_params = ['accelerometer_service', 'button_service',
                          'led_service', 'magnetometer_service',
                          'pin_service', 'temperature_service',
                          'uart_service']
         for kwarg in kwargs:
-            if kwarg in LEGACY_PARAMS:
+            if kwarg in legacy_params:
                 logger.warning('The parameter %s has been deprecated. There '
                                'is no longer a requirement to specify which '
                                'services the micro:bit has.\nYou will get an '
@@ -542,7 +542,6 @@ class Microbit:
 
         :return: Dictionary (keys are pins)
         """
-        xx = self._io_pin_data.value
         return_dict = {}
         values = self._io_pin_data.value
         for i in range(0, len(values), 2):
@@ -560,7 +559,7 @@ class Microbit:
         :param period: Period is in microseconds and is an unsigned integer
         :return:
         """
-        self._io_pin_pwm.value
+        return self._io_pin_pwm.value
 
     @_pin_pwm_control.setter
     def _pin_pwm_control(self, data):
@@ -627,6 +626,7 @@ class Microbit:
 
     @property
     def on_disconnect(self):
+        """Add callback for on_disconnect action"""
         return self.ubit.dongle.on_disconnect
 
     @on_disconnect.setter
@@ -651,6 +651,13 @@ class Microbit:
 
 
 class MIpower(Microbit):
+    """
+    Initialization of an instance of a remote micro:bit
+    with a MI:power board attached
+
+    :param device_addr: Connect to a BLE device with this address
+    :param adapter_addr: Use the adapter with this address
+    """
     def __init__(self, device_addr, adapter_addr=None,
                  accelerometer_service=True,
                  button_service=True,
@@ -659,13 +666,7 @@ class MIpower(Microbit):
                  pin_service=False,
                  temperature_service=True
                  ):
-        """
-        Initialization of an instance of a remote bit:bot
-        with a MI:power board attached
 
-        :param device_addr: Connect to a BLE device with this address
-        :param adapter_addr: Use the adapter with this address
-        """
         Microbit.__init__(self, device_addr, adapter_addr,
                           accelerometer_service=accelerometer_service,
                           button_service=button_service,
@@ -980,6 +981,7 @@ class BitCommander:
         self.clean_up()
 
     def clean_up(self):
+        """Put BitCommander back to known state"""
         if self.connected:
             pass
 
@@ -1037,7 +1039,8 @@ class BitCommander:
         """
         values = self.ubit.pin_values
         if '1' in values:
-            x, y, z = values['1'], values['0'], values['8']
+            x, y, z = (values['1'],  # pylint: disable=invalid-name
+                       values['0'], values['8'])
         return x, y, z
 
     @property

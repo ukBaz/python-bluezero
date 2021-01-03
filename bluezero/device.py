@@ -16,7 +16,7 @@ from bluezero import tools
 logger = tools.create_module_logger(__name__)
 
 
-class Device(object):
+class Device:
     """Remote Bluetooth Device Class.
 
     This class instantiates an object that interacts with a remote
@@ -207,7 +207,7 @@ class Device(object):
             constants.DEVICE_INTERFACE, 'Modalias')
 
     @property
-    def RSSI(self):
+    def RSSI(self):  # pylint: disable=invalid-name
         """
         Received Signal Strength Indicator of the remote device.
 

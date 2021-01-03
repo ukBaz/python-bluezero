@@ -46,7 +46,7 @@ class Service:
                                                       self.srv_uuid)
 
     @property
-    def UUID(self):
+    def UUID(self):  # pylint: disable=invalid-name
         """
         Return the value of the Service UUID for this path.
 
@@ -118,7 +118,7 @@ class Characteristic:
             return False
 
     @property
-    def UUID(self):
+    def UUID(self):  # pylint: disable=invalid-name
         """
         Return the value of the Characteristic UUID for this path.
 
@@ -152,7 +152,7 @@ class Characteristic:
 
     @value.setter
     def value(self, new_value):
-        if type(new_value) is not list:
+        if not isinstance(new_value, list):
             new_value = [new_value]
         self.write_value(new_value)
 
@@ -262,7 +262,7 @@ class Characteristic:
         if iface != constants.GATT_CHRC_IFACE:
             return
 
-        if not len(changed_props):
+        if not changed_props:
             return
 
         value = changed_props.get('Value', None)
@@ -322,7 +322,7 @@ class Descriptor:
                                                          self.dscr_uuid)
 
     @property
-    def UUID(self):
+    def UUID(self):  # pylint: disable=invalid-name
         """
         Return the value of the Descriptor UUID for this path.
 
@@ -419,7 +419,7 @@ class Profile:
         self.profile_methods.Release()
 
     @property
-    def UUIDs(self):
+    def UUIDs(self):  # pylint: disable=invalid-name
         """
         128-bit GATT service UUIDs to auto connect.
 
