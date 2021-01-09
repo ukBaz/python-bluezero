@@ -232,7 +232,7 @@ class Adapter:
         Show every advertisement from a device during
         Device Discovery if it contains ManufacturerData and/or
         ServiceData irrespective of whether they have been
-         discovered previously
+        discovered previously
         """
         self.adapter_methods.SetDiscoveryFilter({'DuplicateData': True})
 

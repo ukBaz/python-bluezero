@@ -205,8 +205,8 @@ class Characteristic:
 
         :param value: A list of byte values
         :param flags: Optional dictionary.
-        Typically empty. Values defined at:
-        https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/gatt-api.txt
+            Typically empty. Values defined at:
+            https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/gatt-api.txt
         """
         try:
             self.characteristic_methods.WriteValue(value, dbus.Array(flags))
