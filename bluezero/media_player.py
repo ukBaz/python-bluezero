@@ -134,12 +134,12 @@ class MediaPlayer:
         return self.player_props.Get(constants.MEDIA_PLAYER_IFACE, 'Subtype')
 
     def type(self, player_type):
-        """Player type
-            Possible values:
-                "Audio"
-                "Video"
-                "Audio Broadcasting"
-                "Video Broadcasting"
+        """Player type. Possible values are:
+
+                * "Audio"
+                * "Video"
+                * "Audio Broadcasting"
+                * "Video Broadcasting"
         """
         self.player_props.Set(
             constants.MEDIA_PLAYER_IFACE, 'Type', player_type)
