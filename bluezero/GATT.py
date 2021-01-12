@@ -440,7 +440,7 @@ def register_app_cb():
 
 def register_app_error_cb(error):
     """Application registration error callback."""
-    logger.warning('Failed to register application: ', str(error))
+    logger.warning('Failed to register application: %s', str(error))
     # mainloop.quit()
 
 

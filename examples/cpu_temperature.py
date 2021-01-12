@@ -1,15 +1,20 @@
 # Standard modules
+import logging
 import os
 import random
 import dbus
+from gi.repository import GLib
 
 # Bluezero modules
 from bluezero import async_tools
-from bluezero import constants
 from bluezero import adapter
 from bluezero import advertisement
+from bluezero import constants
+from bluezero import dbus_tools
 from bluezero import localGATT
 from bluezero import GATT
+from bluezero import peripheral
+from bluezero import tools
 
 # constants
 CPU_TMP_SRVC = '12341000-1234-1234-1234-123456789abc'
@@ -17,144 +22,45 @@ CPU_TMP_CHRC = '2A6E'
 CPU_FMT_DSCP = '2904'
 
 
-def get_cpu_temperature():
-    return random.randrange(3200, 5310, 10) / 100
-    # cpu_temp = os.popen('vcgencmd measure_temp').readline()
-    # return float(cpu_temp.replace('temp=', '').replace("'C\n", ''))
+def read_value():
+    """
+    Mock reading CPU temperature callback. Return iterable of integer values.
+    Bluetooth expects the values to be in little endian format
+
+    :return: iterable of uint8 values
+    """
+    cpu_value = random.randrange(3200, 5310, 10) / 100
+    return list(int(cpu_value * 100).to_bytes(2,
+                                              byteorder='little', signed=True))
 
 
-def sint16(value):
-    return int(value * 100).to_bytes(2, byteorder='little', signed=True)
+def update_value(characteristic):
+    new_value = read_value()
+    characteristic.Set(constants.GATT_CHRC_IFACE, 'Value', new_value)
+    return characteristic.Get(constants.GATT_CHRC_IFACE, 'Notifying')
 
 
-def cpu_temp_sint16(value):
-    answer = []
-    value_int16 = sint16(value[0])
-    for bytes in value_int16:
-        answer.append(dbus.Byte(bytes))
-
-    return answer
+def notify_callback(notifying, characteristic):
+    if notifying:
+        async_tools.add_timer_seconds(2, update_value, characteristic)
 
 
-class TemperatureChrc(localGATT.Characteristic):
-    def __init__(self, service):
-        localGATT.Characteristic.__init__(self,
-                                          1,
-                                          CPU_TMP_CHRC,
-                                          service,
-                                          [get_cpu_temperature()],
-                                          False,
-                                          ['read', 'notify'])
-
-    def temperature_cb(self):
-        reading = [get_cpu_temperature()]
-        print('Getting new temperature',
-              reading,
-              self.props[constants.GATT_CHRC_IFACE]['Notifying'])
-        self.props[constants.GATT_CHRC_IFACE]['Value'] = reading
-
-        self.PropertiesChanged(constants.GATT_CHRC_IFACE,
-                               {'Value': dbus.Array(cpu_temp_sint16(reading))},
-                               [])
-        print('Array value: ', cpu_temp_sint16(reading))
-        return self.props[constants.GATT_CHRC_IFACE]['Notifying']
-
-    def _update_temp_value(self):
-        if not self.props[constants.GATT_CHRC_IFACE]['Notifying']:
-            return
-
-        print('Starting timer event')
-        async_tools.add_timer_ms(500, self.temperature_cb)
-
-    def ReadValue(self, options):
-        reading = [get_cpu_temperature()]
-        self.props[constants.GATT_CHRC_IFACE]['Value'] = reading
-        return dbus.Array(
-            cpu_temp_sint16(self.props[constants.GATT_CHRC_IFACE]['Value'])
-        )
-
-    def StartNotify(self):
-        if self.props[constants.GATT_CHRC_IFACE]['Notifying']:
-            print('Already notifying, nothing to do')
-            return
-        print('Notifying on')
-        self.props[constants.GATT_CHRC_IFACE]['Notifying'] = True
-        self._update_temp_value()
-
-    def StopNotify(self):
-        if not self.props[constants.GATT_CHRC_IFACE]['Notifying']:
-            print('Not notifying, nothing to do')
-            return
-
-        print('Notifying off')
-        self.props[constants.GATT_CHRC_IFACE]['Notifying'] = False
-        self._update_temp_value()
-
-
-class ble:
-    def __init__(self, adapter_address=None):
-        self.mainloop = async_tools.EventLoop()
-
-        self.app = localGATT.Application()
-        self.srv = localGATT.Service(1, CPU_TMP_SRVC, True)
-
-        self.charc = TemperatureChrc(self.srv)
-
-        self.charc.service = self.srv.path
-
-        cpu_format_value = dbus.Array([dbus.Byte(0x0E),
-                                       dbus.Byte(0xFE),
-                                       dbus.Byte(0x2F),
-                                       dbus.Byte(0x27),
-                                       dbus.Byte(0x01),
-                                       dbus.Byte(0x00),
-                                       dbus.Byte(0x00)])
-        self.cpu_format = localGATT.Descriptor(4,
-                                               CPU_FMT_DSCP,
-                                               self.charc,
-                                               cpu_format_value,
-                                               ['read'])
-
-        self.app.add_managed_object(self.srv)
-        self.app.add_managed_object(self.charc)
-        self.app.add_managed_object(self.cpu_format)
-
-        self.srv_mng = GATT.GattManager(adapter.list_adapters()[0])
-        self.srv_mng.register_application(self.app, {})
-        if adapter_address:
-            self.dongle = adapter.Adapter(adapter_address)
-        else:
-            self.dongle = adapter.Adapter(adapter.list_adapters()[0])
-        advert = advertisement.Advertisement(1, 'peripheral')
-
-        advert.service_UUIDs = [CPU_TMP_SRVC]
-        advert.local_name = 'CPU Temp'
-        advert.appearance = 1344
-        # eddystone_data = tools.url_to_advert(WEB_BLINKT, 0x10, TX_POWER)
-        # advert.service_data = {EDDYSTONE: eddystone_data}
-        if not self.dongle.powered:
-            self.dongle.powered = True
-        ad_manager = advertisement.AdvertisingManager(self.dongle.address)
-        ad_manager.register_advertisement(advert, {})
-
-    def add_call_back(self, callback):
-        self.charc.PropertiesChanged = callback
-
-    def start_bt(self):
-        # self.light.StartNotify()
-        try:
-            self.mainloop.run()
-        except KeyboardInterrupt:
-            self.mainloop.quit()
-
-
-def main(adapter_address=None, test_mode=False):
-    print('CPU temperature is {}C'.format(get_cpu_temperature()))
-    print(cpu_temp_sint16([get_cpu_temperature()]))
-    pi_cpu_monitor = ble(adapter_address)
-    if not test_mode:
-        pi_cpu_monitor.start_bt()
+def main(adapter_address, test_mode=False):
+    logger = logging.getLogger('localGATT')
+    logger.setLevel(logging.DEBUG)
+    print('CPU temperature is {}C'.format(read_value()))
+    cpu_monitor = peripheral.Peripheral(adapter_address,
+                                        local_name='CPU Monitor',
+                                        appearance=1344)
+    cpu_monitor.add_service(1, CPU_TMP_SRVC, True)
+    cpu_monitor.add_characteristic(1, 1, CPU_TMP_CHRC, [], False,
+                                   ['read', 'notify'],
+                                   read_callback=read_value,
+                                   write_callback=None,
+                                   notify_callback=notify_callback
+                                   )
+    cpu_monitor.publish()
 
 
 if __name__ == '__main__':
-    main('00:AA:01:01:00:24')
+    main(list(adapter.Adapter.available())[0].address)
