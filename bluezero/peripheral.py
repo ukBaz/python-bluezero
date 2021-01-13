@@ -1,19 +1,9 @@
 """Classes required to create a Bluetooth Peripheral."""
 
-# python import
-import array
-
-# D-Bus imports
-import dbus
-import dbus.exceptions
-import dbus.service
-
 # python-bluezero imports
 from bluezero import adapter
 from bluezero import advertisement
 from bluezero import async_tools
-from bluezero import constants
-from bluezero import dbus_tools
 from bluezero import localGATT
 from bluezero import GATT
 from bluezero import tools
@@ -23,8 +13,9 @@ logger = tools.create_module_logger(__name__)
 
 
 class Peripheral:
+    """Create a Bluetooth BLE Peripheral"""
     def __init__(self, adapter_address, local_name=None, appearance=None):
-        self.app = localGATT.Application(adapter_address)
+        self.app = localGATT.Application()
         self.srv_mng = GATT.GattManager(adapter_address)
         self.services = []
         self.characteristics = []
@@ -61,6 +52,7 @@ class Peripheral:
             self.advert.appearance = self.appearance
 
     def publish(self):
+        """Create advertisement and make peripheral visible"""
         for service in self.services:
             self.app.add_managed_object(service)
         for chars in self.characteristics:
