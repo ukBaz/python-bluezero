@@ -1,33 +1,33 @@
+"""Example of how to create a Peripheral device/GATT Server"""
 # Standard modules
 import logging
-import os
 import random
-import dbus
-from gi.repository import GLib
 
 # Bluezero modules
 from bluezero import async_tools
 from bluezero import adapter
-from bluezero import advertisement
-from bluezero import constants
-from bluezero import dbus_tools
-from bluezero import localGATT
-from bluezero import GATT
 from bluezero import peripheral
-from bluezero import tools
 
 # constants
+# Custom service uuid
 CPU_TMP_SRVC = '12341000-1234-1234-1234-123456789abc'
+# https://www.bluetooth.com/specifications/assigned-numbers/
+# Bluetooth SIG adopted UUID for Temperature characteristic
 CPU_TMP_CHRC = '2A6E'
+# Bluetooth SIG adopted UUID for Characteristic Presentation Format
 CPU_FMT_DSCP = '2904'
 
 
 def read_value():
     """
-    Mock reading CPU temperature callback. Return iterable of integer values.
+    Example read callback. Value returned needs to a list of bytes/integers
+    in little endian format.
+
+    This one does a mock reading CPU temperature callback.
+    Return iterable of integer values.
     Bluetooth expects the values to be in little endian format
 
-    :return: iterable of uint8 values
+    :return: list of uint8 values
     """
     cpu_value = random.randrange(3200, 5310, 10) / 100
     return list(int(cpu_value * 100).to_bytes(2,
@@ -35,26 +35,45 @@ def read_value():
 
 
 def update_value(characteristic):
+    """
+    Example of callback to send notifications
+
+    :param characteristic:
+    :return:
+    """
+    # read/calculate new value.
     new_value = read_value()
-    characteristic.Set(constants.GATT_CHRC_IFACE, 'Value', new_value)
-    return characteristic.Get(constants.GATT_CHRC_IFACE, 'Notifying')
+    # Case characteristic to be updates and send notification
+    characteristic.set_value(new_value)
+    # Return True to continue notifying. Return a False will stop notifications
+    # Getting the value from the characteristic of if it is notifying
+    return characteristic.is_notifying
 
 
 def notify_callback(notifying, characteristic):
+    """
+    Noitifcaton callback that starts calls the update callback ever 2 seconds
+
+    :param notifying: boolean for start or stop of notifications
+    :param characteristic: The python object for this characteristic
+    """
     if notifying:
         async_tools.add_timer_seconds(2, update_value, characteristic)
 
 
-def main(adapter_address, test_mode=False):
+def main(adapter_address):
+    """Creation of peripheral"""
     logger = logging.getLogger('localGATT')
     logger.setLevel(logging.DEBUG)
-    print('CPU temperature is {}C'.format(read_value()))
+    print('CPU temperature is {}\u00B0C'.format(
+        int.from_bytes(read_value(), byteorder='little', signed=True)/100))
     cpu_monitor = peripheral.Peripheral(adapter_address,
                                         local_name='CPU Monitor',
                                         appearance=1344)
-    cpu_monitor.add_service(1, CPU_TMP_SRVC, True)
-    cpu_monitor.add_characteristic(1, 1, CPU_TMP_CHRC, [], False,
-                                   ['read', 'notify'],
+    cpu_monitor.add_service(srv_id=1, uuid=CPU_TMP_SRVC, primary=True)
+    cpu_monitor.add_characteristic(srv_id=1, chr_id=1, uuid=CPU_TMP_CHRC,
+                                   value=[], notifying=False,
+                                   flags=['read', 'notify'],
                                    read_callback=read_value,
                                    write_callback=None,
                                    notify_callback=notify_callback
