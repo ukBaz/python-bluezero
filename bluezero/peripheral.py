@@ -36,12 +36,21 @@ class Peripheral:
 
     def add_characteristic(self, srv_id, chr_id, uuid, value,
                            notifying, flags,
-                           read_callback, write_callback, notify_callback):
+                           read_callback=None, write_callback=None,
+                           notify_callback=None):
         """Add information for characteristic. srv_id must refer to already
         added service"""
         self.characteristics.append(localGATT.Characteristic(
             srv_id, chr_id, uuid, value, notifying, flags,
             read_callback, write_callback, notify_callback
+        ))
+
+    def add_descriptor(self, srv_id, chr_id, dsc_id, uuid, value, flags):
+        """Add information for the GATT descriptor. srv_id and chr_id must
+        refer to already added service-characteristic hierarchy that this is
+        to be added under"""
+        self.descriptors.append(localGATT.Descriptor(
+            srv_id, chr_id, dsc_id, uuid, value, flags
         ))
 
     def _create_advertisement(self):

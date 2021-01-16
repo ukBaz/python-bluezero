@@ -435,9 +435,10 @@ class Descriptor(dbus.service.Object):
     >>>                                        flags)
     """
     def __init__(self,
+                 service_id,
+                 characteristic_id,
                  descriptor_id,
                  uuid,
-                 characteristic_obj,
                  value,
                  flags):
         """Default initialiser.
@@ -453,14 +454,15 @@ class Descriptor(dbus.service.Object):
         :param flags: Flags specifying access permissions
         """
         # Setup D-Bus object paths and register service
-        path_base = characteristic_obj.get_path() + '/desc'
-        self.path = path_base + str('{0:04d}'.format(descriptor_id))
+        char_path = (f'{constants.BLUEZERO_DBUS_OBJECT}/'
+                     f'service{service_id:04d}/char{characteristic_id:04d}')
+        self.path = f'{char_path}/desc{descriptor_id:04d}'
         self.bus = dbus.SystemBus()
         dbus.service.Object.__init__(self, self.bus, self.path)
         self.props = {
             constants.GATT_DESC_IFACE: {
                 'UUID': uuid,
-                'Characteristic': characteristic_obj.get_path(),
+                'Characteristic': dbus_tools.get_dbus_obj(char_path),
                 'Value': value,
                 'Flags': flags}
         }
