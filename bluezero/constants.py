@@ -47,3 +47,9 @@ LE_ADVERTISEMENT_IFACE = 'org.bluez.LEAdvertisement1'
 # Bluez Media D-Bus object paths
 #: BlueZ DBus Media player Interface
 MEDIA_PLAYER_IFACE = 'org.bluez.MediaPlayer1'
+
+# Bluezero local D-Bus publish location
+#: Bluezero D-Bus Name
+BLUEZERO_DBUS_NAME = 'ukBaz.bluezero'
+#: Bluezero D-Bus object root
+BLUEZERO_DBUS_OBJECT = '/ukBaz/bluezero'

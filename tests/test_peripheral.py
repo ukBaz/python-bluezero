@@ -39,11 +39,12 @@ class TestBluezeroMicrobit(unittest.TestCase):
         self.dbus_mock.SystemBus = MagicMock()
         self.module_patcher = patch.dict('sys.modules', modules)
         self.module_patcher.start()
-        from bluezero import peripheral
-        self.module_under_test = peripheral
+        from bluezero import localGATT
+        self.module_under_test = localGATT
 
     def tearDown(self):
         self.module_patcher.stop()
 
     def test_load(self):
-        my_blinkt = self.module_under_test.Service('2404', True)
+        my_blinkt = self.module_under_test.Service(service_id=1, UUID='2404',
+                                                   primary=True)

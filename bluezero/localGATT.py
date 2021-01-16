@@ -1,10 +1,5 @@
-"""Classes required to create a Bluetooth Peripheral.
+"""Classes required to create a Bluetooth Peripheral."""
 
-Current classes include:
-- Service -- Bluetooth Service
-- Characteristic -- Bluetooth Characteristic
-- Descriptor -- Bluetooth Descriptor
-"""
 # D-Bus imports
 import dbus
 import dbus.exceptions
@@ -12,8 +7,9 @@ import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 
 # python-bluezero imports
-from bluezero import constants
 from bluezero import async_tools
+from bluezero import constants
+from bluezero import dbus_tools
 from bluezero import tools
 
 DBusGMainLoop(set_as_default=True)
@@ -40,31 +36,16 @@ class Application(dbus.service.Object):
 
     This is the parent class for a python Bluez application.
 
-    :Example:
-
-    >>> from bluezero import GATT
-    >>> from bluezero import localGATT
-    >>> from bluezero import tools
-    >>> app = localGATT.Application()
-    >>> srv = localGATT.Service(1, '180F', True)
-    >>> app.add_managed_object(srv)
-    >>> srv_mng = GATT.GattManager('/org/bluez/hci0')
-    >>> srv_mng.register_application(app.get_path(), {})
-    >>> app.start()
-
     """
-    def __init__(self, device_id=None):
+    def __init__(self):
         """Default initialiser.
-
-        1. Initialises the program loop using ``GObject``.
-        2. Registers the Application on the D-Bus.
-        3. Initialises the list of services offered by the application.
 
         """
         # Initialise the D-Bus path and register it
         self.bus = dbus.SystemBus()
-        self.path = dbus.ObjectPath('/ukBaz/bluezero')
-        self.bus_name = dbus.service.BusName('ukBaz.bluezero', self.bus)
+        self.path = dbus.ObjectPath(constants.BLUEZERO_DBUS_OBJECT)
+        self.bus_name = dbus.service.BusName(constants.BLUEZERO_DBUS_NAME,
+                                             self.bus)
         dbus.service.Object.__init__(self, self.bus_name, self.path)
 
         # Objects to be associated with this service
@@ -118,7 +99,7 @@ class Service(dbus.service.Object):
 
     """
 
-    PATH_BASE = '/ukBaz/bluezero/service'
+    PATH_BASE = f'{constants.BLUEZERO_DBUS_OBJECT}/service'
 
     def __init__(self, service_id, uuid, primary):
         """Default initialiser.
@@ -154,7 +135,7 @@ class Service(dbus.service.Object):
         This method is registered with the D-Bus at
         ``org.freedesktop.DBus.Properties``
 
-        :param interface: interface to get the properties of.
+        :param interface_name: interface to get the properties of.
 
         The interface must be ``org.bluez.GattService1`` otherwise an
         exception is raised.
@@ -173,7 +154,13 @@ class Service(dbus.service.Object):
                          in_signature='ss', out_signature='v')
     def Get(self,  # pylint: disable=invalid-name
             interface_name, property_name):
-        """DBus API for getting a property value"""
+        """
+        DBus API for getting a property value
+
+        :param interface_name:
+        :param property_name:
+        :return:
+        """
 
         if interface_name != constants.GATT_SERVICE_IFACE:
             raise InvalidArgsException()
@@ -188,7 +175,7 @@ class Service(dbus.service.Object):
     @dbus.service.method(dbus.PROPERTIES_IFACE,
                          in_signature='ssv', out_signature='')
     def Set(self, interface_name,  # pylint: disable=invalid-name
-            property_name, value, *args, **kwargs):
+            property_name, value):
         """Standard D-Bus API for setting a property value"""
 
         try:
@@ -224,47 +211,36 @@ class Service(dbus.service.Object):
 
 
 class Characteristic(dbus.service.Object):
-    """Bluez Characteristic Class.
+    """
+    Bluez Characteristic Class.
 
     This class represents a BLE Characteristic.
-
-    :Example:
-
-    >>> your_characteristic = localGATT.Characteristic(characteristic_id,
-    >>>                                                UUID,
-    >>>                                                service_obj,
-    >>>                                                value,
-    >>>                                                notifying,
-    >>>                                                flags)
     """
-    def __init__(self, characteristic_id,
+    def __init__(self,
+                 service_id,
+                 characteristic_id,
                  uuid,
-                 service_obj,
                  value,
                  notifying,
-                 flags):
-        """Default initialiser.
+                 flags,
+                 read_callback=None,
+                 write_callback=None,
+                 notify_callback=None):
+        self.read_callback = read_callback
+        self.write_callback = write_callback
+        self.notify_callback = notify_callback
 
-        1. Registers the characteristc on the D-Bus.
-        2. Sets up the service UUID and primary flags.
-
-        :param service_id:
-        :param uuid: service BLE UUID
-        :param service_obj: the service that this characteristic is part of
-        :param value: the initial value of this characteristic
-        :param notifying: boolean representing the state of notification
-        :param flags:
-        """
         # Setup D-Bus object paths and register service
-        path_base = service_obj.get_path() + '/char'
-        self.path = path_base + str('{0:04d}'.format(characteristic_id))
+        service_path = (f'{constants.BLUEZERO_DBUS_OBJECT}/'
+                        f'service{service_id:04d}')
+        self.path = f'{service_path}/char{characteristic_id:04d}'
         self.bus = dbus.SystemBus()
         dbus.service.Object.__init__(self, self.bus, self.path)
         self.props = {
             constants.GATT_CHRC_IFACE: {
                 'UUID': uuid,
-                'Service': service_obj.get_path(),
-                'Value': value,
+                'Service': dbus_tools.get_dbus_obj(service_path),
+                'Value': dbus.Array(value, signature='y'),
                 'Notifying': notifying,
                 'Flags': flags}
         }
@@ -278,11 +254,20 @@ class Characteristic(dbus.service.Object):
         """Return the DBus object path"""
         return dbus.ObjectPath(self.path)
 
-    def add_call_back(self, callback):
+    @property
+    def is_notifying(self):
+        """Get the current notify status"""
+        return bool(self.Get(constants.GATT_CHRC_IFACE, 'Notifying'))
+
+    def set_value(self, value):
         """
-        Add function to be called when D-Bus PropertiesChanged signal is sent
+        Set the value of the characteristic. Will create notify event
+        if notifications are enabled
+
+        :param value: list of integers in little endian format
         """
-        self.PropertiesChanged = callback  # pylint: disable=invalid-name
+        self.Set(constants.GATT_CHRC_IFACE, 'Value',
+                 dbus.Array(value, signature='y'))
 
     @dbus.service.method(constants.DBUS_PROP_IFACE,
                          in_signature='s',
@@ -293,7 +278,7 @@ class Characteristic(dbus.service.Object):
         This method is registered with the D-Bus at
         ``org.freedesktop.DBus.Properties``
 
-        :param interface: interface to get the properties of.
+        :param interface_name: interface to get the properties of.
 
         The interface must be ``org.bluez.GattCharacteristic1`` otherwise an
         exception is raised.
@@ -334,16 +319,14 @@ class Characteristic(dbus.service.Object):
     @dbus.service.method(dbus.PROPERTIES_IFACE,
                          in_signature='ssv', out_signature='')
     def Set(self, interface_name,   # pylint: disable=invalid-name
-            property_name, value, *args, **kwargs):
+            property_name, value):
         """Standard D-Bus API for setting a property value"""
 
         if property_name not in self.props[constants.GATT_CHRC_IFACE]:
             raise dbus.exceptions.DBusException(
                 'no such property ' + property_name,
                 name=constants.GATT_CHRC_IFACE + '.UnknownProperty')
-
         self.props[constants.GATT_CHRC_IFACE][property_name] = value
-
         return self.PropertiesChanged(interface_name,
                                       dbus.Dictionary({property_name: value},
                                                       signature='sv'),
@@ -365,8 +348,14 @@ class Characteristic(dbus.service.Object):
     def ReadValue(self, options):  # pylint: disable=invalid-name
         """
         DBus method for getting the characteristic value
+
         :return: value
         """
+        if self.read_callback:
+            value = self.read_callback()
+            self.Set(constants.GATT_CHRC_IFACE, 'Value',
+                     dbus.Array(value, signature='y'))
+            logger.debug('ReadValue: %s', value)
         return self.GetAll(constants.GATT_CHRC_IFACE)['Value']
 
     @dbus.service.method(constants.GATT_CHRC_IFACE,
@@ -376,6 +365,9 @@ class Characteristic(dbus.service.Object):
         DBus method for setting the characteristic value
         :return: value
         """
+        if self.write_callback:
+            self.write_callback(dbus_tools.dbus_to_python(value),
+                                dbus_tools.dbus_to_python(options))
         self.Set(constants.GATT_CHRC_IFACE, 'Value', value)
 
     @dbus.service.method(constants.GATT_CHRC_IFACE,
@@ -383,21 +375,24 @@ class Characteristic(dbus.service.Object):
     def StartNotify(self):  # pylint: disable=invalid-name
         """
         DBus method for enabling notifications of the characteristic value.
+
         :return: value
         """
-        if not self.props[constants.GATT_CHRC_IFACE]['Notifying'] is True:
+        if self.props[constants.GATT_CHRC_IFACE]['Notifying'] is True:
             logger.info('Notifying already, nothing to do')
             return
-
         self.Set(constants.GATT_CHRC_IFACE,
                  'Notifying',
                  dbus.Boolean(True, variant_level=1))
+        if self.notify_callback:
+            self.notify_callback(True, self)
 
     @dbus.service.method(constants.GATT_CHRC_IFACE,
                          in_signature='', out_signature='')
     def StopNotify(self):  # pylint: disable=invalid-name
         """
         DBus method for disabling notifications of the characteristic value.
+
         :return: value
         """
         if self.props[constants.GATT_CHRC_IFACE]['Notifying'] is False:
@@ -407,48 +402,33 @@ class Characteristic(dbus.service.Object):
         self.Set(constants.GATT_CHRC_IFACE,
                  'Notifying',
                  dbus.Boolean(False, variant_level=1))
+        if self.notify_callback:
+            self.notify_callback(False, self)
 
 
 class Descriptor(dbus.service.Object):
-    """Bluez Descriptor Class.
+    """
+    Bluez Descriptor Class.
 
     This class represents a BLE Descriptor.
-
-    :Example:
-
-    >>> your_descriptor = localGATT.Descriptor(descriptor_id,
-    >>>                                        UUID,
-    >>>                                        your_char,
-    >>>                                        value,
-    >>>                                        flags)
     """
     def __init__(self,
+                 service_id,
+                 characteristic_id,
                  descriptor_id,
                  uuid,
-                 characteristic_obj,
                  value,
                  flags):
-        """Default initialiser.
-
-        1. Registers the descriptor on the D-Bus.
-        2. Sets up the service UUID and primary flags.
-
-        :param descriptor_id: A unique identifier for this descriptor
-        :param uuid: descriptor BLE UUID
-        :param characteristic_obj: The characteristic that this descriptor
-                                   is related to
-        :param value: The initial value of the descriptor
-        :param flags: Flags specifying access permissions
-        """
         # Setup D-Bus object paths and register service
-        path_base = characteristic_obj.get_path() + '/desc'
-        self.path = path_base + str('{0:04d}'.format(descriptor_id))
+        char_path = (f'{constants.BLUEZERO_DBUS_OBJECT}/'
+                     f'service{service_id:04d}/char{characteristic_id:04d}')
+        self.path = f'{char_path}/desc{descriptor_id:04d}'
         self.bus = dbus.SystemBus()
         dbus.service.Object.__init__(self, self.bus, self.path)
         self.props = {
             constants.GATT_DESC_IFACE: {
                 'UUID': uuid,
-                'Characteristic': characteristic_obj.get_path(),
+                'Characteristic': dbus_tools.get_dbus_obj(char_path),
                 'Value': value,
                 'Flags': flags}
         }
@@ -511,7 +491,7 @@ class Descriptor(dbus.service.Object):
     @dbus.service.method(dbus.PROPERTIES_IFACE,
                          in_signature='ssv', out_signature='')
     def Set(self, interface_name,  # pylint: disable=invalid-name
-            property_name, value, *args, **kwargs):
+            property_name, value):
         """Standard D-Bus API for setting a property value"""
 
         if property_name not in self.props[constants.GATT_DESC_IFACE]:
@@ -542,6 +522,7 @@ class Descriptor(dbus.service.Object):
     def ReadValue(self, options):  # pylint: disable=invalid-name
         """
         DBus method for getting the characteristic value
+
         :return: value
         """
         return self.GetAll(constants.GATT_DESC_IFACE)['Value']
@@ -551,6 +532,7 @@ class Descriptor(dbus.service.Object):
     def WriteValue(self, value, options):  # pylint: disable=invalid-name
         """
         DBus method for setting the descriptor value
+
         :return:
         """
         return self.Set(constants.GATT_DESC_IFACE, 'Value', value)

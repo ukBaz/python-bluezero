@@ -237,8 +237,8 @@ class Advertisement(dbus.service.Object):
 
     @dbus.service.method(dbus.PROPERTIES_IFACE,
                          in_signature='ssv', out_signature='')
-    def Set(self, interface_name, property_name, value,
-            *args, **kwargs):  # pylint: disable=invalid-name
+    def Set(self,  # pylint: disable=invalid-name
+            interface_name, property_name, value):
         """Standard D-Bus API for setting a property value"""
 
         try:

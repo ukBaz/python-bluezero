@@ -92,7 +92,7 @@ class TestDbusModuleCalls(unittest.TestCase):
         bluez_exper = self.module_under_test.bluez_experimental_mode()
         self.assertFalse(bluez_exper)
 
-    def test_mac_addr_from_dbus_path(self):
+    def test_get_device_address_from_dbus_path(self):
         """
         Get mac address fromo any given dbus_path that includes
         "dev_xx_xx_xx_xx"
@@ -110,6 +110,21 @@ class TestDbusModuleCalls(unittest.TestCase):
                     self.module_under_test.get_device_address_from_dbus_path(
                         test_data[i][0]
                     ))
+
+    def test_mac_addr_deprecated(self):
+        with patch('logging.Logger.warning') as logger:
+            self.module_under_test.get_mac_addr_from_dbus_path(
+                '/org/bluez/hci0/dev_EB_F6_95_27_84_A0')
+            logger.assert_called_once_with('get_mac_addr_from_dbus_path has '
+                                           'been deprecated and has been '
+                                           'replaced with '
+                                           'get_device_address_from_dbus_path')
+
+    def test_get_device_address(self):
+        expected = [{'E4:43:33:7E:54:1C': 'BBC micro:bit [pugit]'}]
+        result = self.module_under_test.get_device_addresses('pugit')
+        self.assertTrue(isinstance(result, list))
+        self.assertDictEqual(expected[0], result[0])
 
 
 if __name__ == '__main__':

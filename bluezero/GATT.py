@@ -114,8 +114,7 @@ class Characteristic:
                 self.srv_uuid,
                 self.chrc_uuid)
             return True
-        else:
-            return False
+        return False
 
     @property
     def UUID(self):  # pylint: disable=invalid-name
@@ -306,21 +305,6 @@ class Descriptor:
         if self.rmt_device.services_resolved:
             self.resolve_gatt()
 
-    def resolve_gatt(self):
-        """
-        Get the methods and properties for the discovered Descriptors
-        :return:
-        """
-        if self.device_props.services_resolved:
-            self.descriptor_methods = dbus_tools.get_methods(self.adapter_addr,
-                                                             self.device_addr,
-                                                             self.srv_uuid,
-                                                             self.dscr_uuid)
-            self.descriptor_props = dbus_tools.get_props(self.adapter_addr,
-                                                         self.device_addr,
-                                                         self.srv_uuid,
-                                                         self.dscr_uuid)
-
     @property
     def UUID(self):  # pylint: disable=invalid-name
         """
@@ -440,7 +424,7 @@ def register_app_cb():
 
 def register_app_error_cb(error):
     """Application registration error callback."""
-    logger.warning('Failed to register application: ', str(error))
+    logger.warning('Failed to register application: %s', str(error))
     # mainloop.quit()
 
 
