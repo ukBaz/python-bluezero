@@ -29,7 +29,14 @@ class Peripheral:
         self.mainloop = async_tools.EventLoop()
 
     def add_service(self, srv_id, uuid, primary):
-        """Add the informatoin required """
+        """
+        Add the service information required
+
+        :param srv_id: integer between 0 & 9999 as unique reference
+        :param uuid: The Bluetooth uuid number for this service
+        :param primary: boolean for if this service should be advertised
+
+        """
         self.services.append(localGATT.Service(srv_id, uuid, primary))
         if primary:
             self.primary_services.append(uuid)
@@ -38,17 +45,77 @@ class Peripheral:
                            notifying, flags,
                            read_callback=None, write_callback=None,
                            notify_callback=None):
-        """Add information for characteristic. srv_id must refer to already
-        added service"""
+        """
+        Add information for characteristic.
+
+        :param srv_id: integer of parent service that was added
+        :param chr_id: integer between 0 & 9999 as unique reference
+        :param uuid: The Bluetooth uuid number for this characteristic
+        :param value: Initial value. list of integers in little endian format
+        :param notifying: Boolean representing initial state of notifications
+        :param flags: Defines how the characteristic value can be used. See
+            Core spec "Table 3.5: Characteristic Properties bit field", and
+            "Table 3.8: Characteristic Extended. Properties bit field".
+            Allowed values:
+
+            - "broadcast"
+            - "read"
+            - "write-without-response"
+            - "write"
+            - "notify"
+            - "indicate"
+            - "authenticated-signed-writes"
+            - "extended-properties"
+            - "reliable-write"
+            - "writable-auxiliaries"
+            - "encrypt-read"
+            - "encrypt-write"
+            - "encrypt-authenticated-read"
+            - "encrypt-authenticated-write"
+            - "secure-read" (Server only)
+            - "secure-write" (Server only)
+            - "authorize"
+
+        :param read_callback: function to be called when read_value is called
+            by client. function should return python list of integers
+            representing new value of characteristic
+        :param write_callback: function to be called when write_value is called
+            by client. Function should have two parameters value and options.
+            value is python list of integers with new value of characteristic.
+        :param notify_callback: function to be called when notify_start or
+            notify_stop is called by client. Function should have two
+            parameters notifying and characteristic. The `characteristic`
+            is the instantiation of a localGAT.Characteristic class
+
+        """
         self.characteristics.append(localGATT.Characteristic(
             srv_id, chr_id, uuid, value, notifying, flags,
             read_callback, write_callback, notify_callback
         ))
 
     def add_descriptor(self, srv_id, chr_id, dsc_id, uuid, value, flags):
-        """Add information for the GATT descriptor. srv_id and chr_id must
-        refer to already added service-characteristic hierarchy that this is
-        to be added under"""
+        """
+        Add information for the GATT descriptor.
+
+        :param srv_id: integer of parent service that was added
+        :param chr_id: integer of parent characteristic that was added
+        :param dsc_id: integer between 0 & 9999 as unique reference
+        :param uuid: The Bluetooth uuid number for this characteristic
+        :param value: Initial value. list of integers in little endian format
+        :param flags: Defines how the descriptor value can be used.
+            Possible values:
+
+                - "read"
+                - "write"
+                - "encrypt-read"
+                - "encrypt-write"
+                - "encrypt-authenticated-read"
+                - "encrypt-authenticated-write"
+                - "secure-read" (Server Only)
+                - "secure-write" (Server Only)
+                - "authorize"
+
+        """
         self.descriptors.append(localGATT.Descriptor(
             srv_id, chr_id, dsc_id, uuid, value, flags
         ))

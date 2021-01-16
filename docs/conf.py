@@ -17,21 +17,22 @@ import sys
 from unittest.mock import MagicMock
 
 
-class Mock(MagicMock):
-    @classmethod
-    def __getattr__(cls, name):
-            return MagicMock()
+# class Mock(MagicMock):
+#     @classmethod
+#     def __getattr__(cls, name):
+#             return MagicMock()
+#
+#
+# MOCK_MODULES = ['dbus',
+#                 'dbus.service',
+#                 'dbus.exceptions',
+#                 'dbus.exceptions.DBusException',
+#                 'dbus.mainloop',
+#                 'dbus.mainloop.glib',
+#                 'gi.repository']
+# sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
-
-MOCK_MODULES = ['dbus',
-                'dbus.service',
-                'dbus.exceptions',
-                'dbus.mainloop',
-                'dbus.mainloop.glib',
-                'gi.repository']
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
-
-sys.path.insert(0, os.path.abspath("../"))
+# sys.path.insert(0, os.path.abspath("../"))
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the

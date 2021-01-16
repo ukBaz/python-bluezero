@@ -45,7 +45,7 @@ def update_value(characteristic):
     """
     # read/calculate new value.
     new_value = read_value()
-    # Case characteristic to be updates and send notification
+    # Causes characteristic to be updated and send notification
     characteristic.set_value(new_value)
     # Return True to continue notifying. Return a False will stop notifications
     # Getting the value from the characteristic of if it is notifying
@@ -54,7 +54,8 @@ def update_value(characteristic):
 
 def notify_callback(notifying, characteristic):
     """
-    Noitifcaton callback that starts calls the update callback ever 2 seconds
+    Noitificaton callback example. In this case used to start a timer event
+    which calls the update callback ever 2 seconds
 
     :param notifying: boolean for start or stop of notifications
     :param characteristic: The python object for this characteristic
@@ -67,12 +68,16 @@ def main(adapter_address):
     """Creation of peripheral"""
     logger = logging.getLogger('localGATT')
     logger.setLevel(logging.DEBUG)
+    # Example of the output from read_value
     print('CPU temperature is {}\u00B0C'.format(
         int.from_bytes(read_value(), byteorder='little', signed=True)/100))
+    # Create peripheral
     cpu_monitor = peripheral.Peripheral(adapter_address,
                                         local_name='CPU Monitor',
                                         appearance=1344)
+    # Add service
     cpu_monitor.add_service(srv_id=1, uuid=CPU_TMP_SRVC, primary=True)
+    # Add characteristic
     cpu_monitor.add_characteristic(srv_id=1, chr_id=1, uuid=CPU_TMP_CHRC,
                                    value=[], notifying=False,
                                    flags=['read', 'notify'],
@@ -80,10 +85,12 @@ def main(adapter_address):
                                    write_callback=None,
                                    notify_callback=notify_callback
                                    )
+    # Add descriptor
     cpu_monitor.add_descriptor(srv_id=1, chr_id=1, dsc_id=1, uuid=CPU_FMT_DSCP,
                                value=[0x0E, 0xFE, 0x2F, 0x27, 0x01, 0x00,
                                       0x00],
                                flags=['read'])
+    # Publish peripheral and start event loop
     cpu_monitor.publish()
 
 
