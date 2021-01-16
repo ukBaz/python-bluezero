@@ -19,6 +19,8 @@ coverage run --append -m unittest -v tests.test_device
 test1006=$?
 coverage run --append -m unittest -v tests.test_gatt
 test1007=$?
+coverage run --append -m unittest -v tests.test_dbus_tools_mock
+test1008=$?
 coverage run --append -m unittest -v tests.test_broadcaster
 test101=$?
 coverage run --append -m unittest -v tests.test_central
@@ -61,7 +63,8 @@ coverage report
 coverage html
 echo file://`pwd`/htmlcov/index.html
 # google-chrome `pwd`/htmlcov/index.html &
-group100=$((test1001 + test1002 + test1003 + test1004 + test1005 + test1006 + test1007))
+group100=$((test1001 + test1002 + test1003 + test1004 + test1005 + \
+            test1006 + test1007 + test1008))
 group10=$((test101 + test102 + test103))
 group1=$((test11 + test12 + test13))
 group_examples=$((test_example1 + test_example2 + test_example3 + test_example4 + \
