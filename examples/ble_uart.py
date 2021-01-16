@@ -31,6 +31,7 @@ def uart_write(value, options):
     print('Text value:', bytes(value).decode('utf-8'))
     update_tx(value)
 
+
 def main(adapter_address):
     ble_uart = peripheral.Peripheral(adapter_address, local_name='BLE UART')
     ble_uart.add_service(srv_id=1, uuid=UART_SERVICE, primary=True)

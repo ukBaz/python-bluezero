@@ -51,8 +51,7 @@ class TestAdapterExample(dbusmock.DBusTestCase):
         adptr_mock = dbus.Interface(adptr_obj, dbusmock.MOCK_IFACE)
         # Create
         with mock.patch('bluezero.async_tools.EventLoop.run', MockAsync.run):
-            cpu_temperature.main(adapter_address='00:01:02:03:04:05',
-                                 test_mode=False)
+            cpu_temperature.main(adapter_address='00:01:02:03:04:05')
         device_calls = list(str(call[1]) for call in peri_mock.GetCalls())
         adptr_calls = list(str(call[1]) for call in adptr_mock.GetCalls())
         self.assertEqual(['RegisterApplication'], adptr_calls)

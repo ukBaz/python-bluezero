@@ -99,7 +99,7 @@ def get_mac_addr_from_dbus_path(path):
     a given D-Bus path. Path must include device part
     (e.g. dev_XX_XX_XX_XX_XX_XX)
     """
-    logger.warning('get_mac_addr_from_dbus_path has been deprecated and has'
+    logger.warning('get_mac_addr_from_dbus_path has been deprecated and has '
                    'been replaced with get_device_address_from_dbus_path')
     return get_device_address_from_dbus_path(path)
 
