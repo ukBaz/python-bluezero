@@ -387,8 +387,7 @@ def get(dbus_prop_obj, dbus_iface, prop_name, default=None):
     try:
         return dbus_prop_obj.Get(dbus_iface, prop_name)
     except dbus.exceptions.DBusException as dbus_exception:
-        dbus_invalid_args = 'org.freedesktop.DBus.Error.InvalidArgs'
-        if dbus_exception.get_dbus_name() == dbus_invalid_args:
+        if 'UnknownProperty' in dbus_exception.get_dbus_name():
             return default
         else:
             raise dbus_exception
