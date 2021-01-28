@@ -29,7 +29,7 @@ of installing for edit is as follows:
 Release Checklist
 =================
 
-* Check Travis-tests are passing (run_local_tests.sh)
+* Check tests are passing (run_local_tests.sh)
 * Update version info (see `Update Version Info`_)
 * Build and publish PyPI package (see `Build PyPI package`_)
 * Check PyPI page for obvious errors
