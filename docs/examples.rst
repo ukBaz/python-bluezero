@@ -6,7 +6,7 @@ An example can often speed things up when you are trying to get started with
 a library so there are few below.
 There is also a `Getting Started
 <https://ukbaz.github.io/howto/ubit_workshop.html>`_
-workshop using a Raspberry Pi and a BBC micro:bit
+workshop using a Raspberry Pi and a BBC micro:bit if you are new to Bluetooth.
 
 Adapter
 -------
@@ -21,8 +21,8 @@ nearby Bluetooth devices:
 
 Central Role
 ------------
-This example uses the micro:bit API that has been written in Bluezero to interact
-with the micro:bit
+This example uses the micro:bit API that has been written in Bluezero to
+interact with the micro:bit
 
 .. literalinclude:: ../examples/microbit_poll.py
     :language: python
@@ -43,7 +43,6 @@ Beacon: Eddystone URL
 
 This example broadcasts a given URL in a format for the `Physical Web
 <https://google.github.io/physical-web/>`_:
-You will need to put the BlueZ bluetoothd into experimental mode for this one.
 
 .. literalinclude:: ../examples/eddystone_url_beacon.py
     :language: python
@@ -52,12 +51,9 @@ You will need to put the BlueZ bluetoothd into experimental mode for this one.
 Peripheral Role
 ---------------
 
-This example transmits the temperature of the CPU over the single characteristic.
-If your hardware does not support the `vcgencmd` then change the `get_cpu_temperature()`
-function to use the randomly generated temperature.
+This example transmits a randomly generated value to represent the temperature
+of the CPU over the single characteristic.
 Values are only updated when notification are switched on.
-You will need to have BlueZ in experimental mode and have modified the DBus configuration
-file to open the permissions for 'ukBaz.bluezero'
 
 .. literalinclude:: ../examples/cpu_temperature.py
     :language: python
@@ -71,9 +67,6 @@ This service simulates a basic UART connection over two lines, TXD and RXD.
 It is based on a proprietary UART service specification by Nordic Semiconductors.
 Data sent to and from this service can be viewed using the nRF UART apps from Nordic
 Semiconductors for Android and iOS.
-
-It uses the Bluezero peripheral file (level 10) so should be easier than the previous CPU
-Temperature example that was a level 100.
 
 .. literalinclude:: ../examples/ble_uart.py
     :language: python
