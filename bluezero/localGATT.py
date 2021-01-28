@@ -44,9 +44,7 @@ class Application(dbus.service.Object):
         # Initialise the D-Bus path and register it
         self.bus = dbus.SystemBus()
         self.path = dbus.ObjectPath(constants.BLUEZERO_DBUS_OBJECT)
-        self.bus_name = dbus.service.BusName(constants.BLUEZERO_DBUS_NAME,
-                                             self.bus)
-        dbus.service.Object.__init__(self, self.bus_name, self.path)
+        dbus.service.Object.__init__(self, self.bus, self.path)
 
         # Objects to be associated with this service
         self.managed_objs = []
