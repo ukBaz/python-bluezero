@@ -130,6 +130,7 @@ class Scanner:
         """
         Utility method to test 16 bit UUID against Bluetooth SIG 128 bit UUID
         used in service data
+
         :param uuid_16: 16 Bit UUID value
         :param srv_data:
         :return:
@@ -179,10 +180,11 @@ class Scanner:
         beacon type is found.
         All callbacks take one argument which is a named tuple with the fields
         relevant for that format.
-            Eddystone URL = ['url', 'tx_pwr', 'rssi']
-            Eddystone UID = ['namespace', 'instance', 'tx_pwr', 'rssi']
-            iBeacon = ['UUID', 'major', 'minor', 'tx_pwr', 'rssi']
-            AltBeacon = ['UUID', 'major', 'minor', 'tx_pwr', 'rssi']
+
+        - Eddystone URL = ['url', 'tx_pwr', 'rssi']
+        - Eddystone UID = ['namespace', 'instance', 'tx_pwr', 'rssi']
+        - iBeacon = ['UUID', 'major', 'minor', 'tx_pwr', 'rssi']
+        - AltBeacon = ['UUID', 'major', 'minor', 'tx_pwr', 'rssi']
 
         :param on_eddystone_url: Callback for Eddystone URL format
         :param on_eddystone_uid: Callback for Eddystone UID format
