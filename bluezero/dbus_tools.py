@@ -115,7 +115,6 @@ def get_device_address_from_dbus_path(path):
             return path_elem.replace("dev_", '').replace("_", ":")
     return ''
 
-
 def get_adapter_address_from_dbus_path(path):
     """Return the address of the adapter from the a DBus path"""
     result = re.match(r'/org/bluez/hci\d+', path)
@@ -140,8 +139,10 @@ def _get_dbus_path2(objects, parent_path, iface_in, prop, value):
         props = iface.get(iface_in)
         if props is None:
             continue
-        if (props[prop].lower() == value.lower() or path.lower().endswith("dev_" + value.lower().replace(":", "_"))) and \
-                path.startswith(parent_path):
+        dev_name = "dev_" + value.lower().replace(":", "_")
+        if (props[prop].lower() == value.lower() or
+            path.lower().endswith(dev_name)) \
+                and path.startswith(parent_path):
             return path
     return None
 
