@@ -146,3 +146,28 @@ class Peripheral:
         except KeyboardInterrupt:
             self.mainloop.quit()
             self.ad_manager.unregister_advertisement(self.advert)
+
+    @property
+    def on_connect(self):
+        """
+        Callback for when a device connects to the peripheral.
+        Callback should take one parameter which is a Bluezero Device object
+        """
+        return self.dongle.on_connect
+
+    @on_connect.setter
+    def on_connect(self, callback):
+        self.dongle.on_connect = callback
+
+    @property
+    def on_disconnect(self):
+        """
+        Callback for when a device disconnects from the peripheral.
+        Callback takes either one parameter: a Bluezero Device object
+        or no parameters
+        """
+        return self.dongle.on_disconnect
+
+    @on_disconnect.setter
+    def on_disconnect(self, callback):
+        self.dongle.on_disconnect = callback

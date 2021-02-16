@@ -58,8 +58,8 @@ def main(adapter_address):
                                 read_callback=None,
                                 write_callback=None)
 
-    ble_uart.dongle.on_connect = on_connect
-    ble_uart.dongle.on_disconnect = on_disconnect
+    ble_uart.on_connect = on_connect
+    ble_uart.on_disconnect = on_disconnect
 
     ble_uart.publish()
 
