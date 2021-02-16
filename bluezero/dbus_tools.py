@@ -140,8 +140,8 @@ def _get_dbus_path2(objects, parent_path, iface_in, prop, value):
         props = iface.get(iface_in)
         if props is None:
             continue
-        if (props[prop].lower() == value.lower() or path.lower().endswith("dev_" + value.lower().replace(":", "_"))) and \
-                path.startswith(parent_path):
+        if (props[prop].lower() == value.lower() or path.lower().endswith("dev_" + value.lower().replace(":", "_"))) \
+                and path.startswith(parent_path):
             return path
     return None
 
