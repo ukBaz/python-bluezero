@@ -115,6 +115,7 @@ def get_device_address_from_dbus_path(path):
             return path_elem.replace("dev_", '').replace("_", ":")
     return ''
 
+
 def get_adapter_address_from_dbus_path(path):
     """Return the address of the adapter from the a DBus path"""
     result = re.match(r'/org/bluez/hci\d+', path)
