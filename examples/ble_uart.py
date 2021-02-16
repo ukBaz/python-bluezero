@@ -14,7 +14,7 @@ tx_obj = None
 
 
 def on_connect(ble_device: device.Device):
-    print("Connected fun to " + str(ble_device.address))
+    print("Connected to " + str(ble_device.address))
 
 
 def on_disconnect(ble_device: device.Device):
@@ -43,7 +43,7 @@ def uart_write(value, options):
 
 
 def main(adapter_address):
-    ble_uart = peripheral.Peripheral(adapter_address, local_name='Waydoo Flyer Foil')
+    ble_uart = peripheral.Peripheral(adapter_address, local_name='BLE UART')
     ble_uart.add_service(srv_id=1, uuid=UART_SERVICE, primary=True)
     ble_uart.add_characteristic(srv_id=1, chr_id=1, uuid=RX_CHARACTERISTIC,
                                 value=[], notifying=False,
@@ -52,7 +52,7 @@ def main(adapter_address):
                                 read_callback=None,
                                 notify_callback=None)
     ble_uart.add_characteristic(srv_id=1, chr_id=2, uuid=TX_CHARACTERISTIC,
-                                value=[], notifying=True,
+                                value=[], notifying=False,
                                 flags=['notify'],
                                 notify_callback=uart_notify,
                                 read_callback=None,
