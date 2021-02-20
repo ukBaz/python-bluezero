@@ -1,4 +1,4 @@
-# from gi.repository import GLib
+from gi.repository import GLib
 
 # Bluezero modules
 from bluezero import adapter
@@ -11,7 +11,7 @@ RX_CHARACTERISTIC = '6E400002-B5A3-F393-E0A9-E50E24DCCA9E'
 TX_CHARACTERISTIC = '6E400003-B5A3-F393-E0A9-E50E24DCCA9E'
 
 
-class MyDevice:
+class UARTDevice:
     tx_obj = None
 
     @classmethod
@@ -49,18 +49,18 @@ def main(adapter_address):
     ble_uart.add_characteristic(srv_id=1, chr_id=1, uuid=RX_CHARACTERISTIC,
                                 value=[], notifying=False,
                                 flags=['write', 'write-without-response'],
-                                write_callback=MyDevice.uart_write,
+                                write_callback=UARTDevice.uart_write,
                                 read_callback=None,
                                 notify_callback=None)
     ble_uart.add_characteristic(srv_id=1, chr_id=2, uuid=TX_CHARACTERISTIC,
                                 value=[], notifying=False,
                                 flags=['notify'],
-                                notify_callback=MyDevice.uart_notify,
+                                notify_callback=UARTDevice.uart_notify,
                                 read_callback=None,
                                 write_callback=None)
 
-    ble_uart.on_connect = MyDevice.on_connect
-    ble_uart.on_disconnect = MyDevice.on_disconnect
+    ble_uart.on_connect = UARTDevice.on_connect
+    ble_uart.on_disconnect = UARTDevice.on_disconnect
 
     ble_uart.publish()
 
