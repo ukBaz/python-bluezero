@@ -10,36 +10,37 @@ UART_SERVICE = '6E400001-B5A3-F393-E0A9-E50E24DCCA9E'
 RX_CHARACTERISTIC = '6E400002-B5A3-F393-E0A9-E50E24DCCA9E'
 TX_CHARACTERISTIC = '6E400003-B5A3-F393-E0A9-E50E24DCCA9E'
 
-tx_obj = None
 
+class MyDevice:
+    tx_obj = None
 
-def on_connect(ble_device: device.Device):
-    print("Connected to " + str(ble_device.address))
+    @classmethod
+    def on_connect(cls, ble_device: device.Device):
+        print("Connected to " + str(ble_device.address))
 
+    @classmethod
+    def on_disconnect(cls, adapter_address, device_address):
+        print("Disconnected from " + device_address)
 
-def on_disconnect(ble_device: device.Device):
-    print("Disconnected from " + str(ble_device.address))
+    @classmethod
+    def uart_notify(cls, notifying, characteristic):
+        if notifying:
+            cls.tx_obj = characteristic
+        else:
+            cls.tx_obj = None
 
+    @classmethod
+    def update_tx(cls, value):
+        if cls.tx_obj:
+            print("Sending")
+            cls.tx_obj.set_value(value)
 
-def uart_notify(notifying, characteristic):
-    global tx_obj
-    if notifying:
-        tx_obj = characteristic
-    else:
-        tx_obj = None
-
-
-def update_tx(value):
-    if tx_obj:
-        print("Sending")
-        tx_obj.set_value(value)
-
-
-def uart_write(value, options):
-    print('raw bytes:', value)
-    print('With options:', options)
-    print('Text value:', bytes(value).decode('utf-8'))
-    update_tx(value)
+    @classmethod
+    def uart_write(cls, value, options):
+        print('raw bytes:', value)
+        print('With options:', options)
+        print('Text value:', bytes(value).decode('utf-8'))
+        cls.update_tx(value)
 
 
 def main(adapter_address):
@@ -48,18 +49,18 @@ def main(adapter_address):
     ble_uart.add_characteristic(srv_id=1, chr_id=1, uuid=RX_CHARACTERISTIC,
                                 value=[], notifying=False,
                                 flags=['write', 'write-without-response'],
-                                write_callback=uart_write,
+                                write_callback=MyDevice.uart_write,
                                 read_callback=None,
                                 notify_callback=None)
     ble_uart.add_characteristic(srv_id=1, chr_id=2, uuid=TX_CHARACTERISTIC,
                                 value=[], notifying=False,
                                 flags=['notify'],
-                                notify_callback=uart_notify,
+                                notify_callback=MyDevice.uart_notify,
                                 read_callback=None,
                                 write_callback=None)
 
-    ble_uart.on_connect = on_connect
-    ble_uart.on_disconnect = on_disconnect
+    ble_uart.on_connect = MyDevice.on_connect
+    ble_uart.on_disconnect = MyDevice.on_disconnect
 
     ble_uart.publish()
 
