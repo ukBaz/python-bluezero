@@ -151,7 +151,9 @@ class Peripheral:
     def on_connect(self):
         """
         Callback for when a device connects to the peripheral.
-        Callback should take one parameter which is a Bluezero Device object
+        Callback can accept 0, 1, or 2 positional arguments
+        1: a device.Device instance of the connected target
+        2: the local adapter address followed by the remote address
         """
         return self.dongle.on_connect
 
@@ -163,8 +165,9 @@ class Peripheral:
     def on_disconnect(self):
         """
         Callback for when a device disconnects from the peripheral.
-        Callback takes either one parameter: a Bluezero Device object
-        or no parameters
+        Callback can accept 0, 1, or 2 positional arguments
+        1: a device.Device instance of the disconnected target
+        2: the local adapter address followed by the remote address
         """
         return self.dongle.on_disconnect
 

@@ -1,4 +1,4 @@
-from gi.repository import GLib
+# from gi.repository import GLib
 
 # Bluezero modules
 from bluezero import adapter
