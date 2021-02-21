@@ -146,3 +146,31 @@ class Peripheral:
         except KeyboardInterrupt:
             self.mainloop.quit()
             self.ad_manager.unregister_advertisement(self.advert)
+
+    @property
+    def on_connect(self):
+        """
+        Callback for when a device connects to the peripheral.
+        Callback can accept 0, 1, or 2 positional arguments
+        1: a device.Device instance of the connected target
+        2: the local adapter address followed by the remote address
+        """
+        return self.dongle.on_connect
+
+    @on_connect.setter
+    def on_connect(self, callback):
+        self.dongle.on_connect = callback
+
+    @property
+    def on_disconnect(self):
+        """
+        Callback for when a device disconnects from the peripheral.
+        Callback can accept 0, 1, or 2 positional arguments
+        1: a device.Device instance of the disconnected target
+        2: the local adapter address followed by the remote address
+        """
+        return self.dongle.on_disconnect
+
+    @on_disconnect.setter
+    def on_disconnect(self, callback):
+        self.dongle.on_disconnect = callback

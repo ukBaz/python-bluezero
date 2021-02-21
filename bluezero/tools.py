@@ -151,7 +151,10 @@ def url_to_advert(url, frame_type, tx_power):
 
 def get_fn_parameters(fn):
     """ return the number of input parameters of the fn , None on error"""
-    return len(inspect.getfullargspec(fn).args)
+    param_len = len(inspect.getfullargspec(fn).args)
+    if inspect.ismethod(fn):
+        param_len -= 1
+    return param_len
 
 
 def create_module_logger(module_name):

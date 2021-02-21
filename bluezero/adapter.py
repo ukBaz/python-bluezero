@@ -272,15 +272,21 @@ class Adapter:
         Handle DBus PropertiesChanged signal and
         call appropriate user callback
         """
-        macaddr = dbus_tools.get_device_address_from_dbus_path(path)
+        device_address = dbus_tools.get_device_address_from_dbus_path(path)
         adapter_addr = dbus_tools.get_adapter_address_from_dbus_path(path)
         if 'Connected' in changed:
-            if changed['Connected'] and self.address == adapter_addr:
-                new_dev = device.Device(
-                    adapter_addr=self.address,
-                    device_addr=macaddr)
-            if changed['Connected'] and self.on_connect:
-                self.on_connect(new_dev)
+            if all((changed['Connected'],
+                    self.address == adapter_addr,
+                    self.on_connect)):
+                if tools.get_fn_parameters(self.on_connect) == 0:
+                    self.on_connect()
+                elif tools.get_fn_parameters(self.on_connect) == 1:
+                    new_dev = device.Device(
+                        adapter_addr=self.address,
+                        device_addr=device_address)
+                    self.on_connect(new_dev)
+                elif tools.get_fn_parameters(self.on_connect) == 2:
+                    self.on_connect(adapter_addr, device_address)
             elif not changed['Connected'] and self.on_disconnect:
                 if tools.get_fn_parameters(self.on_disconnect) == 0:
                     logger.warning("using deprecated version of disconnect "
@@ -288,7 +294,12 @@ class Adapter:
                                    "with device parameter")
                     self.on_disconnect()
                 elif tools.get_fn_parameters(self.on_disconnect) == 1:
+                    new_dev = device.Device(
+                        adapter_addr=self.address,
+                        device_addr=device_address)
                     self.on_disconnect(new_dev)
+                elif tools.get_fn_parameters(self.on_disconnect) == 2:
+                    self.on_disconnect(self.address, device_address)
 
     def _interfaces_added(self, path, device_info):
         """
@@ -297,16 +308,21 @@ class Adapter:
         """
         dev_iface = constants.DEVICE_INTERFACE
         if constants.DEVICE_INTERFACE in device_info:
-            dev_addr = device_info[dev_iface]['Address']
-            if self.on_device_found is not None and dev_addr:
+            dev_addr = device_info[dev_iface].get('Address')
+            dev_connected = device_info[dev_iface].get('Connected')
+            if self.on_device_found and dev_addr:
                 new_dev = device.Device(
                     adapter_addr=self.address,
                     device_addr=dev_addr)
                 self.on_device_found(new_dev)
+            if all((self.on_connect, dev_connected, dev_addr)):
+                new_dev = device.Device(
+                    adapter_addr=self.address,
+                    device_addr=dev_addr)
+                self.on_connect(new_dev)
 
     def _interfaces_removed(self, path, device_info):
         """
         Handle DBus InterfacesRemoved signal and
         call appropriate user callback
         """
-        pass
