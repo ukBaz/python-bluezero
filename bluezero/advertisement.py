@@ -123,11 +123,13 @@ class Advertisement(dbus.service.Object):
                  'ServiceUUIDs',
                  UUID)
 
-    def manufacturer_data(self,company_id,data):
+    def manufacturer_data(self, company_id, data):
         """Manufacturer Data to be broadcast
 
-        beacon.manufacturer_data({int("0x004c", 16):bytearray.fromhex(23*"AA")})"""
-        return self.Set(constants.LE_ADVERTISEMENT_IFACE, 'ManufacturerData', {company_id: dbus.Array(data, signature='y')})
+        ad.manufacturer_data({int("0x004c", 16):bytearray.fromhex(23*"AA")})"""
+        return self.Set(constants.LE_ADVERTISEMENT_IFACE,
+                        'ManufacturerData', 
+                        {company_id: dbus.Array(data, signature='y')})
 
     def solicit_UUIDs(self):  # pylint: disable=invalid-name
         """Manufacturer Data to be broadcast (Currently not supported)"""
