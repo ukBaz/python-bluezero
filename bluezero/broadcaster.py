@@ -40,8 +40,8 @@ class Beacon:
         Add manufacturer information to be used in beacon message
         :param manufacturer: Use numbers from Bluetooth SIG
         https://www.bluetooth.com/specifications/assigned-numbers/16-bit-UUIDs-for-Members
-        
-        :param data: Data to be sent (Limit of 23bytes) 
+
+        :param data: Data to be sent (Limit of 23bytes)
         bytearray.fromhex(23*"FF")
         """
         if isinstance(manufacturer, str):

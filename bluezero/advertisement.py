@@ -128,7 +128,7 @@ class Advertisement(dbus.service.Object):
 
         ad.manufacturer_data({int("0x004c", 16):bytearray.fromhex(23*"AA")})"""
         return self.Set(constants.LE_ADVERTISEMENT_IFACE,
-                        'ManufacturerData', 
+                        'ManufacturerData',
                         {company_id: dbus.Array(data, signature='y')})
 
     def solicit_UUIDs(self):  # pylint: disable=invalid-name
