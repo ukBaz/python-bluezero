@@ -124,9 +124,7 @@ class Advertisement(dbus.service.Object):
                  UUID)
 
     def manufacturer_data(self, company_id, data):
-        """Manufacturer Data to be broadcast
-
-        ad.manufacturer_data({int("0x004c", 16):bytearray.fromhex(23*"AA")})"""
+        """Manufacturer Data to be broadcast"""
         return self.Set(constants.LE_ADVERTISEMENT_IFACE,
                         'ManufacturerData',
                         {company_id: dbus.Array(data, signature='y')})

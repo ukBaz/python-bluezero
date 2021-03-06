@@ -42,7 +42,7 @@ class Beacon:
         https://www.bluetooth.com/specifications/assigned-numbers/16-bit-UUIDs-for-Members
 
         :param data: Data to be sent (Limit of 23bytes)
-        bytearray.fromhex(23*"FF")
+        e.g. b'\\xff' * 23
         """
         if isinstance(manufacturer, str):
             manufacturer = int(manufacturer, 16)
