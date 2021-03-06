@@ -40,9 +40,13 @@ class Beacon:
         Add manufacturer information to be used in beacon message
         :param manufacturer: Use numbers from Bluetooth SIG
         https://www.bluetooth.com/specifications/assigned-numbers/16-bit-UUIDs-for-Members
-        :param data: Data to be sent (Limit of ??)
+
+        :param data: Data to be sent (Limit of 23bytes)
+        e.g. b'\\xff' * 23
         """
-        pass
+        if isinstance(manufacturer, str):
+            manufacturer = int(manufacturer, 16)
+        self.broadcaster.manufacturer_data(manufacturer, data)
 
     def include_tx_power(self, show_power=None):
         """
