@@ -8,12 +8,12 @@ from bluezero import localGATT
 from bluezero import GATT
 from bluezero import tools
 
-
 logger = tools.create_module_logger(__name__)
 
 
 class Peripheral:
     """Create a Bluetooth BLE Peripheral"""
+
     def __init__(self, adapter_address, local_name=None, appearance=None):
         self.app = localGATT.Application()
         self.srv_mng = GATT.GattManager(adapter_address)
@@ -44,7 +44,7 @@ class Peripheral:
     def add_characteristic(self, srv_id, chr_id, uuid, value,
                            notifying, flags,
                            read_callback=None, write_callback=None,
-                           notify_callback=None):
+                           notify_callback=None, convert_dbus=True):
         """
         Add information for characteristic.
 
@@ -90,7 +90,7 @@ class Peripheral:
         """
         self.characteristics.append(localGATT.Characteristic(
             srv_id, chr_id, uuid, value, notifying, flags,
-            read_callback, write_callback, notify_callback
+            read_callback, write_callback, notify_callback, convert_dbus
         ))
 
     def add_descriptor(self, srv_id, chr_id, dsc_id, uuid, value, flags):

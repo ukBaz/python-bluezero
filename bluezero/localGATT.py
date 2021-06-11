@@ -223,10 +223,12 @@ class Characteristic(dbus.service.Object):
                  flags,
                  read_callback=None,
                  write_callback=None,
-                 notify_callback=None):
+                 notify_callback=None,
+                 convert_dbus=True):
         self.read_callback = read_callback
         self.write_callback = write_callback
         self.notify_callback = notify_callback
+        self.convert_dbus = convert_dbus
 
         # Setup D-Bus object paths and register service
         service_path = (f'{constants.BLUEZERO_DBUS_OBJECT}/'
@@ -364,8 +366,10 @@ class Characteristic(dbus.service.Object):
         :return: value
         """
         if self.write_callback:
-            self.write_callback(dbus_tools.dbus_to_python(value),
-                                dbus_tools.dbus_to_python(options))
+            return_value = dbus_tools.dbus_to_python(value) if self.convert_dbus else value
+            return_options = dbus_tools.dbus_to_python(options) if self.convert_dbus else options
+            self.write_callback(return_value,
+                                return_options)
         self.Set(constants.GATT_CHRC_IFACE, 'Value', value)
 
     @dbus.service.method(constants.GATT_CHRC_IFACE,
