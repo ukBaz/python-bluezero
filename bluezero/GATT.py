@@ -95,6 +95,7 @@ class Characteristic:
         self.chrc_uuid = chrc_uuid
         self.characteristic_methods = None
         self.characteristic_props = None
+        self._prop_chngd_sig = None
 
     def resolve_gatt(self):
         """
@@ -245,10 +246,10 @@ class Characteristic:
         :param callback: callback function to be added.
         """
         if callback is None:
-            callback = self.props_changed_cb
-
-        self.characteristic_props.connect_to_signal('PropertiesChanged',
-                                                    callback)
+            self._prop_chngd_sig.remove()
+        else:
+            self._prop_chngd_sig = self.characteristic_props.connect_to_signal(
+                'PropertiesChanged', callback)
 
     def props_changed_cb(self, iface, changed_props, invalidated_props):
         """
