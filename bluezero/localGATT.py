@@ -221,10 +221,10 @@ class Characteristic(dbus.service.Object):
                  value,
                  notifying,
                  flags,
-                 mtu,
                  read_callback=None,
                  write_callback=None,
-                 notify_callback=None):
+                 notify_callback=None,
+                 mtu=None):
         self.read_callback = read_callback
         self.write_callback = write_callback
         self.notify_callback = notify_callback

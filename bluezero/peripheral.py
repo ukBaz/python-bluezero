@@ -42,9 +42,9 @@ class Peripheral:
             self.primary_services.append(uuid)
 
     def add_characteristic(self, srv_id, chr_id, uuid, value,
-                           notifying, flags, mtu,
+                           notifying, flags,
                            read_callback=None, write_callback=None,
-                           notify_callback=None):
+                           notify_callback=None, mtu=None):
         """
         Add information for characteristic.
 
@@ -75,9 +75,6 @@ class Peripheral:
             - "secure-read" (Server only)
             - "secure-write" (Server only)
             - "authorize"
-        :param mtu: Characteristic MTU, this is valid both for ReadValue
-                    and WriteValue but either method can use long
-                    procedures when supported.
 
         :param read_callback: function to be called when read_value is called
             by client. function should return python list of integers
@@ -89,11 +86,15 @@ class Peripheral:
             notify_stop is called by client. Function should have two
             parameters notifying and characteristic. The `characteristic`
             is the instantiation of a localGAT.Characteristic class
+        
+        :param mtu: Characteristic MTU, this is valid both for ReadValue
+                    and WriteValue but either method can use long
+                    procedures when supported.
 
         """
         self.characteristics.append(localGATT.Characteristic(
-            srv_id, chr_id, uuid, value, notifying, flags, mtu,
-            read_callback, write_callback, notify_callback
+            srv_id, chr_id, uuid, value, notifying, flags,
+            read_callback, write_callback, notify_callback, mtu
         ))
 
     def add_descriptor(self, srv_id, chr_id, dsc_id, uuid, value, flags):
