@@ -221,6 +221,7 @@ class Characteristic(dbus.service.Object):
                  value,
                  notifying,
                  flags,
+                 mtu,
                  read_callback=None,
                  write_callback=None,
                  notify_callback=None):
@@ -240,7 +241,8 @@ class Characteristic(dbus.service.Object):
                 'Service': dbus_tools.get_dbus_obj(service_path),
                 'Value': dbus.Array(value, signature='y'),
                 'Notifying': notifying,
-                'Flags': flags}
+                'Flags': flags,
+                'MTU': mtu}
         }
 
         for prop in self.props[constants.GATT_CHRC_IFACE].keys():

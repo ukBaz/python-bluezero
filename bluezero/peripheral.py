@@ -42,7 +42,7 @@ class Peripheral:
             self.primary_services.append(uuid)
 
     def add_characteristic(self, srv_id, chr_id, uuid, value,
-                           notifying, flags,
+                           notifying, flags, mtu,
                            read_callback=None, write_callback=None,
                            notify_callback=None):
         """
@@ -75,6 +75,9 @@ class Peripheral:
             - "secure-read" (Server only)
             - "secure-write" (Server only)
             - "authorize"
+        :param mtu: Characteristic MTU, this is valid both for ReadValue
+                    and WriteValue but either method can use long
+                    procedures when supported.
 
         :param read_callback: function to be called when read_value is called
             by client. function should return python list of integers
@@ -89,7 +92,7 @@ class Peripheral:
 
         """
         self.characteristics.append(localGATT.Characteristic(
-            srv_id, chr_id, uuid, value, notifying, flags,
+            srv_id, chr_id, uuid, value, notifying, flags, mtu,
             read_callback, write_callback, notify_callback
         ))
 
