@@ -16,6 +16,8 @@ EDDYSTONE_SRV_UUID = '0000feaa-0000-1000-8000-00805f9b34fb'
 
 EddyURL = namedtuple('EddyURL', ['url', 'tx_pwr', 'rssi'])
 EddyUID = namedtuple('EddyUID', ['namespace', 'instance', 'tx_pwr', 'rssi'])
+EddyTLM = namedtuple('EddyTLM',
+                     ['version', 'battery', 'temperature', 'count', 'uptime', 'tx_pwr', 'rssi'])
 iBeacon = namedtuple('iBeacon',  # pylint: disable=invalid-name
                      ['UUID', 'major', 'minor', 'tx_pwr', 'rssi'])
 AltBeacon = namedtuple('AltBeacon',
@@ -30,6 +32,7 @@ class Scanner:
     mainloop = async_tools.EventLoop()
     on_eddystone_url = None
     on_eddystone_uid = None
+    on_eddystone_tlm = None
     on_ibeacon = None
     on_altbeacon = None
 
@@ -102,6 +105,19 @@ class Scanner:
             data = EddyURL(url=full_url, tx_pwr=tx_pwr, rssi=int(rssi))
             if cls.on_eddystone_url:
                 cls.on_eddystone_url(data)
+        elif data[0] == 0x20:
+            version = int(data[1])
+            # Only support plain beacons ATM
+            if version == 0:
+                voltage = int.from_bytes(data[2:4], byteorder='big', signed=False)
+                temperature = int.from_bytes(data[4:6], byteorder='big', signed=True)/256.0
+                count = int.from_bytes(data[6:10], byteorder='big', signed=False)
+                time = int.from_bytes(data[10:], byteorder='big', signed=False) / 10
+                logger.info('\t\tEddystone TLM: %s, %s mV, %s C, %s, %s s  \u2197 %s  \u2198 %s',
+                            version, voltage, temperature, count, time, tx_pwr, rssi)
+                data = EddyTLM(version, voltage, temperature, count, time, tx_pwr, rssi)
+                if cls.on_eddystone_tlm:
+                    cls.on_eddystone_tlm(data)
 
     @classmethod
     def process_ibeacon(cls, data, rssi, beacon_type='iBeacon'):
@@ -173,6 +189,7 @@ class Scanner:
     def start_beacon_scan(cls,
                           on_eddystone_url=None,
                           on_eddystone_uid=None,
+                          on_eddystone_tlm=None,
                           on_ibeacon=None,
                           on_altbeacon=None):
         """
@@ -183,17 +200,20 @@ class Scanner:
 
         - Eddystone URL = ['url', 'tx_pwr', 'rssi']
         - Eddystone UID = ['namespace', 'instance', 'tx_pwr', 'rssi']
+        - Eddystone TLM = ['version', 'voltage', 'temperature', 'count', 'time', 'tx_pwr', 'rssi']
         - iBeacon = ['UUID', 'major', 'minor', 'tx_pwr', 'rssi']
         - AltBeacon = ['UUID', 'major', 'minor', 'tx_pwr', 'rssi']
 
         :param on_eddystone_url: Callback for Eddystone URL format
         :param on_eddystone_uid: Callback for Eddystone UID format
+        :param on_eddystone_tlm: Callback for Eddystone TLM format
         :param on_ibeacon: Callback for iBeacon format
         :param on_altbeacon: Callback for AltBeacon format
         """
         cls.dongle = adapter.Adapter()
         cls.on_eddystone_url = on_eddystone_url
         cls.on_eddystone_uid = on_eddystone_uid
+        cls.on_eddystone_tlm = on_eddystone_tlm
         cls.on_ibeacon = on_ibeacon
         cls.on_altbeacon = on_altbeacon
 
