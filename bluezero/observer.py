@@ -107,15 +107,17 @@ class Scanner:
                 cls.on_eddystone_url(data)
         elif data[0] == 0x20:
             version = int(data[1])
-            voltage = int.from_bytes(data[2:4], byteorder='big', signed=False)
-            temperature = int.from_bytes(data[4:6], byteorder='big', signed=True)/256.0
-            count = int.from_bytes(data[6:10], byteorder='big', signed=False)
-            time = int.from_bytes(data[10:], byteorder='big', signed=False) / 10
-            logger.info('\t\tEddystone TLM: %s, %s mV, %s C, %s, %s s  \u2197 %s  \u2198 %s',
-                        version, voltage, temperature, count, time, tx_pwr, rssi)
-            data = EddyTLM(version, voltage, temperature, count, time, tx_pwr, rssi)
-            if cls.on_eddystone_tlm:
-                cls.on_eddystone_tlm(data)
+            # Only support plain beacons ATM
+            if version == 0:
+                voltage = int.from_bytes(data[2:4], byteorder='big', signed=False)
+                temperature = int.from_bytes(data[4:6], byteorder='big', signed=True)/256.0
+                count = int.from_bytes(data[6:10], byteorder='big', signed=False)
+                time = int.from_bytes(data[10:], byteorder='big', signed=False) / 10
+                logger.info('\t\tEddystone TLM: %s, %s mV, %s C, %s, %s s  \u2197 %s  \u2198 %s',
+                            version, voltage, temperature, count, time, tx_pwr, rssi)
+                data = EddyTLM(version, voltage, temperature, count, time, tx_pwr, rssi)
+                if cls.on_eddystone_tlm:
+                    cls.on_eddystone_tlm(data)
 
     @classmethod
     def process_ibeacon(cls, data, rssi, beacon_type='iBeacon'):
