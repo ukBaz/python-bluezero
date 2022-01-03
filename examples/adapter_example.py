@@ -4,6 +4,10 @@ from bluezero import adapter
 from bluezero import tools
 
 
+def print_dev(device_obj):
+    print(f'Device found with address {device_obj.address}')
+
+
 def main():
     dongles = adapter.list_adapters()
     print('dongles available: ', dongles)
@@ -23,12 +27,12 @@ def main():
         dongle.powered = True
         print('Now powered: ', dongle.powered)
     print('Start discovering')
+    dongle.on_device_found = print_dev
     dongle.nearby_discovery()
     # dongle.powered = False
 
 
 if __name__ == '__main__':
-    print(__name__)
-    logger = tools.create_module_logger('adapter')
+    logger = logging.getLogger('bluezero.adapter')
     logger.setLevel(logging.DEBUG)
     main()
