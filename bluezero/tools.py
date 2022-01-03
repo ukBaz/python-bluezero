@@ -160,6 +160,8 @@ def get_fn_parameters(fn):
 def create_module_logger(module_name):
     """helper function to create logger in Bluezero modules"""
     logger = logging.getLogger(module_name)
+    if logger.hasHandlers():
+        return logger
     strm_hndlr = logging.StreamHandler()
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
