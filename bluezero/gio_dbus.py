@@ -558,9 +558,11 @@ class DBusManager(GObject.GObject):
             logger.debug('Device removed from: %s', object_path)
             self.emit('device-removed', object_path)
 
+    def get_iface_proxy(self, dbus_object_path, dbus_iface):
+        return self._client.get_object(dbus_object_path).get_interface(dbus_iface)
+
     def get_prop_proxy(self, dbus_object_path):
-        proxy = self._client.get_object(dbus_object_path)
-        return proxy.get_interface(constants.DBUS_PROP_IFACE)
+        return self.get_iface_proxy(dbus_object_path, constants.DBUS_PROP_IFACE)
 
     def get_adapters(self):
         dongles = {}

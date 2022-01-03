@@ -8,37 +8,36 @@ Classes:
 - AdvertisingManager -- register Advertisement Data which should be
   broadcast to devices
 """
-import dbus
-import dbus.exceptions
-import dbus.mainloop.glib
-import dbus.service
+import threading
+from typing import List, Dict, Union
+
+from gi.repository import GLib, Gio
+import pkgutil
 
 from bluezero import constants
-from bluezero import dbus_tools
 from bluezero import async_tools
 from bluezero import adapter
+from bluezero import gio_dbus
 from bluezero import tools
 
 logger = tools.create_module_logger(__name__)
-
-dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
 
 ########################################
 # Exception classes
 #######################################
-class InvalidArgsException(dbus.exceptions.DBusException):
-    """This is a D-Bus exception class for Invalid Arguments.
+# class InvalidArgsException(dbus.exceptions.DBusException):
+#     """This is a D-Bus exception class for Invalid Arguments.
+#
+#     All this class does is set the internal variable ``_dbus_error_name`` to
+#     the object path for D-Bus Invalid Argument Exceptions.
+#
+#     """
+#
+#     _dbus_error_name = 'org.freedesktop.DBus.Error.InvalidArgs'
 
-    All this class does is set the internal variable ``_dbus_error_name`` to
-    the object path for D-Bus Invalid Argument Exceptions.
 
-    """
-
-    _dbus_error_name = 'org.freedesktop.DBus.Error.InvalidArgs'
-
-
-class Advertisement(dbus.service.Object):
+class Advertisement(gio_dbus.DbusService):
     """Advertisement data to broadcast Class.
 
     An example of an Eddystone beacon:
@@ -66,28 +65,37 @@ class Advertisement(dbus.service.Object):
         :param advert_id: Unique ID of advertisement.
         :param ad_type: Possible values: "broadcast" or "peripheral"
         """
-        # Setup D-Bus object paths and register service
+        # Setup D-Bus object paths
         self.path = '/ukBaz/bluezero/advertisement{0:04d}'.format(advert_id)
-        self.bus = dbus.SystemBus()
+        # Get introspection XML
+        introspection_xml = pkgutil.get_data(
+            'bluezero', "iface_xml/LEAdvertisement1.xml").decode()
+        super().__init__(introspection_xml=introspection_xml,
+                         publish_path=self.path)
+
+        self.Type = ad_type
+        self.ServiceUUIDs = []
+        self.ManufacturerData = {}
+        self.SolicitUUIDs = []
+        self.ServiceData = {}
+        self.Includes = []
+        # LocalName = GLib.Variant('s', '')
+        self.LocalName = None
+        # Appearance = GLib.Variant.new_uint16(0)
+        self.Appearance = None
+        # Duration = GLib.Variant.new_uint16(0)
+        self.Duration = None
+        # Timeout = GLib.Variant.new_uint16(0)
+        self.Timeout = None
+
         self.mainloop = async_tools.EventLoop()
-        self.interface = constants.LE_ADVERTISEMENT_IFACE
-        dbus.service.Object.__init__(self, self.bus, self.path)
-        self.props = {
-            constants.LE_ADVERTISEMENT_IFACE: {
-                'Type': ad_type,
-                'ServiceUUIDs': None,
-                'ManufacturerData': None,
-                'SolicitUUIDs': None,
-                'ServiceData': None,
-                'IncludeTxPower': False,
-                'Appearance': None,
-                'LocalName': None
-            }
-        }
+        self._ad_thread = None
 
     def start(self):
         """Start GLib event loop"""
-        self.mainloop.run()
+        self._ad_thread = threading.Thread(target=self.mainloop.run)
+        self._ad_thread.daemon = False
+        self._ad_thread.start()
 
     def stop(self):
         """Stop GLib event loop"""
@@ -95,11 +103,8 @@ class Advertisement(dbus.service.Object):
 
     def get_path(self):
         """Return the DBus object path"""
-        return dbus.ObjectPath(self.path)
+        return GLib.Variant.new_path_object(self.path)
 
-    @dbus.service.method(constants.LE_ADVERTISEMENT_IFACE,
-                         in_signature='',
-                         out_signature='')
     def Release(self):  # pylint: disable=invalid-name
         """
         This method gets called when the service daemon
@@ -114,148 +119,75 @@ class Advertisement(dbus.service.Object):
     @property
     def service_UUIDs(self):  # pylint: disable=invalid-name
         """List of UUIDs that represent available services."""
-        return self.Get(constants.LE_ADVERTISEMENT_IFACE,
-                        'ServiceUUIDs')
+        return self.ServiceUUIDs.unpack()
 
     @service_UUIDs.setter
     def service_UUIDs(self, UUID):  # pylint: disable=invalid-name
-        self.Set(constants.LE_ADVERTISEMENT_IFACE,
-                 'ServiceUUIDs',
-                 UUID)
+        self.ServiceUUIDs = GLib.Variant('as', UUID)
 
+    @property
     def manufacturer_data(self, company_id, data):
         """Manufacturer Data to be broadcast"""
-        return self.Set(constants.LE_ADVERTISEMENT_IFACE,
-                        'ManufacturerData',
-                        {company_id: dbus.Array(data, signature='y')})
+        return self.ManufacturerData.unpack()
 
+    @manufacturer_data.setter
+    def manufacturer_data(self, manufacturer_data: Dict[int, List[int]]) -> None:
+        """Manufacturer Data to be broadcast"""
+        m_data = GLib.VariantBuilder(GLib.VariantType.new('a{qv}'))
+        for key, value in manufacturer_data.items():
+            g_key = GLib.Variant.new_uint16(key)
+            g_value = GLib.Variant('ay', value)
+            g_var = GLib.Variant.new_variant(g_value)
+            g_dict = GLib.Variant.new_dict_entry(g_key, g_var)
+            m_data.add_value(g_dict)
+        self.ManufacturerData = m_data.end()
+
+    @property
     def solicit_UUIDs(self):  # pylint: disable=invalid-name
-        """Manufacturer Data to be broadcast (Currently not supported)"""
-        pass
+        """UUIDs to include in "Service Solicitation" Advertisement Data"""
+        return self.SolicitUUIDs.unpack()
+
+    @solicit_UUIDs.setter
+    def solicit_UUIDs(self, data: List[str]) -> None:
+        self.SolicitUUIDs = GLib.Variant('as', data)
 
     @property
     def service_data(self):
         """Service Data to be broadcast"""
-        return self.Get(constants.LE_ADVERTISEMENT_IFACE,
-                        'ServiceData')
+        return self.ServiceData.unpack()
 
     @service_data.setter
-    def service_data(self, data):
-        for uuid in data:
-            self.Set(constants.LE_ADVERTISEMENT_IFACE,
-                     'ServiceData',
-                     {uuid: dbus.Array(data[uuid], signature='y')})
+    def service_data(self, service_data):
+        s_data = {}
+        for key, value in service_data.items():
+            gvalue = GLib.Variant('ay', value)
+            s_data[key] = gvalue
+        self.ServiceData = s_data
 
     @property
-    def include_tx_power(self):
-        """Include TX power in advert (Different from beacon packet)"""
-        return self.Get(constants.LE_ADVERTISEMENT_IFACE,
-                        'IncludeTxPower')
-
-    @include_tx_power.setter
-    def include_tx_power(self, state):
-        return self.Set(constants.LE_ADVERTISEMENT_IFACE,
-                        'IncludeTxPower', state)
-
-    @property
-    def local_name(self):
+    def local_name(self) -> Union[str, None]:
         """Local name of the device included in Advertisement."""
-        return self.Get(constants.LE_ADVERTISEMENT_IFACE, 'LocalName')
+        if self.LocalName:
+            return self.LocalName.unpack()
+        return None
 
     @local_name.setter
-    def local_name(self, name):
-        self.Set(constants.LE_ADVERTISEMENT_IFACE, 'LocalName', name)
+    def local_name(self, name: Union[str, None]):
+        if name:
+            self.LocalName = GLib.Variant.new_string(name)
+        else:
+            self.LocalName = None
 
     @property
-    def appearance(self):
+    def appearance(self) -> int:
         """Appearance to be used in the advertising report."""
-        return self.Get(constants.LE_ADVERTISEMENT_IFACE, 'Appearance')
+        return self.Appearance
 
     @appearance.setter
-    def appearance(self, appearance):
-        self.Set(constants.LE_ADVERTISEMENT_IFACE, 'Appearance', appearance)
-
-    @dbus.service.method(constants.DBUS_PROP_IFACE,
-                         in_signature='s',
-                         out_signature='a{sv}')
-    def GetAll(self, interface_name):  # pylint: disable=invalid-name
-        """Return the advertisement properties.
-
-        This method is registered with the D-Bus at
-        ``org.freedesktop.DBus.Properties``
-
-        :param interface: interface to get the properties of.
-
-        The interface must be ``org.bluez.LEAdvertisement1`` otherwise an
-        exception is raised.
-        """
-        if interface_name != constants.LE_ADVERTISEMENT_IFACE:
-            raise InvalidArgsException()
-
-        response = dict()
-        response['Type'] = self.props[interface_name]['Type']
-        if self.props[interface_name]['ServiceUUIDs'] is not None:
-            response['ServiceUUIDs'] = dbus.Array(
-                self.props[interface_name]['ServiceUUIDs'],
-                signature='s')
-        if self.props[interface_name]['ServiceData'] is not None:
-            response['ServiceData'] = dbus.Dictionary(
-                self.props[interface_name]['ServiceData'],
-                signature='sv')
-        if self.props[interface_name]['ManufacturerData'] is not None:
-            response['ManufacturerData'] = dbus.Dictionary(
-                self.props[interface_name]['ManufacturerData'],
-                signature='qv')
-        if self.props[interface_name]['SolicitUUIDs'] is not None:
-            response['SolicitUUIDs'] = dbus.Array(
-                self.props[interface_name]['SolicitUUIDs'],
-                signature='s')
-        if self.props[interface_name]['LocalName'] is not None:
-            response['LocalName'] = dbus.String(
-                    self.props[interface_name]['LocalName'])
-        if self.props[interface_name]['Appearance'] is not None:
-            response['Appearance'] = dbus.UInt16(
-                    self.props[interface_name]['Appearance'])
-        response['IncludeTxPower'] = dbus.Boolean(
-            self.props[interface_name]['IncludeTxPower'])
-
-        return response
-
-    @dbus.service.method(dbus.PROPERTIES_IFACE,
-                         in_signature='ss', out_signature='v')
-    def Get(self, interface_name,  # pylint: disable=invalid-name
-            property_name):
-        """DBus API for getting a property value"""
-
-        if interface_name != constants.LE_ADVERTISEMENT_IFACE:
-            raise InvalidArgsException()
-
-        try:
-            return self.GetAll(interface_name)[property_name]
-        except KeyError:
-            raise dbus.exceptions.DBusException(
-                'no such property ' + property_name,
-                name=interface_name + '.UnknownProperty')
-
-    @dbus.service.method(dbus.PROPERTIES_IFACE,
-                         in_signature='ssv', out_signature='')
-    def Set(self,  # pylint: disable=invalid-name
-            interface_name, property_name, value):
-        """Standard D-Bus API for setting a property value"""
-
-        try:
-            iface_props = self.props[interface_name]
-        except KeyError:
-            raise dbus.exceptions.DBusException(
-                'no such interface ' + interface_name,
-                name=self.interface + '.UnknownInterface')
-
-        if property_name not in iface_props:
-            raise dbus.exceptions.DBusException(
-                'no such property ' + property_name,
-                name=self.interface + '.UnknownProperty')
-
-        iface_props[property_name] = value
+    def appearance(self, appearance: int) -> None:
+        if appearance:
+            self.Appearance = GLib.Variant.new_uint16(appearance)
+        self.Appearance = None
 
 
 def register_ad_cb():
@@ -273,32 +205,37 @@ class AdvertisingManager:
     Associate the advertisement to an adapter.
     If no adapter specified then first adapter in list is used
     """
+    def __new__(cls, adapter_addr=None, *args, **kwargs):
+        # We always want to get the same Proxy instance of the
+        # AdvertisingManager
+        if not hasattr(cls, '_instances'):
+            cls._instances = cls._instances = {}
+        if adapter_addr in cls._instances:
+            return cls._instances[adapter_addr]
+
+        this_inst = super().__new__(cls, *args, **kwargs)
+        cls._instances[adapter_addr] = this_inst
+        return this_inst
 
     def __init__(self, adapter_addr=None):
-
-        self.bus = dbus.SystemBus()
-
-        if adapter_addr is None:
-            adapters = list(adapter.Adapter.available())
-            if len(adapters) > 0:
-                use_adapter = adapters[0]
-                adapter_addr = use_adapter.address
-        else:
+        # We don't want to re-initialise the AdvertisingManager if
+        # it has already been done
+        if not hasattr(self, '_client'):
+            self._client = gio_dbus.DBusManager()
+            if adapter_addr is None:
+                adapters = adapter.list_adapters()
+                if len(adapters) > 0:
+                    adapter_addr = adapters[0]
             use_adapter = adapter.Adapter(adapter_addr)
+            if not use_adapter.discoverable:
+                use_adapter.discoverable = True
+            self.advert_mngr_path = use_adapter.path
+            self.advert_mngr_methods = self._client.get_iface_proxy(
+                self.advert_mngr_path, constants.LE_ADVERTISING_MANAGER_IFACE)
+            self.advert_mngr_props = self._client.get_prop_proxy(
+                self.advert_mngr_path)
 
-        if not use_adapter.discoverable:
-            use_adapter.discoverable = True
-        self.advert_mngr_path = dbus_tools.get_dbus_path(adapter=adapter_addr)
-        self.advert_mngr_obj = self.bus.get_object(
-            constants.BLUEZ_SERVICE_NAME,
-            self.advert_mngr_path)
-        self.advert_mngr_methods = dbus.Interface(
-            self.advert_mngr_obj,
-            constants.LE_ADVERTISING_MANAGER_IFACE)
-        self.advert_mngr_props = dbus.Interface(self.advert_mngr_obj,
-                                                dbus.PROPERTIES_IFACE)
-
-    def register_advertisement(self, advertisement, options=dbus.Array()):
+    def register_advertisement(self, advertisement, options):
         """
         Registers an advertisement object to be sent over the LE
         Advertising channel
@@ -307,10 +244,9 @@ class AdvertisingManager:
         :return:
         """
         self.advert_mngr_methods.RegisterAdvertisement(
+            '(oa{sv})',
             advertisement.path,
-            dbus.Dictionary(options, signature='sv'),
-            reply_handler=register_ad_cb,
-            error_handler=register_ad_error_cb
+            options
         )
 
     def unregister_advertisement(self, advertisement):
@@ -323,5 +259,19 @@ class AdvertisingManager:
         :return:
         """
         self.advert_mngr_methods.UnregisterAdvertisement(
+            '(o)',
             advertisement.path
         )
+
+
+if __name__ == '__main__':
+    # Simple test
+    beacon = Advertisement(1, 'broadcast')
+    beacon.service_UUIDs = ['FEAA']
+    beacon.service_data = {'FEAA': [0x10, 0x08, 0x03, 0x75, 0x6B,
+                                    0x42, 0x61, 0x7A, 0x2e, 0x67,
+                                    0x69, 0x74, 0x68, 0x75, 0x62,
+                                    0x2E, 0x69, 0x6F]}
+    beacon.start()
+    ad_manager = AdvertisingManager()
+    ad_manager.register_advertisement(beacon, {})
