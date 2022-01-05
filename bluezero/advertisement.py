@@ -44,15 +44,18 @@ class Advertisement(gio_dbus.DbusService):
     :Example:
 
     >>> from bluezero import advertisement
+    >>> from bluezero import async_tools
     >>> beacon = advertisement.Advertisement(1, 'broadcast')
     >>> beacon.service_UUIDs = ['FEAA']
     >>> beacon.service_data =  {'FEAA': [0x10, 0x08, 0x03, 0x75, 0x6B,
     >>>                                  0x42, 0x61, 0x7A, 0x2e, 0x67,
     >>>                                  0x69, 0x74, 0x68, 0x75, 0x62,
     >>>                                  0x2E, 0x69, 0x6F]}
+    >>> beacon.start()
     >>> ad_manager = advertisement.AdvertisingManager()
     >>> ad_manager.register_advertisement(beacon, {})
-    >>> beacon.start()
+    >>> mainloop = async_tools.EventLoop()
+    >>> mainloop.run()
 
     """
 
@@ -91,10 +94,13 @@ class Advertisement(gio_dbus.DbusService):
         self.mainloop = async_tools.EventLoop()
         self._ad_thread = None
 
+    def _publish(self):
+        self.mainloop.run()
+
     def start(self):
         """Start GLib event loop"""
-        self._ad_thread = threading.Thread(target=self.mainloop.run)
-        self._ad_thread.daemon = False
+        self._ad_thread = threading.Thread(target=self._publish)
+        self._ad_thread.daemon = True
         self._ad_thread.start()
 
     def stop(self):
@@ -187,7 +193,8 @@ class Advertisement(gio_dbus.DbusService):
     def appearance(self, appearance: int) -> None:
         if appearance:
             self.Appearance = GLib.Variant.new_uint16(appearance)
-        self.Appearance = None
+        else:
+            self.Appearance = None
 
 
 def register_ad_cb():
@@ -275,3 +282,5 @@ if __name__ == '__main__':
     beacon.start()
     ad_manager = AdvertisingManager()
     ad_manager.register_advertisement(beacon, {})
+    mainloop = async_tools.EventLoop()
+    mainloop.run()

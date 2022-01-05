@@ -67,13 +67,24 @@ class Beacon:
         """
         if not self.dongle.powered:
             self.dongle.powered = True
+        self.broadcaster.start()
         ad_manager = advertisement.AdvertisingManager(self.dongle.address)
-        ad_manager.register_advertisement(self.broadcaster, {})
 
         try:
-            self.broadcaster.start()
+            ad_manager.register_advertisement(self.broadcaster, {})
         except KeyboardInterrupt:
-            self.broadcaster.stop()
             ad_manager.unregister_advertisement(self.broadcaster)
+            self.broadcaster.stop()
         finally:
             pass
+
+
+if __name__ == '__main__':
+    # Simple test
+    beacon = Beacon()
+    beacon.add_service_data('FEAA',
+                            [0x10, 0x08, 0x03, 0x75, 0x6B,
+                             0x42, 0x61, 0x7A, 0x2e, 0x67,
+                             0x69, 0x74, 0x68, 0x75, 0x62,
+                             0x2E, 0x69, 0x6F])
+    beacon.start_beacon()
