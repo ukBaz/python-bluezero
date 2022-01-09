@@ -8,6 +8,7 @@ https://github.com/google/eddystone
 This is the broadcaster role which currently requires BlueZ to
 have the experimental flag enabled
 """
+from bluezero import async_tools
 from bluezero import tools
 from bluezero import broadcaster
 
@@ -42,3 +43,9 @@ class EddystoneURL:
         url_beacon = broadcaster.Beacon()
         url_beacon.add_service_data('FEAA', service_data)
         url_beacon.start_beacon()
+        mainloop = async_tools.EventLoop()
+        mainloop.run()
+
+
+if __name__ == '__main__':
+    EddystoneURL('https://github.com/ukBaz')

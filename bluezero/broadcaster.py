@@ -88,3 +88,6 @@ if __name__ == '__main__':
                              0x69, 0x74, 0x68, 0x75, 0x62,
                              0x2E, 0x69, 0x6F])
     beacon.start_beacon()
+    from bluezero import async_tools
+    mainloop = async_tools.EventLoop()
+    mainloop.run()
