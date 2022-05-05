@@ -298,19 +298,21 @@ class AdvertisingManager:
         self.advert_mngr_props = dbus.Interface(self.advert_mngr_obj,
                                                 dbus.PROPERTIES_IFACE)
 
-    def register_advertisement(self, advertisement, options=dbus.Array()):
+    def register_advertisement(self, advertisement, options=dbus.Array(), **kwargs):
         """
         Registers an advertisement object to be sent over the LE
         Advertising channel
         :param advertisement: Advertisement object
-        :param options:
+        :param options: raw dbus options
+        :param reply_handler: optional callback when then the advertisement has been registered
+        :param error_handler: optional callback if the advertisement fails to register
         :return:
         """
         self.advert_mngr_methods.RegisterAdvertisement(
             advertisement.path,
             dbus.Dictionary(options, signature='sv'),
-            reply_handler=register_ad_cb,
-            error_handler=register_ad_error_cb
+            reply_handler=kwargs.get("reply_handler", register_ad_cb),
+            error_handler=kwargs.get("error_handler", register_ad_error_cb)
         )
 
     def unregister_advertisement(self, advertisement):
