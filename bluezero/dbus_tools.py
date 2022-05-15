@@ -389,10 +389,12 @@ def get(dbus_prop_obj, dbus_iface, prop_name, default=None):
     try:
         return dbus_prop_obj.Get(dbus_iface, prop_name)
     except dbus.exceptions.DBusException as dbus_exception:
-        if 'UnknownProperty' in dbus_exception.get_dbus_name():
+        exception_name = dbus_exception.get_dbus_name()
+        if 'UnknownProperty' in exception_name:
             return default
-        else:
-            raise dbus_exception
+        elif 'InvalidArgs' in exception_name:
+            return default
+        raise dbus_exception
 
 
 def str_to_dbusarray(word):
