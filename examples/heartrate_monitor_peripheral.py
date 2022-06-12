@@ -77,7 +77,7 @@ def read_heartrate():
     # Increment heartrate by one each measurement cycle
     heartrate = heartrate + 1
     if heartrate > 180:
-        heart_rate = 60
+        heartrate = 60
 
     # Increment energy expended each measurement cycle
     energy_expended = energy_expended + 1
