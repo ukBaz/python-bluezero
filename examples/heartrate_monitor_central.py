@@ -52,6 +52,15 @@ def scan_for_heartrate_monitors(
         adapter_address=None,
         hrm_address=None,
         timeout=5.0):
+    """
+    Called to scan for BLE devices advertising the Heartrate Service UUID
+    If there are multiple adapters on your system, this will scan using
+    all dongles unless an adapter is specfied through its MAC address
+    :param adapter_address: limit scanning to this adapter MAC address
+    :param hrm_address: scan for a specific peripheral MAC address
+    :param timeout: how long to search for devices in seconds
+    :return: generator of Devices that match the search parameters
+    """
     # If there are multiple adapters on your system, this will scan using
     # all dongles unless an adapter is specified through its MAC address
     for dongle in adapter.Adapter.available():
@@ -74,6 +83,12 @@ def scan_for_heartrate_monitors(
 
 
 def on_new_heart_rate_measurement(iface, changed_props, invalidated_props):
+    """
+    Callback used to receive notification events from the device.
+    :param iface: dbus advanced data
+    :param changed_props: updated properties for this event, contains Value
+    :param invalidated_props: dvus advanced data
+    """
     value = changed_props.get('Value', None)
     if not value:
         return
@@ -105,6 +120,11 @@ def on_new_heart_rate_measurement(iface, changed_props, invalidated_props):
 
 
 def connect_and_run(dev=None, device_address=None):
+    """
+    Main function intneded to show usage of central.Central
+    :param dev: Device to connect to if scan was performed
+    :param device_address: instead, connect to a specific MAC address
+    """
     # Create Interface to Central
     if dev:
         monitor = central.Central(

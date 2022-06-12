@@ -60,18 +60,16 @@ energy_expended = 0
 
 
 def read_heartrate():
+    """
+    Generates new heartrate and energy expended measurements
+    Increments heartrate and energy_expended variables and serializes
+    them for BLE transport.
+    :return: bytes object for Heartrate Measurement Characteristic
+    """
     global heartrate, energy_expended
-    """
-    Example read callback. Value returned needs to a list of bytes/integers
-    in little endian format.
-
-    // Send one byte of flags
-    // As well as an 8 bit measurement
-
-    :return: list of uint8 values
-    """
     # Setup flags for what's supported by this example
-    # We are sending UINT8 formats, so don't use HEART_RATE_VALUE_FORMAT_UINT16
+    # We are sending UINT8 formats, so don't indicate
+    # HEART_RATE_VALUE_FORMAT_UINT16
     flags = HeartRateMeasurementFlags.SENSOR_CONTACT_DETECTED | \
         HeartRateMeasurementFlags.SENSOR_CONTACT_SUPPORTED | \
         HeartRateMeasurementFlags.ENERGY_EXPENDED_PRESENT
@@ -91,6 +89,10 @@ def read_heartrate():
 
 
 def read_sensor_location():
+    """
+    Reports the simulated heartrate sensor location.
+    :return: bytes object for Body Sensor Location Characteristic
+    """
     # Static 1 is Chest location
     # Little endian, unsigned char
     sensor_location = BodySensorLocation.CHEST
@@ -117,7 +119,7 @@ def update_value(characteristic):
 def notify_callback(notifying, characteristic):
     """
     Noitificaton callback example. In this case used to start a timer event
-    which calls the update callback ever 2 seconds
+    which calls the update callback every 2 seconds
 
     :param notifying: boolean for start or stop of notifications
     :param characteristic: The python object for this characteristic
@@ -127,7 +129,16 @@ def notify_callback(notifying, characteristic):
 
 
 def write_control_point(value, options):
+    """
+    Called when a central writes to our write characteristic.
+
+    :param value: data sent by the central
+    :param options:
+    """
     global energy_expended
+
+    # Note use of control_point, to assign one or more values into variables
+    # from struct.unpack output which returns a tuple
     control_point, = struct.unpack('<B', bytes(value))
     if control_point == HeartRateControlPoint.RESET_ENERGY_EXPENDED:
         print("Resetting Energy Expended from Sensor Control Point Request")
@@ -135,7 +146,11 @@ def write_control_point(value, options):
 
 
 def main(adapter_address):
-    """Creation of peripheral"""
+    """
+    Creates advertises and starts the peripheral
+
+    :param adapter_address: the MAC address of the hardware adapter
+    """
     logger = logging.getLogger('localGATT')
     logger.setLevel(logging.DEBUG)
 
