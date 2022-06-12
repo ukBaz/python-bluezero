@@ -162,7 +162,10 @@ def connect_and_run(dev=None, device_address=None):
     # Read the Body Sensor Location
     location = location_char.value
     if location:
-        print("The location of the heart rate sensor is: %d" % int(location))
+        sensor_location = BodySensorLocation(
+            int.from_bytes(location_char.value, 'little')
+        )
+        print(f"The location of the heart rate sensor is: {sensor_location!r}")
 
     # Write the Control Point Value to reset calories burned
     control_point_char.value = HeartRateControlPoint.RESET_ENERGY_EXPENDED
