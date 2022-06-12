@@ -2,6 +2,21 @@
 from bluezero import adapter
 from bluezero import central
 
+# Documentation can be found on Bluetooth.com
+# https://www.bluetooth.com/specifications/specs/heart-rate-service-1-0/
+
+# There are also published xml specifications for possible values
+# For the Service:
+# https://github.com/oesmith/gatt-xml/blob/master/org.bluetooth.service.heart_rate.xml
+
+# For the Characteristics:
+# Heart Rate Measurement
+# https://github.com/oesmith/gatt-xml/blob/master/org.bluetooth.characteristic.heart_rate_measurement.xml
+# Body Sensor Location
+# https://github.com/oesmith/gatt-xml/blob/master/org.bluetooth.characteristic.body_sensor_location.xml
+# Heart Rate Control Point
+# https://github.com/oesmith/gatt-xml/blob/master/org.bluetooth.characteristic.heart_rate_control_point.xml
+
 HRM_SRV = '0000180D-0000-1000-8000-00805f9b34fb'
 HR_MSRMT_UUID = '00002a37-0000-1000-8000-00805f9b34fb'
 BODY_SNSR_LOC_UUID = '00002a38-0000-1000-8000-00805f9b34fb'
