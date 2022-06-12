@@ -1,5 +1,6 @@
 """Example of how to create a Peripheral device/GATT Server"""
 # Standard modules
+from enum import IntEnum
 import logging
 import struct
 
@@ -30,11 +31,36 @@ BODY_SNSR_LOC_UUID = '00002a38-0000-1000-8000-00805f9b34fb'
 HR_CTRL_PT_UUID = '00002a39-0000-1000-8000-00805f9b34fb'
 
 
+class HeartRateMeasurementFlags(IntEnum):
+    HEART_RATE_VALUE_FORMAT_UINT16 = 0b00000001
+    SENSOR_CONTACT_DETECTED = 0b00000010
+    SENSOR_CONTACT_SUPPORTED = 0b00000100
+    ENERGY_EXPENDED_PRESENT = 0b00001000
+    RR_INTERVALS_PRESENT = 0b00010000
+
+
+class BodySensorLocation(IntEnum):
+    OTHER = 0
+    CHEST = 1
+    WRIST = 2
+    FINGER = 3
+    HAND = 4
+    EAR_LOBE = 5
+    FOOT = 6
+
+
+class HeartRateControlPoint(IntEnum):
+    RESET_ENERGY_EXPENDED = 1
+
+
+# Heartrate measurement and energy expended is persistent between function
+# reads
 heartrate = 60
+energy_expended = 0
 
 
 def read_heartrate():
-    global heartrate
+    global heartrate, energy_expended
     """
     Example read callback. Value returned needs to a list of bytes/integers
     in little endian format.
@@ -44,18 +70,30 @@ def read_heartrate():
 
     :return: list of uint8 values
     """
-    flags = 0b00000110
+    # Setup flags for what's supported by this example
+    # We are sending UINT8 formats, so don't use HEART_RATE_VALUE_FORMAT_UINT16
+    flags = HeartRateMeasurementFlags.SENSOR_CONTACT_DETECTED | \
+        HeartRateMeasurementFlags.SENSOR_CONTACT_SUPPORTED | \
+        HeartRateMeasurementFlags.ENERGY_EXPENDED_PRESENT
+
+    # Increment heartrate by one each measurement cycle
     heartrate = heartrate + 1
-    print("Sending heartrate value of %d" % (heartrate))
     if heartrate > 180:
         heart_rate = 60
-    return struct.pack('<BB', flags, heartrate)
+
+    # Increment energy expended each measurement cycle
+    energy_expended = energy_expended + 1
+
+    print(
+        "Sending heartrate value of %d and energy expended of %d kJ" %
+        (heartrate, energy_expended))
+    return struct.pack('<BBH', flags, heartrate, energy_expended)
 
 
 def read_sensor_location():
     # Static 1 is Chest location
     # Little endian, unsigned char
-    sensor_location = 1
+    sensor_location = BodySensorLocation.CHEST
     print("Sending sensor location of %d" % (sensor_location))
     return struct.pack('<B', sensor_location)
 
@@ -89,8 +127,11 @@ def notify_callback(notifying, characteristic):
 
 
 def write_control_point(value, options):
-    control_point = struct.unpack('<B', bytes(value))[0]
-    print("Recieved control point value of: %d" % (control_point))
+    global energy_expended
+    control_point, = struct.unpack('<B', bytes(value))
+    if control_point == HeartRateControlPoint.RESET_ENERGY_EXPENDED:
+        print("Resetting Energy Expended from Sensor Control Point Request")
+        energy_expended = 0
 
 
 def main(adapter_address):

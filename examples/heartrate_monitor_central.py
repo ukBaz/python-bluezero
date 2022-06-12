@@ -1,4 +1,7 @@
 """Example of how to create a Central device/GATT Client"""
+from enum import IntEnum
+import struct
+
 from bluezero import adapter
 from bluezero import central
 
@@ -21,6 +24,28 @@ HRM_SRV = '0000180D-0000-1000-8000-00805f9b34fb'
 HR_MSRMT_UUID = '00002a37-0000-1000-8000-00805f9b34fb'
 BODY_SNSR_LOC_UUID = '00002a38-0000-1000-8000-00805f9b34fb'
 HR_CTRL_PT_UUID = '00002a39-0000-1000-8000-00805f9b34fb'
+
+
+class HeartRateMeasurementFlags(IntEnum):
+    HEART_RATE_VALUE_FORMAT_UINT16 = 0b00000001
+    SENSOR_CONTACT_DETECTED = 0b00000010
+    SENSOR_CONTACT_SUPPORTED = 0b00000100
+    ENERGY_EXPENDED_PRESENT = 0b00001000
+    RR_INTERVALS_PRESENT = 0b00010000
+
+
+class BodySensorLocation(IntEnum):
+    OTHER = 0
+    CHEST = 1
+    WRIST = 2
+    FINGER = 3
+    HAND = 4
+    EAR_LOBE = 5
+    FOOT = 6
+
+
+class HeartRateControlPoint(IntEnum):
+    RESET_ENERGY_EXPENDED = 1
 
 
 def scan_for_heartrate_monitors(
@@ -53,15 +78,30 @@ def on_new_heart_rate_measurement(iface, changed_props, invalidated_props):
     if not value:
         return
 
-    # Check bits field
-    if value[0] & 0x01:
-        # 16 bit heartrate value
-        hr = value[1] << 8 | value[2]
-    else:
-        # 8 bit heartrate value
-        hr = value[1]
+    flags = value[0]
+    payload = value[1:]
 
-    print("Notified of a heartrate of %d" % (hr))
+    # Setup a struct format based on flags
+    fmt = '<'
+
+    if flags & HeartRateMeasurementFlags.HEART_RATE_VALUE_FORMAT_UINT16:
+        fmt += 'H'  # Add a UINT16 heart rate measurement
+    else:
+        fmt += 'B'  # Add a UINT8 heart rate measurement
+
+    if flags & HeartRateMeasurementFlags.ENERGY_EXPENDED_PRESENT:
+        fmt += 'H'  # Add a UINT16 energy expended measurement
+
+    # RR_INTERVALS_PRESENT is not common and too complex for this toy example
+
+    measurements = struct.unpack(fmt, bytes(payload[0:struct.calcsize(fmt)]))
+
+    hr = measurements[0]  # Guaranteed to be present
+    print("Notified of a heartrate of %d beats per minute" % (hr))
+
+    if flags & HeartRateMeasurementFlags.ENERGY_EXPENDED_PRESENT:
+        energy_expended = measurements[1]
+        print("Total Exercise Calories Burned: %d" % (energy_expended / 4.184))
 
 
 def connect_and_run(dev=None, device_address=None):
@@ -100,11 +140,12 @@ def connect_and_run(dev=None, device_address=None):
     # Example Usage!!!
 
     # Read the Body Sensor Location
-    print("The location of the heart rate sensor is: %d" %
-          int(location_char.value[0]))
+    location = location_char.value
+    if location:
+        print("The location of the heart rate sensor is: %d" % int(location))
 
-    # Write the Control Point Value
-    control_point_char.value = 1
+    # Write the Control Point Value to reset calories burned
+    control_point_char.value = HeartRateControlPoint.RESET_ENERGY_EXPENDED
 
     # Enable heart rate notifications
     measurement_char.start_notify()
