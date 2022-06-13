@@ -112,11 +112,11 @@ def on_new_heart_rate_measurement(iface, changed_props, invalidated_props):
     measurements = struct.unpack(fmt, bytes(payload[0:struct.calcsize(fmt)]))
 
     hr = measurements[0]  # Guaranteed to be present
-    print("Notified of a heartrate of %d beats per minute" % (hr))
+    print(f"Notified of a heartrate of {hr} beats per minute")
 
     if flags & HeartRateMeasurementFlags.ENERGY_EXPENDED_PRESENT:
         energy_expended = measurements[1]
-        print("Total Exercise Calories Burned: %d" % (energy_expended / 4.184))
+        print(f"Total Exercise Calories Burned: {energy_expended / 4.184}")
 
 
 def connect_and_run(dev=None, device_address=None):

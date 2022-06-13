@@ -83,8 +83,8 @@ def read_heartrate():
     energy_expended = energy_expended + 1
 
     print(
-        "Sending heartrate value of %d and energy expended of %d kJ" %
-        (heartrate, energy_expended))
+        f"Sending heartrate value of {heartrate} \
+        and energy expended of {energy_expended} kJ")
     return struct.pack('<BBH', flags, heartrate, energy_expended)
 
 
@@ -93,10 +93,8 @@ def read_sensor_location():
     Reports the simulated heartrate sensor location.
     :return: bytes object for Body Sensor Location Characteristic
     """
-    # Static 1 is Chest location
-    # Little endian, unsigned char
     sensor_location = BodySensorLocation.CHEST
-    print("Sending sensor location of %d" % (sensor_location))
+    print(f"Sending sensor location of {sensor_location!r}")
     return struct.pack('<B', sensor_location)
 
 
