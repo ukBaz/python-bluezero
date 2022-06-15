@@ -17,7 +17,8 @@ EDDYSTONE_SRV_UUID = '0000feaa-0000-1000-8000-00805f9b34fb'
 EddyURL = namedtuple('EddyURL', ['url', 'tx_pwr', 'rssi'])
 EddyUID = namedtuple('EddyUID', ['namespace', 'instance', 'tx_pwr', 'rssi'])
 EddyTLM = namedtuple('EddyTLM',
-                     ['version', 'battery', 'temperature', 'count', 'uptime', 'tx_pwr', 'rssi'])
+                     ['version', 'battery', 'temperature', 'count', 'uptime',
+                      'tx_pwr', 'rssi'])
 iBeacon = namedtuple('iBeacon',  # pylint: disable=invalid-name
                      ['UUID', 'major', 'minor', 'tx_pwr', 'rssi'])
 AltBeacon = namedtuple('AltBeacon',
@@ -109,13 +110,20 @@ class Scanner:
             version = int(data[1])
             # Only support plain beacons ATM
             if version == 0:
-                voltage = int.from_bytes(data[2:4], byteorder='big', signed=False)
-                temperature = int.from_bytes(data[4:6], byteorder='big', signed=True)/256.0
-                count = int.from_bytes(data[6:10], byteorder='big', signed=False)
-                time = int.from_bytes(data[10:], byteorder='big', signed=False) / 10
-                logger.info('\t\tEddystone TLM: %s, %s mV, %s C, %s, %s s  \u2197 %s  \u2198 %s',
-                            version, voltage, temperature, count, time, tx_pwr, rssi)
-                data = EddyTLM(version, voltage, temperature, count, time, tx_pwr, rssi)
+                voltage = int.from_bytes(
+                    data[2:4], byteorder='big', signed=False)
+                temperature = int.from_bytes(
+                    data[4:6], byteorder='big', signed=True)/256.0
+                count = int.from_bytes(
+                    data[6:10], byteorder='big', signed=False)
+                time = int.from_bytes(
+                    data[10:], byteorder='big', signed=False) / 10
+                logger.info('\t\tEddystone TLM: %s, %s mV, %s C, %s, %s s '
+                            '\u2197 %s  \u2198 %s',
+                            version, voltage, temperature, count, time,
+                            tx_pwr, rssi)
+                data = EddyTLM(version, voltage, temperature, count, time,
+                               tx_pwr, rssi)
                 if cls.on_eddystone_tlm:
                     cls.on_eddystone_tlm(data)
 
@@ -200,7 +208,8 @@ class Scanner:
 
         - Eddystone URL = ['url', 'tx_pwr', 'rssi']
         - Eddystone UID = ['namespace', 'instance', 'tx_pwr', 'rssi']
-        - Eddystone TLM = ['version', 'voltage', 'temperature', 'count', 'time', 'tx_pwr', 'rssi']
+        - Eddystone TLM = ['version', 'voltage', 'temperature', 'count',
+                           'time', 'tx_pwr', 'rssi']
         - iBeacon = ['UUID', 'major', 'minor', 'tx_pwr', 'rssi']
         - AltBeacon = ['UUID', 'major', 'minor', 'tx_pwr', 'rssi']
 
