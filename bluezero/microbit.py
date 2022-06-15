@@ -71,6 +71,7 @@ class Microbit:
     def __init__(self, device_addr, adapter_addr=None, **kwargs):
         """
         Initialization of an instance of a remote micro:bit
+
         :param device_addr: Discovered microbit device with this address
         :param adapter_addr: Optional unless you have more than one adapter
                              on your machine

@@ -35,6 +35,7 @@ class Central:
         """
         Specify a characteristic of interest on the remote device by using
         the GATT Service UUID and Characteristic UUID
+
         :param srv_uuid: 128 bit UUID
         :param chrc_uuid: 128 bit UUID
         :return:
@@ -50,6 +51,7 @@ class Central:
         """
         Once the remote device has been connected to and the GATT database
         has been resolved then it needs to be loaded.
+
         :return:
         """
         for chrc in self._characteristics:

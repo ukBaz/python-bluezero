@@ -107,6 +107,7 @@ class Advertisement(dbus.service.Object):
         cleanup tasks. There is no need to call
         UnregisterAdvertisement because when this method gets
         called it has already been unregistered.
+
         :return:
         """
         pass
@@ -302,6 +303,7 @@ class AdvertisingManager:
         """
         Registers an advertisement object to be sent over the LE
         Advertising channel
+
         :param advertisement: Advertisement object
         :param options:
         :return:

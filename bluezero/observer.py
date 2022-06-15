@@ -75,6 +75,7 @@ class Scanner:
     def process_eddystone(cls, data, rssi):
         """
         Extract Eddystone data from advertisement service data
+
         :param data: Bytes from Service Data in advertisement
         :param rssi: Received Signal Strength value
         """
@@ -132,6 +133,7 @@ class Scanner:
         """
         Extract iBeacon or AltBeacon data from Manufacturer Data in an
         advertisement
+
         :param data: Bytes from manufacturer data
         :param rssi: Received Signal Strength value
         :param beacon_type: iBeacon or AltBeacon
@@ -167,6 +169,7 @@ class Scanner:
         """
         Callback to look at BLE advertisement to see if it is a recognised
         beacon and if it is, then call the relevant processing function
+
         :param bz_device_obj: Bluezero device object of discovered device
         """
         rssi = bz_device_obj.RSSI

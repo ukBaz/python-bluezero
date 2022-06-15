@@ -16,6 +16,7 @@ class Beacon:
         Creates the BLE beacon object
         If an adapter object exists then give it as an optional argument
         If an adapter object is not given then the first adapter found is used
+
         :param adapter_addr: Optional Python adapter object.
         """
         self.dongle = None
@@ -29,6 +30,7 @@ class Beacon:
     def add_service_data(self, service, data):
         """
         Add service and service data to be used in beacon message
+
         :param service: Valid service UUID
         :param data: Data to be sent (Limit of ??)
         """
@@ -38,11 +40,11 @@ class Beacon:
     def add_manufacturer_data(self, manufacturer, data):
         """
         Add manufacturer information to be used in beacon message
-        :param manufacturer: Use numbers from Bluetooth SIG
-        https://www.bluetooth.com/specifications/assigned-numbers/16-bit-UUIDs-for-Members
 
-        :param data: Data to be sent (Limit of 23bytes)
-        e.g. b'\\xff' * 23
+
+        :param manufacturer: Use numbers from Bluetooth SIG
+            https://www.bluetooth.com/specifications/assigned-numbers/16-bit-UUIDs-for-Members
+        :param data: Data to be sent (Limit of 23bytes) e.g. b'\\xff' * 23
         """
         if isinstance(manufacturer, str):
             manufacturer = int(manufacturer, 16)
@@ -53,6 +55,7 @@ class Beacon:
         Use to include TX power in advertisement.
         This is different to the TX power in specific beacon format
         (e.g. Eddystone)
+
         :param show_power: boolean value
         :return:
         """

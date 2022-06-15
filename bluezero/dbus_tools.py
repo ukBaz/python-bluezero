@@ -41,6 +41,7 @@ def bluez_experimental_mode():
 def interfaces_added(path, interfaces):
     """
     Callback for when an interface is added
+
     :param path:
     :param interfaces:
     :return:
@@ -52,6 +53,7 @@ def interfaces_added(path, interfaces):
 def properties_changed(interface, changed, invalidated, path):
     """
     Callback for when properties are changed
+
     :param interface:
     :param changed:
     :param invalidated:
@@ -212,6 +214,7 @@ def get_profile_path(adapter,
                      profile):
     """
     Return a DBus path for the given properties
+
     :param adapter: Adapter address
     :param device: Device address
     :param profile:
@@ -254,6 +257,7 @@ def get_iface(adapter=None,
               descriptor=None):
     """
     For the given list of properties return the deepest interface
+
     :param adapter: Adapter address
     :param device: Device address
     :param service: GATT Service UUID
@@ -286,6 +290,7 @@ def get_methods(adapter=None,
                 descriptor=None):
     """
     Get methods available for the specified
+
     :param adapter: Adapter Address
     :param device: Device Address
     :param service: GATT Service UUID
@@ -317,6 +322,7 @@ def get_props(adapter=None,
               descriptor=None):
     """
     Get properties for the specified object
+
     :param adapter: Adapter Address
     :param device:  Device Address
     :param service:  GATT Service UUID
@@ -361,6 +367,7 @@ def get_services(path_obj):
 def get_device_addresses(name_contains):
     """
     Finds device whose name contains the string
+
     :param name_contains: String to be found in device name
     :return: List of dictionaries wth Device address and name
     """
@@ -380,6 +387,7 @@ def get(dbus_prop_obj, dbus_iface, prop_name, default=None):
     """
     Get a property from a D-Bus object and provide a default if the property
     does not exist. Similar to the "get" functionality on a python dictionary.
+
     :param dbus_prop_obj: The output object from dbus_tools.get_props
     :param dbus_iface: D-Bus Interface name e.g. 'org.bluez.Device1'
     :param prop_name: The name of the property

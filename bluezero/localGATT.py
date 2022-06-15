@@ -361,6 +361,7 @@ class Characteristic(dbus.service.Object):
     def WriteValue(self, value, options):  # pylint: disable=invalid-name
         """
         DBus method for setting the characteristic value
+
         :return: value
         """
         if self.write_callback:

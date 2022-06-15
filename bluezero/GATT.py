@@ -35,6 +35,7 @@ class Service:
     def resolve_gatt(self):
         """
         Get the methods and properties for the discovered Services
+
         :return:
         """
         if self.rmt_device.services_resolved:
@@ -100,6 +101,7 @@ class Characteristic:
     def resolve_gatt(self):
         """
         Get the methods and properties for the discovered characteristics
+
         :return: Boolean of if characteristics have been resolved
         """
         logger.info('Resolving GATT database for %s', self.chrc_uuid)
