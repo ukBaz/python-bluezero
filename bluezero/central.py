@@ -71,7 +71,7 @@ class Central:
 
     @property
     def services_resolved(self):
-        """Return a list of UIDDs that are available on the device"""
+        """Indicate whether or not service discovery has been resolved"""
         return self.rmt_device.services_resolved
 
     @property
