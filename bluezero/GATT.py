@@ -213,7 +213,7 @@ class Characteristic:
         try:
             self.characteristic_methods.WriteValue(value, dbus.Array(flags))
         except AttributeError:
-            logger.error('Service: %s with Characteristic: %s not defined on'
+            logger.error('Service: %s with Characteristic: %s not defined '
                          'on device: %s. Cannot write_value',  self.srv_uuid,
                          self.chrc_uuid, self.device_addr)
 
