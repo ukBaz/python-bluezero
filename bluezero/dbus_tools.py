@@ -423,6 +423,8 @@ def dbus_to_python(data):
         data = int(data)
     elif isinstance(data, dbus.UInt16):
         data = int(data)
+    elif isinstance(data, dbus.UInt32):
+        data = int(data)
     elif isinstance(data, dbus.Int64):
         data = int(data)
     elif isinstance(data, dbus.Double):
@@ -430,7 +432,10 @@ def dbus_to_python(data):
     elif isinstance(data, dbus.ObjectPath):
         data = str(data)
     elif isinstance(data, dbus.Array):
-        data = [dbus_to_python(value) for value in data]
+        if data.signature == dbus.Signature('y'):
+            data = bytearray(data)
+        else:
+            data = [dbus_to_python(value) for value in data]
     elif isinstance(data, dbus.Dictionary):
         new_data = dict()
         for key in data:

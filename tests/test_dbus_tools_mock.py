@@ -37,6 +37,11 @@ class TestAdapterExample(dbusmock.DBusTestCase):
         cls.p_mock.terminate()
         cls.p_mock.wait()
 
+    def test_dbus_string(self):
+        result = dbus_tools.dbus_to_python(dbus.String("This is a test"))
+        self.assertEqual(result, "This is a test")
+        self.assertIsInstance(result, str)
+
     def test_dbus_int64(self):
         self.dbusmock_bluez.AddAdapter('hci0', 'My-Test-Device')
 
@@ -48,7 +53,7 @@ class TestAdapterExample(dbusmock.DBusTestCase):
                                                        dbus.Byte(97),
                                                        dbus.Byte(122)],
                                                       signature=dbus.Signature('y')))
-        self.assertListEqual(result, [66, 97, 122])
+        self.assertEqual(result, b"Baz")
 
     def test_dbus_dict(self):
         result = dbus_tools.dbus_to_python(dbus.Dictionary(
@@ -61,6 +66,56 @@ class TestAdapterExample(dbusmock.DBusTestCase):
                               'link': 'LE', 'mtu': 512},
                              result)
 
+    def test_dbus_dict_adapter_props(self):
+        dongle_props = dbus.Dictionary({
+            dbus.String('Address'): dbus.String('11:22:33:44:55:66', variant_level=1),
+            dbus.String('AddressType'): dbus.String('public', variant_level=1),
+            dbus.String('Name'): dbus.String('test_machine', variant_level=1),
+            dbus.String('Alias'): dbus.String('test_machine', variant_level=1),
+            dbus.String('Class'): dbus.UInt32(786700, variant_level=1),
+            dbus.String('Powered'): dbus.Boolean(True, variant_level=1),
+            dbus.String('Discoverable'): dbus.Boolean(False, variant_level=1),
+            dbus.String('DiscoverableTimeout'): dbus.UInt32(190, variant_level=1),
+            dbus.String('Pairable'): dbus.Boolean(False, variant_level=1),
+            dbus.String('PairableTimeout'): dbus.UInt32(120, variant_level=1),
+            dbus.String('Discovering'): dbus.Boolean(False, variant_level=1),
+            dbus.String('UUIDs'): dbus.Array(
+                [dbus.String('0000110e-0000-1000-8000-00805f9b34fb'),
+                 dbus.String('0000110a-0000-1000-8000-00805f9b34fb'),
+                 dbus.String('00001200-0000-1000-8000-00805f9b34fb'),
+                 dbus.String('00001112-0000-1000-8000-00805f9b34fb'),
+                 dbus.String('0000110b-0000-1000-8000-00805f9b34fb'),
+                 dbus.String('0000110c-0000-1000-8000-00805f9b34fb'),
+                 dbus.String('00001800-0000-1000-8000-00805f9b34fb'),
+                 dbus.String('00001108-0000-1000-8000-00805f9b34fb'),
+                 dbus.String('00001801-0000-1000-8000-00805f9b34fb')],
+                signature=dbus.Signature('s'), variant_level=1),
+            dbus.String('Modalias'): dbus.String('usb:v1D6Bp0246d0535', variant_level=1)},
+            signature=dbus.Signature('sv'))
+        expected = {'Address': '11:22:33:44:55:66',
+                    'AddressType': 'public',
+                    'Alias': 'test_machine',
+                    'Class': 786700,
+                    'Discoverable': False,
+                    'DiscoverableTimeout': 190,
+                    'Discovering': False,
+                    'Modalias': 'usb:v1D6Bp0246d0535',
+                    'Name': 'test_machine',
+                    'Pairable': False,
+                    'PairableTimeout': 120,
+                    'Powered': True,
+                    'UUIDs': ['0000110e-0000-1000-8000-00805f9b34fb',
+                              '0000110a-0000-1000-8000-00805f9b34fb',
+                              '00001200-0000-1000-8000-00805f9b34fb',
+                              '00001112-0000-1000-8000-00805f9b34fb',
+                              '0000110b-0000-1000-8000-00805f9b34fb',
+                              '0000110c-0000-1000-8000-00805f9b34fb',
+                              '00001800-0000-1000-8000-00805f9b34fb',
+                              '00001108-0000-1000-8000-00805f9b34fb',
+                              '00001801-0000-1000-8000-00805f9b34fb']}
+        result = dbus_tools.dbus_to_python(dongle_props)
+        self.assertEqual(expected, result)
+
     def test_dbus_bool(self):
         result = dbus_tools.dbus_to_python(dbus.Boolean(True))
         self.assertTrue(isinstance(result, bool))
@@ -68,6 +123,17 @@ class TestAdapterExample(dbusmock.DBusTestCase):
     def test_dbus_double(self):
         result = dbus_tools.dbus_to_python(dbus.Double(12.3))
         self.assertTrue(12.3, result)
+
+    def test_dbus_byte(self):
+        data = dbus.Byte(255)
+        result = dbus_tools.dbus_to_python(data)
+        self.assertEqual(0xFF, result)
+
+    def test_dbus_byte_array1(self):
+        data = dbus.Array([dbus.Byte(29)],
+                          signature=dbus.Signature('y'))
+        result = dbus_tools.dbus_to_python(data)
+        self.assertEqual(b'\x1d', result)
 
     def test_str_to_dbusarray(self):
         expected = dbus.Array([dbus.Byte(70), dbus.Byte(111), dbus.Byte(120)],
