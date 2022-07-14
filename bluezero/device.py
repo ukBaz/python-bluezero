@@ -83,14 +83,15 @@ class Device:
 
         This is set according to the freedesktop.org icon naming specification.
         """
-        return self.remote_device_props.Get(
-            constants.DEVICE_INTERFACE, 'Icon')
+        return dbus_tools.get(
+            self.remote_device_props, constants.DEVICE_INTERFACE, 'Icon', None)
 
     @property
     def bt_class(self):
         """The Bluetooth class of device of the remote device."""
-        return self.remote_device_props.Get(
-            constants.DEVICE_INTERFACE, 'Class')
+        return dbus_tools.get(self.remote_device_props,
+                              constants.DEVICE_INTERFACE,
+                              'Class', None)
 
     @property
     def appearance(self):
@@ -101,8 +102,9 @@ class Device:
     @property
     def uuids(self):
         """List of 128-bit UUIDs that represent available remote services."""
-        return self.remote_device_props.Get(
-            constants.DEVICE_INTERFACE, 'UUIDs')
+        return dbus_tools.get(self.remote_device_props,
+                              constants.DEVICE_INTERFACE,
+                              'UUIDs', None)
 
     @property
     def paired(self):
@@ -203,8 +205,9 @@ class Device:
 
         Used by the kernel and udev.
         """
-        return self.remote_device_props.Get(
-            constants.DEVICE_INTERFACE, 'Modalias')
+        return dbus_tools.get(self.remote_device_props,
+                              constants.DEVICE_INTERFACE,
+                              'Modalias', None)
 
     @property
     def RSSI(self):  # pylint: disable=invalid-name
@@ -213,14 +216,16 @@ class Device:
 
         (This is inquiry or advertising RSSI).
         """
-        return self.remote_device_props.Get(
-            constants.DEVICE_INTERFACE, 'RSSI')
+        return dbus_tools.get(self.remote_device_props,
+                              constants.DEVICE_INTERFACE,
+                              'RSSI', None)
 
     @property
     def tx_power(self):
         """Advertised transmitted power level (inquiry or advertising)."""
-        return self.remote_device_props.Get(
-            constants.DEVICE_INTERFACE, 'TxPower')
+        return dbus_tools.get(self.remote_device_props,
+                              constants.DEVICE_INTERFACE,
+                              'TxPower', None)
 
     @property
     def manufacturer_data(self):
@@ -229,12 +234,9 @@ class Device:
 
         Keys are 16 bits Manufacturer ID followed by its byte array value.
         """
-        try:
-            mnf_data = self.remote_device_props.Get(constants.DEVICE_INTERFACE,
-                                                    'ManufacturerData')
-        except (dbus.exceptions.DBusException, AttributeError) as err:
-            mnf_data = None
-        return mnf_data
+        return dbus_tools.get(self.remote_device_props,
+                              constants.DEVICE_INTERFACE,
+                              'ManufacturerData', None)
 
     @property
     def service_data(self):
@@ -243,14 +245,9 @@ class Device:
 
         Keys are the UUIDs in string format followed by its byte array value.
         """
-        try:
-            srv_data = self.remote_device_props.Get(
-                constants.DEVICE_INTERFACE,
-                'ServiceData')
-        except (dbus.exceptions.DBusException, AttributeError) as err:
-            srv_data = None
-
-        return srv_data
+        return dbus_tools.get(self.remote_device_props,
+                              constants.DEVICE_INTERFACE,
+                              'ServiceData', None)
 
     @property
     def services_resolved(self):

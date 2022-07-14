@@ -397,7 +397,11 @@ def get(dbus_prop_obj, dbus_iface, prop_name, default=None):
     try:
         return dbus_prop_obj.Get(dbus_iface, prop_name)
     except dbus.exceptions.DBusException as dbus_exception:
-        if 'UnknownProperty' in dbus_exception.get_dbus_name():
+        err_name = dbus_exception.get_dbus_name()
+        err_msg = dbus_exception.get_dbus_message()
+        if 'UnknownProperty' in err_name:
+            return default
+        elif 'no such property' in err_msg.casefold():
             return default
         else:
             raise dbus_exception
