@@ -233,10 +233,10 @@ class Scanner:
 
         cls.dongle.show_duplicates()
         cls.dongle.start_discovery()
-        try:
-            cls.start_event_loop()
-        except KeyboardInterrupt:
-            cls.stop_scan()
+        # try:
+        #     cls.start_event_loop()
+        # except KeyboardInterrupt:
+        #     cls.stop_scan()
 
 
 def scan_eddystone(on_data=None):

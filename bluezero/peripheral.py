@@ -141,11 +141,11 @@ class Peripheral:
         self.srv_mng.register_application(self.app, {})
         self.ad_manager.register_advertisement(self.advert, {})
 
-        try:
-            self.mainloop.run()
-        except KeyboardInterrupt:
-            self.mainloop.quit()
-            self.ad_manager.unregister_advertisement(self.advert)
+        # try:
+        #     self.mainloop.run()
+        # except KeyboardInterrupt:
+        #     self.mainloop.quit()
+        #     self.ad_manager.unregister_advertisement(self.advert)
 
     @property
     def on_connect(self):
