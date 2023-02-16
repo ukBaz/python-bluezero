@@ -1,5 +1,7 @@
 """Classes required to create a Bluetooth Peripheral."""
 
+from inspect import signature
+
 # D-Bus imports
 import dbus
 import dbus.exceptions
@@ -350,7 +352,10 @@ class Characteristic(dbus.service.Object):
         :return: value
         """
         if self.read_callback:
-            value = self.read_callback()
+            if len(signature(self.read_callback).parameters) == 1:
+                value = self.read_callback(dbus_tools.dbus_to_python(options))
+            else:
+                value = self.read_callback();
             self.Set(constants.GATT_CHRC_IFACE, 'Value',
                      dbus.Array(value, signature='y'))
             logger.debug('ReadValue: %s', value)
