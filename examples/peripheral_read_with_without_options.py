@@ -21,7 +21,8 @@ def on_disconnect(adapter_address, device_address):
 
 
 def get_address(options):
-    dev_addr = dbus_tools.get_adapter_address_from_dbus_path(options.get('device'))
+    dev_addr = dbus_tools.get_adapter_address_from_dbus_path(
+        options.get('device'))
     return dbus_tools.dbus_to_python(dev_addr)
 
 
@@ -55,7 +56,9 @@ def cb_no_options():
 
 
 def main(adapter_address):
-    ble = peripheral.Peripheral(adapter_address, local_name="Options Callback Test")
+    ble = peripheral.Peripheral(
+        adapter_address,
+        local_name="Options Callback Test")
     ble.add_service(srv_id=1, uuid=SERVICE_UUID, primary=True)
 
     ble.add_characteristic(
@@ -85,4 +88,3 @@ def main(adapter_address):
 if __name__ == "__main__":
     dongle = list(adapter.Adapter.available())[0].address
     main(dongle)
-
