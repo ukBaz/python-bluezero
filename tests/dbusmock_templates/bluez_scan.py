@@ -161,13 +161,13 @@ def AddAdapter(self, device_name, system_name):
 
     manager = mockobject.objects['/']
     manager.EmitSignal(OBJECT_MANAGER_IFACE, 'InterfacesAdded',
-                       'oa{sa{sv}}', [
+                       'oa{sa{sv}}', (
                            dbus.ObjectPath(path),
                            {
                                ADAPTER_IFACE: adapter_properties,
                                LEDADVERTISING_MNGR_IFACE: lea_mngr_properties
                             }
-                       ])
+                       ))
 
     return path
 
@@ -229,10 +229,10 @@ def AddDevice(self, adapter_device_name, device_address, alias):
 
     manager = mockobject.objects['/']
     manager.EmitSignal(OBJECT_MANAGER_IFACE, 'InterfacesAdded',
-                       'oa{sa{sv}}', [
+                       'oa{sa{sv}}', (
                            dbus.ObjectPath(path),
                            {DEVICE_IFACE: properties},
-                       ])
+                       ))
 
     return path
 
@@ -298,7 +298,7 @@ def PairDevice(self, adapter_device_name, device_address, class_=5898764):
             'Icon': dbus.String('phone', variant_level=1),
         })
 
-    device.EmitSignal(dbus.PROPERTIES_IFACE, 'PropertiesChanged', 'sa{sv}as', [
+    device.EmitSignal(dbus.PROPERTIES_IFACE, 'PropertiesChanged', 'sa{sv}as', (
         DEVICE_IFACE,
         {
             'UUIDs': dbus.Array(uuids, variant_level=1),
@@ -311,7 +311,7 @@ def PairDevice(self, adapter_device_name, device_address, class_=5898764):
             'Icon': dbus.String('phone', variant_level=1),
         },
         [],
-    ])
+    ))
 
 
 @dbus.service.method(BLUEZ_MOCK_IFACE,
@@ -349,14 +349,14 @@ def BlockDevice(self, adapter_device_name, device_address):
     device.props[DEVICE_IFACE]['Connected'] = dbus.Boolean(False,
                                                            variant_level=1)
 
-    device.EmitSignal(dbus.PROPERTIES_IFACE, 'PropertiesChanged', 'sa{sv}as', [
+    device.EmitSignal(dbus.PROPERTIES_IFACE, 'PropertiesChanged', 'sa{sv}as', (
         DEVICE_IFACE,
         {
             'Blocked': dbus.Boolean(True, variant_level=1),
             'Connected': dbus.Boolean(False, variant_level=1),
         },
         [],
-    ])
+    ))
 
 
 @dbus.service.method(BLUEZ_MOCK_IFACE,
@@ -395,14 +395,14 @@ def ConnectDevice(self, adapter_device_name, device_address):
     device.props[DEVICE_IFACE]['Connected'] = dbus.Boolean(True,
                                                            variant_level=1)
 
-    device.EmitSignal(dbus.PROPERTIES_IFACE, 'PropertiesChanged', 'sa{sv}as', [
+    device.EmitSignal(dbus.PROPERTIES_IFACE, 'PropertiesChanged', 'sa{sv}as', (
         DEVICE_IFACE,
         {
             'Blocked': dbus.Boolean(False, variant_level=1),
             'Connected': dbus.Boolean(True, variant_level=1),
         },
         [],
-    ])
+    ))
 
 
 @dbus.service.method(BLUEZ_MOCK_IFACE,
@@ -420,10 +420,10 @@ def AddGattService(self,
     print('Adding props', service_props)
     manager = mockobject.objects['/']
     manager.EmitSignal(OBJECT_MANAGER_IFACE, 'InterfacesAdded',
-                       'oa{sa{sv}}', [
+                       'oa{sa{sv}}', (
                            dbus.ObjectPath(path),
                            {GATT_SRVC_IFACE: service_props},
-                       ])
+                       ))
 
     return path
 
@@ -449,10 +449,10 @@ def AddGattCharacteristic(self, path, charc_props):
 
     manager = mockobject.objects['/']
     manager.EmitSignal(OBJECT_MANAGER_IFACE, 'InterfacesAdded',
-                       'oa{sa{sv}}', [
+                       'oa{sa{sv}}', (
                            dbus.ObjectPath(path),
                            {GATT_CHRC_IFACE: charc_props},
-                       ])
+                       ))
 
     return path
 
@@ -490,14 +490,13 @@ def DisconnectDevice(self, adapter_device_name, device_address):
 
     device.props[DEVICE_IFACE]['Connected'] = dbus.Boolean(False,
                                                            variant_level=1)
-
-    device.EmitSignal(dbus.PROPERTIES_IFACE, 'PropertiesChanged', 'sa{sv}as', [
+    device.EmitSignal(dbus.PROPERTIES_IFACE, 'PropertiesChanged', 'sa{sv}as', (
         DEVICE_IFACE,
         {
             'Connected': dbus.Boolean(False, variant_level=1),
         },
         [],
-    ])
+    ))
 
 
 @dbus.service.method(BLUEZ_MOCK_IFACE,
@@ -564,37 +563,37 @@ def AddBeacon(self,
 
     manager = mockobject.objects['/']
     manager.EmitSignal(OBJECT_MANAGER_IFACE, 'InterfacesAdded',
-                       'oa{sa{sv}}', [
+                       'oa{sa{sv}}', (
                            dbus.ObjectPath(path),
                            {DEVICE_IFACE: properties},
-                       ])
+                       ))
 
 
 @dbus.service.method(BLUEZ_MOCK_IFACE,
                      in_signature='', out_signature='')
-def DeviceDiscovery(self):
+def DeviceDiscovery(adapter):
     # Eddystone URL Beacon
-    self.AddBeacon('hci0', '11:22:33:44:55:66',
-                   service_uuid='0000feaa-0000-1000-8000-00805f9b34fb',
-                   service_data=[16, 8, 1, 98, 108, 117, 101, 116, 111,
-                                 111, 116, 104, 7])
+    AddBeacon(adapter, 'hci0', '11:22:33:44:55:66',
+              service_uuid='0000feaa-0000-1000-8000-00805f9b34fb',
+              service_data=[16, 8, 1, 98, 108, 117, 101, 116, 111,
+                            111, 116, 104, 7])
     # Eddystone UID Beacon
-    self.AddBeacon('hci0', '11:22:33:44:55:99',
-                   service_uuid='0000feaa-0000-1000-8000-00805f9b34fb',
-                   service_data=[0, 191, 0, 0, 0, 0, 0, 69, 97, 114, 116, 104,
-                                 0, 0, 0, 0, 0, 11])
-    # AltBeacon
-    self.AddBeacon('hci0', '11:22:33:44:55:77',
-                   manf_id=65535,
-                   manf_data=[190, 172, 72, 37, 62, 89, 114, 36, 68, 99,
-                              185, 184, 3, 63, 250, 181, 202, 254, 97, 99,
-                              101, 107, 188, 0])
-    # iBeacon
-    self.AddBeacon('hci0', '11:22:33:44:55:88',
-                   manf_id=76,
-                   manf_data=[2, 21, 106, 177, 124, 23, 244, 123, 77, 65, 128,
-                              54, 82, 106, 238, 210, 47, 115, 1, 22, 3, 104,
-                              191])
+    AddBeacon(adapter, 'hci0', '11:22:33:44:55:99',
+              service_uuid='0000feaa-0000-1000-8000-00805f9b34fb',
+              service_data=[0, 191, 0, 0, 0, 0, 0, 69, 97, 114, 116, 104,
+                            0, 0, 0, 0, 0, 11])
+    # # AltBeacon
+    AddBeacon(adapter, 'hci0', '11:22:33:44:55:77',
+              manf_id=65535,
+              manf_data=[190, 172, 72, 37, 62, 89, 114, 36, 68, 99,
+                         185, 184, 3, 63, 250, 181, 202, 254, 97, 99,
+                         101, 107, 188, 0])
+    # # iBeacon
+    AddBeacon(adapter, 'hci0', '11:22:33:44:55:88',
+              manf_id=76,
+              manf_data=[2, 21, 106, 177, 124, 23, 244, 123, 77, 65, 128,
+                         54, 82, 106, 238, 210, 47, 115, 1, 22, 3, 104,
+                         191])
 
 
 @dbus.service.method(BLUEZ_MOCK_IFACE,
@@ -624,13 +623,13 @@ def ConnectMicroBit(self, adapter_name, device_address):
 
     device.props[DEVICE_IFACE]['ServicesResolved'] = dbus.Boolean(True, variant_level=1)
 
-    device.EmitSignal(dbus.PROPERTIES_IFACE, 'PropertiesChanged', 'sa{sv}as', [
+    device.EmitSignal(dbus.PROPERTIES_IFACE, 'PropertiesChanged', 'sa{sv}as', (
         DEVICE_IFACE,
         {
             'ServicesResolved': dbus.Boolean(True, variant_level=1),
         },
         [],
-    ])
+    ))
 
 
 @dbus.service.method(BLUEZ_MOCK_IFACE,
@@ -654,13 +653,13 @@ def GattWriteValue(self, path, value, options):
         tx_obj = mockobject.objects[tx_path]
         tx_obj.EmitSignal(dbus.PROPERTIES_IFACE,
                           'PropertiesChanged',
-                          'sa{sv}as', [
+                          'sa{sv}as', (
                               GATT_CHRC_IFACE,
                               {
                                   'Value': dbus.Array(value, variant_level=1),
                               },
                               [],
-                          ])
+                          ))
 
 
 microbit_data = {
