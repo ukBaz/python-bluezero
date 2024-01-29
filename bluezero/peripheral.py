@@ -120,14 +120,17 @@ class Peripheral:
             srv_id, chr_id, dsc_id, uuid, value, flags
         ))
 
-    def _create_advertisement(self):
-        self.advert.service_UUIDs = self.primary_services
+    def _create_advertisement(self, service_data):
+        if service_data is None:
+            self.advert.service_UUIDs = self.primary_services
+        else:
+            self.advert.service_data = service_data
         if self.local_name:
             self.advert.local_name = self.local_name
         if self.appearance:
             self.advert.appearance = self.appearance
 
-    def publish(self):
+    def publish(self, service_data=None):
         """Create advertisement and make peripheral visible"""
         for service in self.services:
             self.app.add_managed_object(service)
@@ -135,10 +138,11 @@ class Peripheral:
             self.app.add_managed_object(chars)
         for desc in self.descriptors:
             self.app.add_managed_object(desc)
-        self._create_advertisement()
+        self._create_advertisement(service_data)
         if not self.dongle.powered:
             self.dongle.powered = True
         self.srv_mng.register_application(self.app, {})
+
         self.ad_manager.register_advertisement(self.advert, {})
 
         try:
