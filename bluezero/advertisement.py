@@ -158,7 +158,7 @@ class Advertisement(dbus.service.Object):
         if state:
             self.props[constants.LE_ADVERTISEMENT_IFACE]['Includes'].add('tx-power')
         else:
-            self.props[constants.LE_ADVERTISEMENT_IFACE]['Includes'].remove('tx-power')
+            self.props[constants.LE_ADVERTISEMENT_IFACE]['Includes'].discard('tx-power')
 
     @property
     def local_name(self):
