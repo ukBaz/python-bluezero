@@ -12,18 +12,20 @@ of installing for edit is as follows:
 
     git clone https://github.com/ukBaz/python-bluezero.git
     cd python-bluezero
-    python3 -m venv --system-site-packages venv
+    python3 -m venv venv
     . venv/bin/activate
     pip3 install -e .[dev]
 
 
 .. note::
 
-    Use of a Python Virtual environment is good practice when developing
-    with Python. Because some of the dependencies for Bluezero are installed
-    system-wide with `apt`, then it is necessary to use the
-    `--system-site-packages` option when creating the virtual environment so
-    those packages can be found.
+    Use of a Python Virtual environment has become the preferred with `PEP707 <https://peps.python.org/pep-0704/>`_
+    Some of the dependencies for Bluezero are installed
+    system-wide with `apt` and historically haven't worked reliably in a virtual environment.
+    These issues have been fixed in recent releases. However,
+    occasionally people see a `ModuleNotFoundError: No module named 'gi'` reported.
+    If this happens take a look at the `PyGObject <https://pygobject.gnome.org/getting_started.html#ubuntu-getting-started>`_
+    install notes.
 
 
 Release Checklist
