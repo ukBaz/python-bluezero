@@ -79,7 +79,7 @@ class Advertisement(dbus.service.Object):
                 'ManufacturerData': None,
                 'SolicitUUIDs': None,
                 'ServiceData': None,
-                'IncludeTxPower': False,
+                'Includes': set(),
                 'Appearance': None,
                 'LocalName': None
             }
@@ -150,13 +150,19 @@ class Advertisement(dbus.service.Object):
     @property
     def include_tx_power(self):
         """Include TX power in advert (Different from beacon packet)"""
-        return self.Get(constants.LE_ADVERTISEMENT_IFACE,
-                        'IncludeTxPower')
+        includes = self.Get(constants.LE_ADVERTISEMENT_IFACE, 'Includes')
+        return 'tx-power' in includes
 
     @include_tx_power.setter
     def include_tx_power(self, state):
-        return self.Set(constants.LE_ADVERTISEMENT_IFACE,
-                        'IncludeTxPower', state)
+        if state:
+            self.props[
+                constants.LE_ADVERTISEMENT_IFACE][
+                'Includes'].add('tx-power')
+        else:
+            self.props[
+                constants.LE_ADVERTISEMENT_IFACE][
+                'Includes'].discard('tx-power')
 
     @property
     def local_name(self):
@@ -217,8 +223,8 @@ class Advertisement(dbus.service.Object):
         if self.props[interface_name]['Appearance'] is not None:
             response['Appearance'] = dbus.UInt16(
                     self.props[interface_name]['Appearance'])
-        response['IncludeTxPower'] = dbus.Boolean(
-            self.props[interface_name]['IncludeTxPower'])
+        response['Includes'] = dbus.Array(
+            self.props[interface_name]['Includes'], signature='s')
 
         return response
 
