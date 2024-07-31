@@ -178,7 +178,7 @@ class Characteristic:
         return self.characteristic_props.Get(
             constants.GATT_CHRC_IFACE, 'Flags')
 
-    def read_raw_value(self, flags=''):
+    def read_raw_value(self, flags=None):
         """
         Return this characteristic's value (if allowed).
 
@@ -193,15 +193,25 @@ class Characteristic:
                             org.bluez.Error.NotAuthorized
                             org.bluez.Error.NotSupported
         """
+        _flags = {}
+        if flags is None:
+            flags = {}
+        else:
+            for k, v in flags.items():
+                if k in ['offset', 'mtu']:
+                    _flags[k] = dbus.UInt16(v)
+                if k == 'device':
+                    _flags[k] = dbus.ObjectPath(v)
         try:
-            return self.characteristic_methods.ReadValue(dbus.Array())
+            return self.characteristic_methods.ReadValue(
+                dbus.Dictionary(_flags))
         except AttributeError:
             logger.error('Service: %s with Characteristic: %s not defined on '
                          'device: %s', self.srv_uuid, self.chrc_uuid,
                          self.device_addr)
             return []
 
-    def write_value(self, value, flags=''):
+    def write_value(self, value, flags=None):
         """
         Write a new value to the characteristic.
 
@@ -210,8 +220,21 @@ class Characteristic:
             Typically empty. Values defined at:
             https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/gatt-api.txt
         """
+        _flags = {}
+        if flags is None:
+            _flags = {}
+        else:
+            for k, v in flags.items():
+                if k in ['offset', 'mtu']:
+                    _flags[k] = dbus.UInt16(v)
+                if k == ['type', 'link']:
+                    _flags[k] = dbus.String(v)
+                if k == 'device':
+                    _flags[k] = dbus.ObjectPath(v)
         try:
-            self.characteristic_methods.WriteValue(value, dbus.Array(flags))
+            self.characteristic_methods.WriteValue(
+                value, dbus.Dictionary(_flags)
+            )
         except AttributeError:
             logger.error('Service: %s with Characteristic: %s not defined '
                          'on device: %s. Cannot write_value',  self.srv_uuid,
