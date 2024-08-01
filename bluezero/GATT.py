@@ -200,7 +200,7 @@ class Characteristic:
             for k, v in flags.items():
                 if k in ['offset', 'mtu']:
                     _flags[k] = dbus.UInt16(v)
-                if k == 'device':
+                if k in ['device', ]:
                     _flags[k] = dbus.ObjectPath(v)
         try:
             return self.characteristic_methods.ReadValue(
@@ -227,9 +227,9 @@ class Characteristic:
             for k, v in flags.items():
                 if k in ['offset', 'mtu']:
                     _flags[k] = dbus.UInt16(v)
-                if k == ['type', 'link']:
+                if k in ['type', 'link']:
                     _flags[k] = dbus.String(v)
-                if k == 'device':
+                if k in ['device', ]:
                     _flags[k] = dbus.ObjectPath(v)
         try:
             self.characteristic_methods.WriteValue(
