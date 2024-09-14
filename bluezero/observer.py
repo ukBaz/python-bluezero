@@ -25,11 +25,36 @@ AltBeacon = namedtuple('AltBeacon',
                        ['UUID', 'major', 'minor', 'tx_pwr', 'rssi'])
 
 
+def clean_beacon(dongle, device_path):
+    """
+    Remove beacon from BlueZ's `devices` list so every advert from a
+    beacon is reported
+    """
+    logger.debug("Removing device %s", device_path)
+    try:
+        dongle.remove_device(device_path)
+    except dbus.exceptions.DBusException as dbus_err:
+        if dbus_err.get_dbus_name() == 'org.bluez.Error.DoesNotExist':
+            logger.error("Device %s not available to remove", device_path)
+
+
+def ble_16bit_match(uuid_16, srv_data):
+    """
+    Utility method to test 16 bit UUID against Bluetooth SIG 128 bit UUID
+    used in service data
+
+    :param uuid_16: 16 Bit UUID value
+    :param srv_data:
+    :return:
+    """
+    uuid_128 = f'0000{uuid_16}-0000-1000-8000-00805f9b34fb'
+    return uuid_128 == list(srv_data.keys())[0]
+
+
 class Scanner:
     """
     For scanning of Bluetooth Low Energy (BLE) beacons
     """
-    remove_list = set()
     mainloop = async_tools.EventLoop()
     on_eddystone_url = None
     on_eddystone_uid = None
@@ -51,25 +76,6 @@ class Scanner:
         """
         cls.mainloop.quit()
         cls.dongle.stop_discovery()
-
-    @classmethod
-    def clean_beacons(cls):
-        """
-        Remove beacons from BlueZ's `devices` list so every advert from a
-        beacon is reported
-        """
-        not_found = set()
-        for rm_dev in cls.remove_list:
-            logger.debug('Remove %s', rm_dev)
-            try:
-                cls.dongle.remove_device(rm_dev)
-            except dbus.exceptions.DBusException as dbus_err:
-                if dbus_err.get_dbus_name() == 'org.bluez.Error.DoesNotExist':
-                    not_found.add(rm_dev)
-                else:
-                    raise dbus_err
-        for lost in not_found:
-            cls.remove_list.remove(lost)
 
     @classmethod
     def process_eddystone(cls, data, rssi):
@@ -151,19 +157,6 @@ class Scanner:
             data = AltBeacon(beacon_uuid, major, minor, tx_pwr, rssi)
             cls.on_altbeacon(data)
 
-    @staticmethod
-    def ble_16bit_match(uuid_16, srv_data):
-        """
-        Utility method to test 16 bit UUID against Bluetooth SIG 128 bit UUID
-        used in service data
-
-        :param uuid_16: 16 Bit UUID value
-        :param srv_data:
-        :return:
-        """
-        uuid_128 = f'0000{uuid_16}-0000-1000-8000-00805f9b34fb'
-        return uuid_128 == list(srv_data.keys())[0]
-
     @classmethod
     def on_device_found(cls, bz_device_obj):
         """
@@ -172,29 +165,32 @@ class Scanner:
 
         :param bz_device_obj: Bluezero device object of discovered device
         """
+        logger.debug("Found device: %s", bz_device_obj.remote_device_path)
+        beacon_device = False
         rssi = bz_device_obj.RSSI
         service_data = bz_device_obj.service_data
         manufacturer_data = bz_device_obj.manufacturer_data
-        if service_data and cls.ble_16bit_match('feaa', service_data):
+        if service_data and ble_16bit_match('feaa', service_data):
+            beacon_device = True
             cls.process_eddystone(service_data[EDDYSTONE_SRV_UUID],
                                   rssi)
-            cls.remove_list.add(str(bz_device_obj.remote_device_path))
         elif manufacturer_data:
             for mfg_id in manufacturer_data:
                 # iBeacon 0x004c
                 if mfg_id == 0x004c and manufacturer_data[mfg_id][0] == 0x02:
+                    beacon_device = True
                     cls.process_ibeacon(manufacturer_data[mfg_id], rssi)
-                    cls.remove_list.add(str(bz_device_obj.remote_device_path))
                 # AltBeacon 0xacbe
                 elif all((mfg_id == 0xffff,
                           manufacturer_data[mfg_id][0:2] == [0xbe, 0xac])):
+                    beacon_device = True
                     cls.process_ibeacon(manufacturer_data[mfg_id], rssi,
                                         beacon_type='AltBeacon')
-                    cls.remove_list.add(str(bz_device_obj.remote_device_path))
                 # elif mfg_id == 0x0310:
                 #     print(f'\t\tBlue Maestro {manufacturer_data[mfg_id]}')
                 #     remove_list.add(device_path)
-        cls.clean_beacons()
+        if beacon_device:
+            clean_beacon(cls.dongle, bz_device_obj.remote_device_path)
 
     @classmethod
     def start_beacon_scan(cls,
