@@ -401,7 +401,8 @@ class Microbit:
         """
         Execute user_callback on data being received on accelerometer service
 
-        :param user_callback: User callback method receiving the accelerometer values
+        :param user_callback: User callback method receiving the accelerometer
+            values
         :return:
         """
         self.user_accel_cb = user_callback
