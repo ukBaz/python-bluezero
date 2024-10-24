@@ -96,6 +96,7 @@ class Microbit:
         self.user_btn_b_callback = None
         self.user_calibrate_cb = None
         self.uart_tx_cb = None
+        self.user_accel_cb = None
 
         # Micro:bit Characteristics
         # if accelerometer_service:
@@ -391,6 +392,22 @@ class Microbit:
         accel_bytes = self._accel_data.value
 
         return tools.bytes_to_xyz(accel_bytes)
+
+    def _decode_accel(self, *accel_values):
+        """Decode accelerometer values and pass on to user callback."""
+        self.user_accel_cb(*tools.bytes_to_xyz(accel_values[1]['Value']))
+
+    def subscribe_accelerometer(self, user_callback):
+        """
+        Execute user_callback on data being received on accelerometer service
+
+        :param user_callback: User callback method receiving the accelerometer
+            values
+        :return:
+        """
+        self.user_accel_cb = user_callback
+        self._accel_data.add_characteristic_cb(self._decode_accel)
+        self._accel_data.start_notify()
 
     @property
     def magnetometer(self):
