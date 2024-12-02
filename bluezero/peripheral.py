@@ -24,9 +24,22 @@ class Peripheral:
         self.dongle = adapter.Adapter(adapter_address)
         self.local_name = local_name
         self.appearance = appearance
+        self.min_advertising_interval = None
+        self.max_advertising_interval = None
         self.advert = advertisement.Advertisement(1, 'peripheral')
         self.ad_manager = advertisement.AdvertisingManager(adapter_address)
         self.mainloop = async_tools.EventLoop()
+
+    def set_advertising_interval(self, min, max):
+        """
+        Set the advertising interval for the ble service in milliseconds (ms)
+        Need to set Experimental: True in /etc/bluetooth/main.conf
+
+        :param min: min interval of advertising
+        :param max: max interval of advertising
+        """
+        self.min_advertising_interval = min
+        self.max_advertising_interval = max
 
     def add_service(self, srv_id, uuid, primary):
         """
@@ -126,6 +139,10 @@ class Peripheral:
             self.advert.local_name = self.local_name
         if self.appearance:
             self.advert.appearance = self.appearance
+        if self.min_advertising_interval:
+            self.advert.min_interval = self.min_advertising_interval
+        if self.max_advertising_interval:
+            self.advert.max_interval = self.max_advertising_interval
 
     def publish(self):
         """Create advertisement and make peripheral visible"""

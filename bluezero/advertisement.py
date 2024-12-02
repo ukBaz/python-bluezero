@@ -81,7 +81,9 @@ class Advertisement(dbus.service.Object):
                 'ServiceData': None,
                 'Includes': set(),
                 'Appearance': None,
-                'LocalName': None
+                'LocalName': None,
+                'MinInterval': None,
+                'MaxInterval': None,
             }
         }
 
@@ -182,6 +184,24 @@ class Advertisement(dbus.service.Object):
     def appearance(self, appearance):
         self.Set(constants.LE_ADVERTISEMENT_IFACE, 'Appearance', appearance)
 
+    @property
+    def min_interval(self):
+        """List of UUIDs that represent available services."""
+        return self.Get(constants.LE_ADVERTISEMENT_IFACE, 'MinInterval')
+
+    @min_interval.setter
+    def min_interval(self, value):
+        self.Set(constants.LE_ADVERTISEMENT_IFACE, 'MinInterval', value)
+
+    @property
+    def max_interval(self):
+        """List of UUIDs that represent available services."""
+        return self.Get(constants.LE_ADVERTISEMENT_IFACE, 'MaxInterval')
+
+    @max_interval.setter
+    def max_interval(self, value):
+        self.Set(constants.LE_ADVERTISEMENT_IFACE, 'MaxInterval', value)
+
     @dbus.service.method(constants.DBUS_PROP_IFACE,
                          in_signature='s',
                          out_signature='a{sv}')
@@ -223,6 +243,12 @@ class Advertisement(dbus.service.Object):
         if self.props[interface_name]['Appearance'] is not None:
             response['Appearance'] = dbus.UInt16(
                     self.props[interface_name]['Appearance'])
+        if self.props[interface_name]['MinInterval'] is not None:
+            response['MinInterval'] = dbus.UInt32(
+                    self.props[interface_name]['MinInterval'])
+        if self.props[interface_name]['MaxInterval'] is not None:
+            response['MaxInterval'] = dbus.UInt32(
+                    self.props[interface_name]['MaxInterval'])
         response['Includes'] = dbus.Array(
             self.props[interface_name]['Includes'], signature='s')
 
