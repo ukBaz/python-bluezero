@@ -20,7 +20,7 @@ class Peripheral:
         self.services = []
         self.characteristics = []
         self.descriptors = []
-        self.primary_services = []
+        self.advertised_services = []
         self.dongle = adapter.Adapter(adapter_address)
         self.local_name = local_name
         self.appearance = appearance
@@ -28,18 +28,23 @@ class Peripheral:
         self.ad_manager = advertisement.AdvertisingManager(adapter_address)
         self.mainloop = async_tools.EventLoop()
 
-    def add_service(self, srv_id, uuid, primary):
+    def add_service(self, srv_id, uuid, primary, advertised=None):
         """
         Add the service information required
 
         :param srv_id: integer between 0 & 9999 as unique reference
         :param uuid: The Bluetooth uuid number for this service
-        :param primary: boolean for if this service should be advertised
+        :param primary: boolean for if this service is primary
+        :param advertised: boolean for if this service should be advertised, 
+        or None
 
         """
+        if advertised is None:
+            advertised = primary
+
         self.services.append(localGATT.Service(srv_id, uuid, primary))
-        if primary:
-            self.primary_services.append(uuid)
+        if advertised:
+            self.advertised_services.append(uuid)
 
     def add_characteristic(self, srv_id, chr_id, uuid, value,
                            notifying, flags,
@@ -121,7 +126,7 @@ class Peripheral:
         ))
 
     def _create_advertisement(self):
-        self.advert.service_UUIDs = self.primary_services
+        self.advert.service_UUIDs = self.advertised_services
         if self.local_name:
             self.advert.local_name = self.local_name
         if self.appearance:
