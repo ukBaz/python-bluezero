@@ -35,7 +35,8 @@ class Peripheral:
         :param srv_id: integer between 0 & 9999 as unique reference
         :param uuid: The Bluetooth uuid number for this service
         :param primary: boolean for if this service is primary
-        :param advertised: boolean for if this service should be advertised, or None
+        :param advertised: boolean for if this service should be advertised, 
+        or None
 
         """
         if advertised is None:
