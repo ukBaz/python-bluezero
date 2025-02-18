@@ -1,10 +1,9 @@
-#  When using your Linux computer as a Bluetooth speaker the MediaPlayer
-#  interfaces allows you interact with the media player on the other end of
-#  the Bluetooth connection.
-#  e.g. the music player on your phone.
-#  This script displays information about the current track.
-#  Before you can run this scrip you have to pair and connect your audio
-#  source.
+# This script allows you to use your Linux computer as a Bluetooth speaker.
+# The MediaPlayer interface lets you interact with the media player on the
+# other end of the Bluetooth connection (e.g., the music player on your phone).
+# It displays information about the current track.
+# Before running this script, ensure you pair and connect your audio source.
+
 
 from bluezero.adapter import list_adapters, Adapter
 from bluezero import dbus_tools
@@ -84,7 +83,8 @@ def discover_devices(adapter_address):
     print("Scanning for nearby devices...")
 
     # Find managed devices and their addresses
-    dev_obj_path_list = filter_by_interface(dbus_tools.get_managed_objects(), constants.DEVICE_INTERFACE)
+    dev_obj_path_list = filter_by_interface(dbus_tools.get_managed_objects(),
+                                            constants.DEVICE_INTERFACE)
     dev_addr_list = list(map(dbus_tools.get_mac_addr_from_dbus_path, dev_obj_path_list))
 
     devices = []
@@ -116,7 +116,7 @@ def connect_to_device(adapter_address, device_address, retries=3, delay=5):
                     print(f"Successfully paired with {device_address}")
                 except Exception as e:
                     print(f"Pairing failed: {e}. Retrying... ({attempt + 1}/{retries})")
-                    print(f"Make sure you confirm pairing on computer and phone")
+                    print("Make sure you confirm pairing on computer and phone")
                     attempt += 1
                     time.sleep(delay)
                     continue
@@ -140,6 +140,7 @@ def connect_to_device(adapter_address, device_address, retries=3, delay=5):
             time.sleep(delay)
 
     print(f"Failed to connect to {device_address} after {retries} attempts.")
+
 
 def select_adapter():
     """ Prompt user to select a Bluetooth adapter """
@@ -185,11 +186,13 @@ if __name__ == '__main__':
 
             # Ask the user to select a device
             try:
-                choice = int(input("Enter the number of the device you want to connect to (or 0 to refresh): "))
+                choice = int(input("Enter the number of the device you want to connect to "
+                                   "(or 0 to refresh): "))
                 if choice == 0:
                     continue  # Refresh discovery if the user selects 0
                 selected_device = devices[choice - 1]  # Subtract 1 to match list index
-                print(f"Attempting to connect to {selected_device[0]} ({selected_device[1]})...")
+                print(f"Attempting to connect to {selected_device[0]} "
+                      f"({selected_device[1]})...")
                 connect_to_device(adapter_address, selected_device[1])
                 break  # Exit the loop after successful connection
             except (ValueError, IndexError):
