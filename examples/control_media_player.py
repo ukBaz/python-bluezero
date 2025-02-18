@@ -3,8 +3,6 @@
 # other end of the Bluetooth connection (e.g., the music player on your phone).
 # It displays information about the current track.
 # Before running this script, ensure you pair and connect your audio source.
-
-
 from bluezero.adapter import list_adapters, Adapter
 from bluezero import dbus_tools
 from bluezero.device import Device
@@ -14,7 +12,8 @@ import time
 
 
 def filter_by_interface(objects, interface_name):
-    """ filters the objects based on their support for the specified interface """
+    """ filters the objects based on their support for
+        the specified interface """
     object_paths = []
     for path in objects.keys():
         interfaces = objects[path]
@@ -26,7 +25,7 @@ def filter_by_interface(objects, interface_name):
 
 def filter_audio_devices(objects):
     """ Filters devices that support the A2DP audio profile (AudioSink) """
-    audio_interface = 'org.freedesktop.DBus.Properties'  # Check this interface for supported profiles
+    audio_interface = 'org.freedesktop.DBus.Properties'
     audio_devices = filter_by_interface(objects, audio_interface)
 
     audio_sink_devices = []
@@ -41,7 +40,8 @@ def filter_audio_devices(objects):
 def ctrl_media_player(media_player):
     print("Make sure you are using a media player on your phone and "
           "have selected a track...")
-    print("To interact with the Media Player, choose the corresponding number:")
+    print("To interact with the Media Player, "
+          "choose the corresponding number:")
     print("1. Play")
     print("2. Pause")
     print("3. Previous")
@@ -51,7 +51,7 @@ def ctrl_media_player(media_player):
 
     while True:
         try:
-            command = int(input("Enter a number (1-6): "))  # Get number input
+            command = int(input("Enter a number (1-6): "))
 
             if command == 1:
                 media_player.play()
@@ -70,7 +70,8 @@ def ctrl_media_player(media_player):
                 print("Ending media control.")
                 break
             else:
-                print("Invalid choice. Please select a number between 1 and 6.")
+                print("Invalid choice. Please select a number "
+                      "between 1 and 6.")
 
         except ValueError:
             print("Invalid input. Please enter a number between 1 and 6.")
@@ -85,7 +86,8 @@ def discover_devices(adapter_address):
     # Find managed devices and their addresses
     dev_obj_path_list = filter_by_interface(dbus_tools.get_managed_objects(),
                                             constants.DEVICE_INTERFACE)
-    dev_addr_list = list(map(dbus_tools.get_mac_addr_from_dbus_path, dev_obj_path_list))
+    dev_addr_list = list(
+        map(dbus_tools.get_mac_addr_from_dbus_path, dev_obj_path_list))
 
     devices = []
     for addr in dev_addr_list:
@@ -112,11 +114,14 @@ def connect_to_device(adapter_address, device_address, retries=3, delay=5):
             if remote_device.paired != 1:
                 print(f"Pairing with {device_address}...")
                 try:
-                    remote_device.pair()  # Attempt to pair without timeout argument
+                    remote_device.pair()
                     print(f"Successfully paired with {device_address}")
                 except Exception as e:
-                    print(f"Pairing failed: {e}. Retrying... ({attempt + 1}/{retries})")
-                    print("Make sure you confirm pairing on computer and phone")
+                    print(
+                        f"Pairing failed: {e}. Retrying... "
+                        f"({attempt + 1}/{retries})")
+                    print("Make sure you confirm pairing "
+                          "on computer and phone")
                     attempt += 1
                     time.sleep(delay)
                     continue
@@ -128,7 +133,6 @@ def connect_to_device(adapter_address, device_address, retries=3, delay=5):
 
             # Wait for the media player to be ready
             time.sleep(10)
-
             # Initialize the media player and control it
             mp = MediaPlayer(device_address)
             ctrl_media_player(mp)
@@ -166,8 +170,10 @@ def select_adapter():
 
 
 if __name__ == '__main__':
-    """ This script assumes that your remote device has its Bluetooth function on.
-    It will list the nearby devices and let the user choose which one to connect to. """
+    """ This script assumes that your remote
+    device has its Bluetooth function on.
+    It will list the nearby devices and let the user
+    choose which one to connect to. """
 
     adapter_address = select_adapter()  # Select a Bluetooth adapter
 
@@ -186,11 +192,14 @@ if __name__ == '__main__':
 
             # Ask the user to select a device
             try:
-                choice = int(input("Enter the number of the device you want to connect to "
-                                   "(or 0 to refresh): "))
+                choice = int(
+                    input(
+                        "Enter the number of the device you "
+                        "want to connect to (or 0 to refresh): "))
                 if choice == 0:
                     continue  # Refresh discovery if the user selects 0
-                selected_device = devices[choice - 1]  # Subtract 1 to match list index
+                # Subtract 1 to match list index
+                selected_device = devices[choice - 1]
                 print(f"Attempting to connect to {selected_device[0]} "
                       f"({selected_device[1]})...")
                 connect_to_device(adapter_address, selected_device[1])
@@ -201,6 +210,7 @@ if __name__ == '__main__':
             print("No nearby devices found.")
 
         # Ask if the user wants to refresh discovery or exit
-        refresh = input("Do you want to refresh device discovery? (y/n): ").strip().lower()
+        refresh = input(
+            "Do you want to refresh device discovery? (y/n): ").strip().lower()
         if refresh != 'y':
             break
