@@ -33,9 +33,7 @@ Release Checklist
 
 * Check tests are passing (run_local_tests.sh)
 * Update version info (see `Update Version Info`_)
-* Build and publish PyPI package (see `Build PyPI package`_)
-* Check PyPI page for obvious errors
-* ``git tag`` with version number
+* push tag to GitHub `git push origin tag vx.x.x`
 * Check read the docs page
 
 Update Version Info
@@ -52,19 +50,6 @@ following example the version is being updated for a patch.
 .. code-block::
 
     bumpversion patch setup.py
-
-
-Build PyPI package
-------------------
-
-Update version information in setup.py.
-
-To upload to PyPI:
-
-.. code-block::
-
-    python3 setup.py bdist_wheel sdist
-    twine upload dist/*
 
 
 Test Build of Documentation
