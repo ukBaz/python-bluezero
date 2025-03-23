@@ -1,6 +1,9 @@
 name: Publish Python distribution package to PyPI
 
-on: push
+on: 
+  release:
+    types: [created]
+
 
 jobs:
   build:
@@ -31,7 +34,6 @@ jobs:
         
   pypi-publish:
     name: Upload release to PyPI
-    if: startsWith(github.ref, 'refs/tags/')  # only publish to PyPI on tag pushes
     needs:
     - build
     runs-on: ubuntu-latest
