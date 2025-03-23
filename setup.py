@@ -13,7 +13,7 @@ from os import path
 
 here = path.abspath(path.dirname(__file__))
 
-required_packages = ['PyGObject']
+required_packages = ['PyGObject<3.52.0']
 extras_rel = ['bumpversion', 'twine']
 extras_doc = ['sphinx', 'sphinx_rtd_theme']
 extras_test = ['coverage', 'pycodestyle', 'python-dbusmock']
