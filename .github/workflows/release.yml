@@ -3,7 +3,7 @@ name: Publish Python distribution package to PyPI
 on: 
   release:
     types: [created]
-
+  workflow_dispatch:
 
 jobs:
   build:
